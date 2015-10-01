@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <WindowTitle>Not Tetris</WindowTitle>
+  <Difficulty>Easy</Difficulty>
+  <BlockDropSpeed>120</BlockDropSpeed>
+  <PlayTime>3</PlayTime>
+  <PlayfieldSize>9</PlayfieldSize>
+
+  <Player1Start>Enter</Player1Start>
+  <Player1Left>Left</Player1Left>
+  <Player1Right>Right</Player1Right>
+  <Player1Down>Down</Player1Down>
+  <Player1Rotate>RightControl</Player1Rotate>
+  <Player2Start>T</Player2Start>
+  <Player2Left>A</Player2Left>
+  <Player2Right>D</Player2Right>
+  <Player2Down>S</Player2Down>
+  <Player2Rotate>G</Player2Rotate>
+
+  <score>
+    <int>10000</int>
+    <int>1000</int>
+    <int>100</int>
+    <int>10</int>
+    <int>1</int>
+  </score>
+
+</Settings>
