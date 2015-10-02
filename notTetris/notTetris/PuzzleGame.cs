@@ -218,6 +218,8 @@ namespace NotTetris
                 UnloadContent();
                 Exit();
             }
+
+            GC.Collect();
         }
         #endregion
 
