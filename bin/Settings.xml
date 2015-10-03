@@ -16,10 +16,10 @@
   <Player2Down>S</Player2Down>
   <Player2Rotate>G</Player2Rotate>
   <score>
-    <int>20578</int>
     <int>10000</int>
     <int>1000</int>
     <int>100</int>
     <int>10</int>
+    <int>1</int>
   </score>
 </Settings>
