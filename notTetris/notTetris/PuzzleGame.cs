@@ -36,7 +36,7 @@ namespace NotTetris
             content = new ContentManager(Services);
             graphics.PreferredBackBufferWidth = WINDOWWIDTH;
             graphics.PreferredBackBufferHeight = WINDOWHEIGHT;
-            graphics.SynchronizeWithVerticalRetrace = false;
+            graphics.SynchronizeWithVerticalRetrace = true;
             currentScreen = new MainMenu();
             currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
         }
@@ -118,14 +118,15 @@ namespace NotTetris
             base.Update(gameTime);
         }
 
+        int count = 0;
+        double time = 0;
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            graphics.GraphicsDevice.Clear(Color.Cyan);
-
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
             currentScreen.Draw(gameTime);
             spriteBatch.End();
@@ -137,6 +138,7 @@ namespace NotTetris
 
         private void ChangeScreen(ScreenType type)
         {
+            spriteBatch.Dispose();
             if (currentScreen is SettingsMenu)
                 settings.Save(SETTINGSPATH);
 
