@@ -94,27 +94,25 @@ namespace NotTetris.GameScreens
                 timer.TextValue = "Time played: " + time.Minutes.ToString() + ":" + time.Seconds.ToString();
             }
 
+            if (!isStarted)
+            {
+                if (newState.IsKeyDown(settings.Player1Start) && oldState.IsKeyUp(settings.Player1Start))
+                {
+                    playerOneField.StartGame();
+                    isStarted = true;
+                    startText.IsShowing = false;
+                }
+            }
+
             if (!playerOneField.ControlsLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     playerOneField.RotateCluster();
-
                 else if (newState.IsKeyDown(settings.Player1Left) && oldState.IsKeyUp(settings.Player1Left))
                     playerOneField.MoveClusterLeft();
-
                 else if (newState.IsKeyDown(settings.Player1Right) && oldState.IsKeyUp(settings.Player1Right))
                     playerOneField.MoveClusterRight();
-                else if (newState.IsKeyDown(settings.Player1Start) && oldState.IsKeyUp(settings.Player1Start))
-                {
-                    if (!isStarted)
-                    {
-                        playerOneField.StartGame();
-                        isStarted = true;
-                        startText.IsShowing = false;
-                    }
-                }
-
-                if (newState.IsKeyDown(settings.Player1Down))
+                else if (newState.IsKeyDown(settings.Player1Down))
                     playerOneField.MoveClusterDown();
             }
 

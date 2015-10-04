@@ -21,6 +21,7 @@ namespace NotTetris.GameScreens
         bool p1Won;
         TimeSpan timeLimit;
         Text timer;
+        bool isStarted;
 
         public TwoPlayerGame(Settings settings)
         {
@@ -36,6 +37,7 @@ namespace NotTetris.GameScreens
         {
             base.Initialize(spriteBatch, settings);
 
+            isStarted = false;
             playerOneField.Initialize(spriteBatch, settings.Difficulty);
             playerOneField.IsShowing = true;
             System.Threading.Thread.Sleep(10);
@@ -92,21 +94,32 @@ namespace NotTetris.GameScreens
 
             if (newState.IsKeyDown(Keys.Pause) && oldState.IsKeyUp(Keys.Pause))
             {
-                if (playerOneField.IsPaused)
+                if (isStarted)
                 {
-                    playerOneField.IsPaused = false;
-                    playerTwoField.IsPaused = false;
-                    pauseImage.IsShowing = false;
-                }
-                else
-                {
-                    playerOneField.IsPaused = true;
-                    playerTwoField.IsPaused = true;
-                    pauseImage.IsShowing = true;
-                    time.Add(gameTime.ElapsedGameTime);
+                    if (playerOneField.IsPaused)
+                    {
+                        playerOneField.UnPause();
+                        playerTwoField.UnPause();
+                        pauseImage.IsShowing = false;
+                    }
+                    else
+                    {
+                        playerOneField.Pause();
+                        playerTwoField.Pause();
+                        pauseImage.IsShowing = true;
+                        time.Add(gameTime.ElapsedGameTime);
+                    }
                 }
             }
             #endregion
+
+            if (!isStarted)
+                if (newState.IsKeyDown(settings.Player1Start) && oldState.IsKeyUp(settings.Player1Start))
+                {
+                    isStarted = true;
+                    playerOneField.StartGame();
+                    playerTwoField.StartGame();
+                }
 
             #region Player 1 Controls
             if (!playerOneField.ControlsLocked)
@@ -119,12 +132,6 @@ namespace NotTetris.GameScreens
 
                 else if (newState.IsKeyDown(settings.Player1Right) && oldState.IsKeyUp(settings.Player1Right))
                     playerOneField.MoveClusterRight();
-
-                else if (newState.IsKeyDown(settings.Player1Start) && oldState.IsKeyUp(settings.Player1Start))
-                {
-                    playerOneField.StartGame();
-                    playerTwoField.StartGame();
-                }
 
                 if (newState.IsKeyDown(settings.Player1Down))
                     playerOneField.MoveClusterDown();

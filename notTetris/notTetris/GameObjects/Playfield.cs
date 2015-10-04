@@ -78,6 +78,7 @@ namespace NotTetris.GameObjects
         public void Initialize(SpriteBatch spriteBatch, string difficulty)
         {
             this.spriteBatch = spriteBatch;
+            ControlsLocked = true;
             IsPaused = true;
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.playfieldbackground_yellow;
@@ -142,9 +143,9 @@ namespace NotTetris.GameObjects
                     if (ClearUpBlocks())
                         ReleaseBlocks();
 
-                    CheckForClusterCollision();
-
                     UpdateClusters(gameTime);
+
+                    CheckForClusterCollision();
 
                     UpdateBlocks(gameTime);
 
@@ -172,21 +173,11 @@ namespace NotTetris.GameObjects
         {
             foreach (Block block in blocks)
                 if (block != null)
-                {
-                    block.Update(gameTime);
-
                     if (block.IsMoving)
                     {
-                        int posX = GridPositionX(block.Position);
-                        int posY = GridPositionY(block.Position);
-
-                        if (CheckForBlockCollision(block))
-                        {
-                            block.Attach(new Vector2(block.Position.X, position.Y + 0.5f * Height - (posY + 0.5f) * blockSize + 0.001f));
-                            staticBlocks[posX, posY] = block;
-                        }
+                        block.Update(gameTime);
+                        CheckForBlockCollision(block);
                     }
-                }
         }
 
         /// <summary>
@@ -300,20 +291,38 @@ namespace NotTetris.GameObjects
         private void CheckForClusterCollision()
         {
             if (currentCluster.IsMoving)
-                if (CheckForBlockCollision(currentCluster.FirstBlock) || CheckForBlockCollision(currentCluster.SecondBlock))
+                if (BlockHasCollided(currentCluster.FirstBlock) || BlockHasCollided(currentCluster.SecondBlock))
                 {
                     ControlsLocked = true;
                     currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+                    CheckForBlockCollision(currentCluster.FirstBlock);
+                    CheckForBlockCollision(currentCluster.SecondBlock);
                     blocks.AddRange(currentCluster.Separate());
                 }
         }
 
         /// <summary>
-        /// Determines if a moving collides with the bottom or a static block.
+        /// Checks if a block collides with anything
+        /// </summary>
+        /// <param name="block"></param>
+        private void CheckForBlockCollision(Block block)
+        {
+            int posX = GridPositionX(block.Position);
+            int posY = GridPositionY(block.Position);
+
+            if (BlockHasCollided(block))
+            {
+                block.Attach(new Vector2(block.Position.X, position.Y + 0.5f * Height - (posY + 0.5f) * blockSize + 0.005f));
+                staticBlocks[posX, posY] = block;
+            }
+        }
+
+        /// <summary>
+        /// Determines if a moving block collides with the bottom or a static block.
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
-        private bool CheckForBlockCollision(Block block)
+        private bool BlockHasCollided(Block block)
         {
             int posX = GridPositionX(block.Position);
             int posY = GridPositionY(block.Position);
@@ -449,11 +458,13 @@ namespace NotTetris.GameObjects
         public void Pause()
         {
             IsPaused = true;
+            ControlsLocked = true;
         }
 
         public void UnPause()
         {
             IsPaused = false;
+            ControlsLocked = false;
         }
 
         public void EndGame()
