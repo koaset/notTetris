@@ -25,6 +25,8 @@ namespace NotTetris
         KeyboardState oldState;
         Settings settings;
 
+        public static Random r = new Random();
+
         private const string SETTINGSPATH = "Settings.xml";
         private const int WINDOWWIDTH = 1000;
         private const int WINDOWHEIGHT = 720;

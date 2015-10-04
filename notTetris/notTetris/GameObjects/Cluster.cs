@@ -44,7 +44,7 @@ namespace NotTetris.GameObjects
         }
         #endregion
 
-        static Random r = new Random();
+        
 
         Block firstBlock;
         Block secondBlock;
@@ -54,8 +54,8 @@ namespace NotTetris.GameObjects
 
         public Cluster(Vector2 position, float blockSize)
         {
-            firstBlock = new Block((BlockType)r.Next(0, 6), new Vector2(position.X, position.Y - blockSize / 2), blockSize);
-            secondBlock = new Block((BlockType)r.Next(0, 6), new Vector2(position.X, position.Y + blockSize / 2), blockSize);
+            firstBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y - blockSize / 2), blockSize);
+            secondBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y + blockSize / 2), blockSize);
             this.blockSize = blockSize;
         }
 

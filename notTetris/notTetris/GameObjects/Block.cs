@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using NotTetris.Graphics;
+using System;
 
 namespace NotTetris.GameObjects
 {
@@ -60,12 +61,6 @@ namespace NotTetris.GameObjects
             set { isDisposed = value; }
         }
 
-        public bool IsDisposing
-        {
-            get { return isDisposing; }
-            set { isDisposing = value; }
-        }
-
         public bool WillBeChecked
         {
             get { return willBeChecked; }
@@ -77,6 +72,8 @@ namespace NotTetris.GameObjects
             get { return position; }
             set { position = value; }
         }
+
+        public float Rotation { get; set; }
 
         public bool ShouldDrop { get; set; }
         #endregion
@@ -90,7 +87,6 @@ namespace NotTetris.GameObjects
         BlockType type;
         private bool isCleared;
         private bool isDisposed;
-        private bool isDisposing;
         private bool willBeChecked;
         Vector2 position;
         Vector2 scale;
@@ -109,6 +105,7 @@ namespace NotTetris.GameObjects
             dropSpeed = 1f;
             willBeChecked = false;
             ShouldDrop = false;
+            Rotation = 0.0f;
         }
 
         public void Update(GameTime gameTime)
@@ -133,6 +130,7 @@ namespace NotTetris.GameObjects
         {
             isExploding = true;
             isCleared = true;
+            Rotation = (float)(PuzzleGame.r.NextDouble() * 2.0f * Math.PI);
         }
 
         public void Dispose()
@@ -142,11 +140,11 @@ namespace NotTetris.GameObjects
             isMoving = false;
             position = Vector2.Zero;
             type = 0;
-            isDisposing = true;
         }
 
         public void Draw(GameTime gameTime, Image image)
         {
+            image.Rotation = Rotation;
             image.Position = Position;
             image.Draw(gameTime);
         }
