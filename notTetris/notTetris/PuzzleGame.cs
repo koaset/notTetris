@@ -120,9 +120,6 @@ namespace NotTetris
             base.Update(gameTime);
         }
 
-        int count = 0;
-        double time = 0;
-
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>

@@ -40,6 +40,9 @@ namespace NotTetris.GameObjects
         string difficulty;
         Image[] blockImages;
         Animation explosionAnimation;
+        Text largestComboText;
+        ScoreFloater scoreFloater;
+        int largestCombo;
 
         public float SpeedMultiplier { get; set; }
         public float BaseDropSpeed { get; set; }
@@ -49,7 +52,6 @@ namespace NotTetris.GameObjects
         public bool IsPaused { get; set; }
         public bool IsShowing { get; set; }
         public float GetScore { get { return scoreCounter.Score; } set { scoreCounter.Score = value; } }
-
 
         public Playfield(GameType gameType, float xPosition, int sizeX)
         {
@@ -64,6 +66,7 @@ namespace NotTetris.GameObjects
             backgroundImage = new Image();
             cutoffLine = new Image();
             scoreCounter = new ScoreCounter(new Vector2(xPosition - 150, 600));
+            scoreFloater = new ScoreFloater();
             this.position = new Vector2(xPosition, YPOSITION);
             scale = new Vector2(blockSize / Block.STANDARDSIZE);
             staticBlocks = new Block[sizeX, sizeY];
@@ -73,6 +76,7 @@ namespace NotTetris.GameObjects
             for (int i = 0; i < blockImages.Length; i++)
                 blockImages[i] = new Image();
             explosionAnimation = new Animation();
+            largestComboText = new Text();
         }
 
         public void Initialize(SpriteBatch spriteBatch, string difficulty)
@@ -117,8 +121,21 @@ namespace NotTetris.GameObjects
             explosionAnimation.IsLooped = false;
             explosionAnimation.TextureName = TextureNames.block_explosion;
 
+            scoreFloater.Initialize();
+            scoreFloater.Interval = explosionAnimation.NumFrames / explosionAnimation.FramesPerSecond; 
+
+            largestComboText.Initialize();
+            largestComboText.Font = FontNames.Segoe_UI_Mono;
+            largestComboText.Position = scoreCounter.Position + new Vector2(0.0f, 50f);
+            largestComboText.TextColor = Color.MediumSlateBlue;
+            largestComboText.Layer = 0.9f;
+            largestComboText.IsCentered = false;
+            largestComboText.Spacing = 6;
+            largestComboText.TextValue = "Max Combo: " + largestCombo;
+
             CreateNextCluster();
             SpeedMultiplier = 1;
+            largestCombo = 0;
             
             this.difficulty = difficulty;
         }
@@ -128,6 +145,8 @@ namespace NotTetris.GameObjects
             backgroundImage.LoadContent(spriteBatch);
             cutoffLine.LoadContent(spriteBatch);
             scoreCounter.LoadContent(spriteBatch);
+            scoreFloater.LoadContent(spriteBatch);
+            largestComboText.LoadContent(spriteBatch);
 
             for (int i = 0; i < blockImages.Length; i++)
                 blockImages[i].LoadContent(spriteBatch);
@@ -160,7 +179,12 @@ namespace NotTetris.GameObjects
                     }
                 }
                 else
+                {
                     UpdateExplosion(gameTime);
+                    scoreFloater.Update(gameTime);
+                }
+
+                
             }
         }
 
@@ -192,6 +216,7 @@ namespace NotTetris.GameObjects
                 foreach (Block block in explodingBlocks)
                     block.Dispose();
                 explosionAnimation.Stop();
+                scoreFloater.Stop();
             }
         }
 
@@ -383,10 +408,22 @@ namespace NotTetris.GameObjects
             ControlsLocked = true;
             explosionAnimation.Play();
 
+            float oldScore = scoreCounter.Score;
+            Vector2 avgPos = Vector2.Zero;
             foreach (Block clearedBlock in connectedBlocks)
+            {
+                avgPos += clearedBlock.Position;
                 ExplodeAndScore(clearedBlock);
+            }
+            avgPos /= connectedBlocks.Count;
+            scoreFloater.Start(scoreCounter.Score - oldScore, avgPos);
 
             scoreMultiplier++;
+            if (scoreMultiplier > largestCombo)
+            {
+                largestCombo = scoreMultiplier - 1;
+                largestComboText.TextValue = "Max Combo: " + largestCombo;
+            }
 
             if (difficulty == "Easy")
                 SpeedMultiplier *= 1.01f;
@@ -603,6 +640,8 @@ namespace NotTetris.GameObjects
                 backgroundImage.Draw(gameTime);
                 cutoffLine.Draw(gameTime);
                 scoreCounter.Draw(gameTime);
+                scoreFloater.Draw(gameTime);
+                largestComboText.Draw(gameTime);
 
                 if (currentCluster != null)
                 {

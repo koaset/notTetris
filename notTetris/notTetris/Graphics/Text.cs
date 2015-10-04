@@ -70,12 +70,6 @@ namespace NotTetris.Graphics
             set { font = value; }
         }
 
-        public int LineSpacing
-        {
-            get { return lineSpacing; }
-            set { lineSpacing = value; }
-        }
-
         public float Spacing
         {
             get { return spacing; }
@@ -83,23 +77,22 @@ namespace NotTetris.Graphics
         }
         #endregion
 
-        SpriteFont spriteFont;
-        SpriteBatch spriteBatch;
-        Vector2 origin;
-        string text;
-        bool isShowing;
-        bool isCentered;
-        Vector2 position;
-        Vector2 scale;
-        float rotation;
-        Color color;
-        SpriteEffects effects;
-        float layer;
-        FontNames font;
-        int lineSpacing;
-        float spacing;
+        protected SpriteFont spriteFont;
+        protected SpriteBatch spriteBatch;
+        protected Vector2 origin;
+        protected string text;
+        protected bool isShowing;
+        protected bool isCentered;
+        protected Vector2 position;
+        protected Vector2 scale;
+        protected float rotation;
+        protected Color color;
+        protected SpriteEffects effects;
+        protected float layer;
+        protected FontNames font;
+        protected float spacing;
 
-        public void Initialize()
+        public virtual void Initialize()
         {
             text = "Placeholder";
             isShowing = true;
@@ -120,7 +113,7 @@ namespace NotTetris.Graphics
             origin = spriteFont.MeasureString(text);
         }
 
-        public void Draw(GameTime gameTime)
+        public virtual void Draw(GameTime gameTime)
         {
 
             spriteFont.Spacing = spacing;

@@ -4,7 +4,7 @@
   <Difficulty>Easy</Difficulty>
   <BlockDropSpeed>120</BlockDropSpeed>
   <PlayTime>3</PlayTime>
-  <PlayfieldSize>9</PlayfieldSize>
+  <PlayfieldSize>7</PlayfieldSize>
   <Player1Start>Enter</Player1Start>
   <Player1Left>Left</Player1Left>
   <Player1Right>Right</Player1Right>
