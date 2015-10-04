@@ -21,17 +21,14 @@ namespace NotTetris.Graphics
 
         public override void Draw(GameTime gameTime)
         {
-            spriteFont.Spacing = spacing;
-            if (isCentered)
-                origin = spriteFont.MeasureString(text) / 2;
-            else
-                origin = Vector2.Zero;
-
+            base.Draw(gameTime);
+            layer -= 0.01f;
             DrawAtOffset(new Vector2(OutlineSize, OutlineSize));
             DrawAtOffset(new Vector2(OutlineSize, -OutlineSize));
             DrawAtOffset(new Vector2(-OutlineSize, OutlineSize));
             DrawAtOffset(new Vector2(-OutlineSize, -OutlineSize));
-            base.Draw(gameTime);
+            layer += 0.01f;
+            
         }
 
         private void DrawAtOffset(Vector2 offset)

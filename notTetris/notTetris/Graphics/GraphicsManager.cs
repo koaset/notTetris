@@ -11,16 +11,7 @@ namespace NotTetris.Graphics
     public enum TextureNames
     {
         mouse_cursor,
-        button_oneplayer,
-        button_twoplayer,
-        button_settings,
-        button_exit,
-        button_ok,
-        button_cancel,
-        button_difficulty,
-        button_highscore,
         button_increase,
-        button_back,
         game_background,
         game_paused,
         playfieldbackground_yellow,
@@ -39,22 +30,14 @@ namespace NotTetris.Graphics
     public enum FontNames
     {
         Segoe_UI_Mono,
+        Segoe_UI_Mono_Large,
     }
 
     class GraphicsManager
     {
         private static string[] texturePaths = {
             @"Content\Textures\mouse_cursor",
-            @"Content\Textures\button_oneplayer",
-            @"Content\Textures\button_twoplayer",
-            @"Content\Textures\button_settings",
-            @"Content\Textures\button_exit",
-            @"Content\Textures\button_ok",
-            @"Content\Textures\button_cancel",
-            @"Content\Textures\button_changedifficulty",
-            @"Content\Textures\button_highscore",
             @"Content\Textures\button_increase",
-            @"Content\Textures\button_back",
             @"Content\Textures\game_background",
             @"Content\Textures\game_paused",
             @"Content\Textures\playfieldbackground_yellow",
@@ -72,6 +55,7 @@ namespace NotTetris.Graphics
 
         private static string[] fontPaths = {
             @"Content\Fonts\Segoe UI Mono",
+            @"Content\Fonts\Segoe UI Mono - Large",
         };
 
         private static Texture2D[] loadedTextures;

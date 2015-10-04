@@ -9,11 +9,11 @@ namespace NotTetris.GameScreens
     class MainMenu : GameScreen
     {
         Cursor cursor;
-        Button onePlayerGameButton;
-        Button twoPlayerGameButton;
-        Button settingsButton;
-        Button highscoreButton;
-        Button exitButton;
+        TextButton onePlayerGameButton;
+        TextButton twoPlayerGameButton;
+        TextButton settingsButton;
+        TextButton highscoreButton;
+        TextButton exitButton;
         Image backgroundImage;
         Image titleImage;
 
@@ -21,11 +21,11 @@ namespace NotTetris.GameScreens
         {
             cursor = new Cursor();
             backgroundImage = new Image();
-            onePlayerGameButton = new Button(ButtonType.OnePlayer, new Vector2(450, 200f));
-            twoPlayerGameButton = new Button(ButtonType.TwoPlayer, new Vector2(450f, 300f));
-            settingsButton = new Button(ButtonType.Settings, new Vector2(385, 500));
-            highscoreButton = new Button(ButtonType.HighScore, new Vector2(405, 400));
-            exitButton = new Button(ButtonType.Exit, new Vector2(350, 600));
+            onePlayerGameButton = new TextButton(TextButtonType.OnePlayer, new Vector2(300, 150f));
+            twoPlayerGameButton = new TextButton(TextButtonType.TwoPlayer, new Vector2(300f, 250f));
+            highscoreButton = new TextButton(TextButtonType.HighScore, new Vector2(300, 350));
+            settingsButton = new TextButton(TextButtonType.Settings, new Vector2(300, 450));
+            exitButton = new TextButton(TextButtonType.Exit, new Vector2(300, 550));
             titleImage = new Image();
         }
 

@@ -106,6 +106,11 @@ namespace NotTetris.Graphics
             font = FontNames.Segoe_UI_Mono;
         }
 
+        public Vector2 GetSize()
+        {
+            return spriteFont.MeasureString(TextValue) * scale;
+        }
+
         public void LoadContent(SpriteBatch spriteBatch)
         {
             this.spriteBatch = spriteBatch;

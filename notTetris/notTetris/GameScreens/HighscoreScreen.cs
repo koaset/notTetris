@@ -11,7 +11,7 @@ namespace NotTetris.GameScreens
     class HighscoreScreen : GameScreen
     {
         Image backgroundImage;
-        Button backButton;
+        TextButton backButton;
         Text header;
         Text[] highscores;
         Cursor cursor;
@@ -21,7 +21,7 @@ namespace NotTetris.GameScreens
             backgroundImage = new Image();
             header = new Text();
             highscores = new Text[5];
-            backButton = new Button(ButtonType.Back, new Vector2(100, 620));
+            backButton = new TextButton(TextButtonType.Back, new Vector2(100, 620));
             cursor = new Cursor();
         }
 
