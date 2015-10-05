@@ -25,6 +25,7 @@ namespace NotTetris.Graphics
         mainmenu_background,
         title,
         red_line,
+        popup_background,
     }
 
     public enum FontNames
@@ -51,6 +52,7 @@ namespace NotTetris.Graphics
             @"Content\Textures\mainmenu_background",
             @"Content\Textures\title",
             @"Content\Textures\red_line",
+            @"Content\Textures\popup_background",
         };
 
         private static string[] fontPaths = {

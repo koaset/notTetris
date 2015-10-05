@@ -9,8 +9,9 @@ namespace NotTetris.GameScreens
     class MainMenu : GameScreen
     {
         Cursor cursor;
-        TextButton onePlayerGameButton;
-        TextButton twoPlayerGameButton;
+        TextButton singleplayerButton;
+        TextButton splitscreenButton;
+        TextButton networkButton;
         TextButton settingsButton;
         TextButton highscoreButton;
         TextButton exitButton;
@@ -21,11 +22,12 @@ namespace NotTetris.GameScreens
         {
             cursor = new Cursor();
             backgroundImage = new Image();
-            onePlayerGameButton = new TextButton(TextButtonType.OnePlayer, new Vector2(300, 150f));
-            twoPlayerGameButton = new TextButton(TextButtonType.TwoPlayer, new Vector2(300f, 250f));
-            highscoreButton = new TextButton(TextButtonType.HighScore, new Vector2(300, 350));
-            settingsButton = new TextButton(TextButtonType.Settings, new Vector2(300, 450));
-            exitButton = new TextButton(TextButtonType.Exit, new Vector2(300, 550));
+            singleplayerButton = new TextButton(TextButtonType.Singleplayer, new Vector2(300f, 150f));
+            splitscreenButton = new TextButton(TextButtonType.Splitscreen, new Vector2(300f, 235));
+            networkButton = new TextButton(TextButtonType.Network, new Vector2(300f, 320));
+            highscoreButton = new TextButton(TextButtonType.HighScore, new Vector2(300, 405));
+            settingsButton = new TextButton(TextButtonType.Settings, new Vector2(300f, 490));
+            exitButton = new TextButton(TextButtonType.Exit, new Vector2(300f, 575));
             titleImage = new Image();
         }
 
@@ -47,10 +49,12 @@ namespace NotTetris.GameScreens
             titleImage.Position = new Vector2(230, 95);
             titleImage.Layer = 0.6f;
 
-            onePlayerGameButton.Initialize();
-            onePlayerGameButton.Click += new ButtonEventHandler(StartOnePlayerGame);
-            twoPlayerGameButton.Initialize();
-            twoPlayerGameButton.Click += new ButtonEventHandler(StartTwoPlayerGame);
+            singleplayerButton.Initialize();
+            singleplayerButton.Click += new ButtonEventHandler(StartOnePlayerGame);
+            splitscreenButton.Initialize();
+            splitscreenButton.Click += new ButtonEventHandler(StartTwoPlayerGame);
+            networkButton.Initialize();
+            networkButton.Click += new ButtonEventHandler(StartNetworkGame);
             settingsButton.Initialize();
             settingsButton.Click += new ButtonEventHandler(StartSettings);
             highscoreButton.Initialize();
@@ -63,12 +67,17 @@ namespace NotTetris.GameScreens
 
         private void StartOnePlayerGame(object o, EventArgs e)
         {
-            NewScreen(ScreenType.OnePlayerGame);
+            NewScreen(ScreenType.SingleplayerGame);
         }
 
         private void StartTwoPlayerGame(object o, EventArgs e)
         {
-            NewScreen(ScreenType.TwoPlayerGame);
+            NewScreen(ScreenType.SplitscreenGame);
+        }
+
+        private void StartNetworkGame(object o, EventArgs e)
+        {
+            NewScreen(ScreenType.NetworkGame);
         }
 
         private void StartSettings(object o, EventArgs e)
@@ -91,8 +100,9 @@ namespace NotTetris.GameScreens
         {
             cursor.LoadContent(spriteBatch);
             backgroundImage.LoadContent(spriteBatch);
-            onePlayerGameButton.LoadContent(spriteBatch);
-            twoPlayerGameButton.LoadContent(spriteBatch);
+            singleplayerButton.LoadContent(spriteBatch);
+            splitscreenButton.LoadContent(spriteBatch);
+            networkButton.LoadContent(spriteBatch);
             settingsButton.LoadContent(spriteBatch);
             highscoreButton.LoadContent(spriteBatch);
             exitButton.LoadContent(spriteBatch);
@@ -103,8 +113,9 @@ namespace NotTetris.GameScreens
         {
             cursor.Update();
             backgroundImage.Update(gameTime);
-            onePlayerGameButton.Update(gameTime);
-            twoPlayerGameButton.Update(gameTime);
+            singleplayerButton.Update(gameTime);
+            splitscreenButton.Update(gameTime);
+            networkButton.Update(gameTime);
             settingsButton.Update(gameTime);
             highscoreButton.Update(gameTime);
             exitButton.Update(gameTime);
@@ -115,8 +126,9 @@ namespace NotTetris.GameScreens
         {
             cursor.Draw(gameTime);
             backgroundImage.Draw(gameTime);
-            onePlayerGameButton.Draw(gameTime);
-            twoPlayerGameButton.Draw(gameTime);
+            singleplayerButton.Draw(gameTime);
+            splitscreenButton.Draw(gameTime);
+            networkButton.Draw(gameTime);
             settingsButton.Draw(gameTime);
             highscoreButton.Draw(gameTime);
             exitButton.Draw(gameTime);

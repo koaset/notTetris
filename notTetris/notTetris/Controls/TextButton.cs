@@ -12,8 +12,9 @@ namespace NotTetris.Controls
     #region ButtonType Enum
     public enum TextButtonType
     {
-        OnePlayer,
-        TwoPlayer,
+        Singleplayer,
+        Splitscreen,
+        Network,
         Ok,
         Cancel,
         Settings,
@@ -21,6 +22,9 @@ namespace NotTetris.Controls
         ChangeDifficulty,
         HighScore,
         Back,
+        IP,
+        Host,
+        Connect,
     }
     #endregion
 
@@ -59,18 +63,20 @@ namespace NotTetris.Controls
             buttonText.TextColor = Color.Yellow;
             buttonText.OutlineColor = Color.Black;
             buttonText.Position = position;
-            buttonText.Layer = 0.8f;
+            buttonText.Layer = 0.7f;
             buttonText.OutlineSize = 1.0f;
 
             #region Set Text
-            if (type == TextButtonType.OnePlayer)
-                buttonText.TextValue = "One Player Game";
+            if (type == TextButtonType.Singleplayer)
+                buttonText.TextValue = "Single Player Game";
             else if (type == TextButtonType.Cancel)
                 buttonText.TextValue = "Cancel";
             else if (type == TextButtonType.Ok)
                 buttonText.TextValue = "Ok";
-            else if (type == TextButtonType.TwoPlayer)
-                buttonText.TextValue = "Two Player Game";
+            else if (type == TextButtonType.Network)
+                buttonText.TextValue = "Network Game";
+            else if (type == TextButtonType.Splitscreen)
+                buttonText.TextValue = "Split Screen Game";
             else if (type == TextButtonType.Settings)
                 buttonText.TextValue = "Settings";
             else if (type == TextButtonType.Exit)
@@ -84,14 +90,24 @@ namespace NotTetris.Controls
                 buttonText.TextValue = "High Score";
             else if (type == TextButtonType.Back)
                 buttonText.TextValue = "Back";
+            else if (type == TextButtonType.IP)
+            {
+                buttonText.TextValue = "Change target IP";
+                buttonText.Scale = new Vector2(0.75f);
+            }
+            else if (type == TextButtonType.Host)
+            {
+                buttonText.TextValue = "Host Game";
+                buttonText.Scale = new Vector2(0.75f);
+            }
+            else if (type == TextButtonType.Connect)
+            {
+                buttonText.TextValue = "Connect to IP";
+                buttonText.Scale = new Vector2(0.75f);
+            }
             #endregion
 
-            //Todo: set size for all buttontypes
-            size = new Vector2(250f, 50f);
-
             SetState(ButtonState.Normal);
-
-            
         }
 
         public void LoadContent(SpriteBatch spriteBatch)

@@ -102,9 +102,6 @@ namespace NotTetris
             {
                 KeyboardState newState = Keyboard.GetState();
 
-                if (newState.IsKeyDown(Keys.Escape))
-                    Exit();
-
                 if (newState.IsKeyDown(Keys.LeftAlt) && newState.IsKeyDown(Keys.Enter) && oldState.IsKeyUp(Keys.Enter))
                     graphics.ToggleFullScreen();
 
@@ -145,65 +142,32 @@ namespace NotTetris
                 settings.Save(SETTINGSPATH);
 
             if (type == ScreenType.MainMenu)
-            {
                 currentScreen = new MainMenu();
-                currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
-                spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-                currentScreen.Initialize(spriteBatch, settings);
-                currentScreen.LoadContent();
-            }
-
-            if (type == ScreenType.OnePlayerGame)
-            {
-                currentScreen = new OnePlayerGame(settings);
-                currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
-                spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-                currentScreen.Initialize(spriteBatch, settings);
-                currentScreen.LoadContent();
-            }
-
-            if (type == ScreenType.TwoPlayerGame)
-            {
-                currentScreen = new TwoPlayerGame(settings);
-                currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
-                spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-                currentScreen.Initialize(spriteBatch, settings);
-                currentScreen.LoadContent();
-            }
-
-            if (type == ScreenType.ResultsScreen)
+            else if (type == ScreenType.SingleplayerGame)
+                currentScreen = new SinglePlayerGame(settings);
+            else if (type == ScreenType.SplitscreenGame)
+                currentScreen = new SplitScreenGame(settings);
+            else if (type == ScreenType.NetworkGame)
+                currentScreen = new NetworkGameSetup();
+            else if (type == ScreenType.ResultsScreen)
             {
                 Results r = currentScreen.GetResults();
                 currentScreen = new ResultsScreen(r);
-                currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
-                spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-                currentScreen.Initialize(spriteBatch, settings);
-                currentScreen.LoadContent();
             }
-
-            if (type == ScreenType.SettingsMenu)
-            {
+            else if (type == ScreenType.SettingsMenu)
                 currentScreen = new SettingsMenu();
-                currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
-                spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-                currentScreen.Initialize(spriteBatch, settings);
-                currentScreen.LoadContent();
-            }
-
-            if (type == ScreenType.HighscoreScreen)
-            {
+            else if (type == ScreenType.HighscoreScreen)
                 currentScreen = new HighscoreScreen();
-                currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
-                spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-                currentScreen.Initialize(spriteBatch, settings);
-                currentScreen.LoadContent();
-            }
-
-            if (type == ScreenType.Exit)
+            else if (type == ScreenType.Exit)
             {
                 UnloadContent();
                 Exit();
             }
+
+            currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
+            spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
+            currentScreen.Initialize(spriteBatch, settings);
+            currentScreen.LoadContent();
 
             GC.Collect();
         }

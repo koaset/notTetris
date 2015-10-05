@@ -10,22 +10,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameScreens
 {
-    class TwoPlayerGame : GameScreen
+    class SplitScreenGame : GameScreen
     {
         Playfield playerOneField;
         Playfield playerTwoField;
         Image backgroundImage;
         Image pauseImage;
-        KeyboardState oldState;
         TimeSpan time;
         bool p1Won;
         TimeSpan timeLimit;
         Text timer;
         bool isStarted;
 
-        public TwoPlayerGame(Settings settings)
+        public SplitScreenGame(Settings settings)
         {
-
             playerOneField = new Playfield(GameType.Normal, new Vector2(780f, 325f), settings.PlayfieldSize);
             playerTwoField = new Playfield(GameType.Normal, new Vector2(300f, 325f), settings.PlayfieldSize);
             backgroundImage = new Image();

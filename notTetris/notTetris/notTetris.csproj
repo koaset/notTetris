@@ -86,6 +86,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\AnimationButton.cs" />
+    <Compile Include="Controls\Popup.cs" />
+    <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="Controls\TextboxPopup.cs" />
     <Compile Include="Controls\TextButton.cs" />
     <Compile Include="Controls\Cursor.cs" />
     <Compile Include="GameObjects\Block.cs" />
@@ -96,15 +99,17 @@
     <Compile Include="GameScreens\GameScreen.cs" />
     <Compile Include="GameScreens\HighscoreScreen.cs" />
     <Compile Include="GameScreens\MainMenu.cs" />
-    <Compile Include="GameScreens\OnePlayerGame.cs" />
+    <Compile Include="GameScreens\NetworkGameSetup.cs" />
+    <Compile Include="GameScreens\SinglePlayerGame.cs" />
     <Compile Include="GameScreens\ResultsScreen.cs" />
     <Compile Include="GameScreens\SettingsMenu.cs" />
-    <Compile Include="GameScreens\TwoPlayerGame.cs" />
+    <Compile Include="GameScreens\SplitScreenGame.cs" />
     <Compile Include="Graphics\Animation.cs" />
     <Compile Include="Graphics\GraphicsManager.cs" />
     <Compile Include="Graphics\Image.cs" />
     <Compile Include="Graphics\OutlineText.cs" />
     <Compile Include="Graphics\Text.cs" />
+    <Compile Include="Networking\Delegates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="PuzzleGame.cs" />

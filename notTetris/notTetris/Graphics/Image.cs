@@ -96,7 +96,7 @@ namespace NotTetris.Graphics
 
         public virtual void Update(GameTime gameTime){}
 
-        public void Draw(GameTime gameTime)
+        public virtual void Draw(GameTime gameTime)
         {
             if (isShowing)
                 this.spriteBatch.Draw(texture, position, source, color, rotation, origin, scale, effects, layer);

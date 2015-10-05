@@ -401,6 +401,9 @@ namespace NotTetris.GameObjects
             }
         }
 
+        /// <summary>
+        /// Explodes a chain of connected blocks
+        /// </summary>
         private void ExplodeChain()
         {
             ControlsLocked = true;

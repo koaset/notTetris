@@ -10,20 +10,18 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameScreens
 {
-    class OnePlayerGame : GameScreen
+    class SinglePlayerGame : GameScreen
     {
         Playfield playerOneField;
         Image backgroundImage;
         Image pauseImage;
         Text startText;
-        KeyboardState oldState;
         TimeSpan time;
         Text timer;
         bool isStarted;
 
-        public OnePlayerGame(Settings settings)
+        public SinglePlayerGame(Settings settings)
         {
-            //to do: read field grid size from settings
             playerOneField = new Playfield(GameType.Normal, new Vector2(500f, 325f), settings.PlayfieldSize);
             backgroundImage = new Image();
             pauseImage = new Image();

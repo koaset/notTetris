@@ -14,8 +14,9 @@ namespace NotTetris.GameScreens
     {
         Exit,
         MainMenu,
-        OnePlayerGame,
-        TwoPlayerGame,
+        SingleplayerGame,
+        SplitscreenGame,
+        NetworkGame,
         ResultsScreen,
         SettingsMenu,
         HighscoreScreen,
@@ -29,6 +30,7 @@ namespace NotTetris.GameScreens
         public event ChangeScreenEventHandler ChangeScreen;
         protected SpriteBatch spriteBatch;
         protected Settings settings;
+        protected KeyboardState oldState;
 
         public virtual void Initialize(SpriteBatch spriteBatch, Settings settings)
         {
