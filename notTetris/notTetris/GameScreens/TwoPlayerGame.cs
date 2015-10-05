@@ -26,8 +26,8 @@ namespace NotTetris.GameScreens
         public TwoPlayerGame(Settings settings)
         {
 
-            playerOneField = new Playfield(GameType.Normal, 780, settings.PlayfieldSize);
-            playerTwoField = new Playfield(GameType.Normal, 300, settings.PlayfieldSize);
+            playerOneField = new Playfield(GameType.Normal, new Vector2(780f, 325f), settings.PlayfieldSize);
+            playerTwoField = new Playfield(GameType.Normal, new Vector2(300f, 325f), settings.PlayfieldSize);
             backgroundImage = new Image();
             pauseImage = new Image();
             timer = new Text();
@@ -189,7 +189,7 @@ namespace NotTetris.GameScreens
             NewScreen(ScreenType.ResultsScreen);            
         }
 
-        public Results GetResults()
+        public override Results GetResults()
         {
             Results r = new Results();
 

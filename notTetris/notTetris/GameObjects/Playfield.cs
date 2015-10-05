@@ -18,13 +18,12 @@ namespace NotTetris.GameObjects
     {
         public event GameOverEventHandler GameOver;
 
-        const float YPOSITION = 325f;
-        const float YOFFSET = 100f;
-
         Vector2 position;
         SpriteBatch spriteBatch;
         Image backgroundImage;
         Image cutoffLine;
+        Image[] blockImages;
+        Animation explosionAnimation;
         ScoreCounter scoreCounter;
         float blockSize;
         Vector2 scale;
@@ -38,8 +37,6 @@ namespace NotTetris.GameObjects
         int scoreMultiplier;
         int maxBlocks;
         string difficulty;
-        Image[] blockImages;
-        Animation explosionAnimation;
         Text largestComboText;
         ScoreFloater scoreFloater;
         int largestCombo;
@@ -53,8 +50,9 @@ namespace NotTetris.GameObjects
         public bool IsShowing { get; set; }
         public float GetScore { get { return scoreCounter.Score; } set { scoreCounter.Score = value; } }
 
-        public Playfield(GameType gameType, float xPosition, int sizeX)
+        public Playfield(GameType gameType, Vector2 position, int sizeX)
         {
+            this.position = position;
             if (sizeX % 2 == 0)
                 sizeX--;
             blockSize = Width / sizeX;
@@ -65,9 +63,9 @@ namespace NotTetris.GameObjects
             explodingBlocks = new List<Block>();
             backgroundImage = new Image();
             cutoffLine = new Image();
-            scoreCounter = new ScoreCounter(new Vector2(xPosition - 150, 600));
+            
+            scoreCounter = new ScoreCounter();
             scoreFloater = new ScoreFloater();
-            this.position = new Vector2(xPosition, YPOSITION);
             scale = new Vector2(blockSize / Block.STANDARDSIZE);
             staticBlocks = new Block[sizeX, sizeY];
             startingColumn = (sizeX + 1) / 2;
@@ -90,10 +88,12 @@ namespace NotTetris.GameObjects
             backgroundImage.Size = new Vector2(Width + 20, Height + 20);
             cutoffLine.Initialize();
             cutoffLine.TextureName = TextureNames.red_line;
-            cutoffLine.Position = new Vector2(position.X, YPOSITION + Height * 0.5f - blockSize * (staticBlocks.GetLength(1) - 3));
+            cutoffLine.Position = new Vector2(position.X, position.Y + Height * 0.5f - blockSize * (staticBlocks.GetLength(1) - 3));
             cutoffLine.Size = new Vector2(Width, 2f);
             cutoffLine.Layer = 1.0f;
             scoreCounter.Initialize();
+            scoreCounter.Position = new Vector2(position.X - 150, (position.Y - 25f) * 2.0f);
+            
 
             for (int i = 0; i < blockImages.Length; i++)
             {
@@ -133,6 +133,7 @@ namespace NotTetris.GameObjects
             largestComboText.Spacing = 6;
             largestComboText.TextValue = "Max Combo: " + largestCombo;
 
+            currentCluster = new Cluster(new Vector2(-100f, -100f), blockSize);
             CreateNextCluster();
             SpeedMultiplier = 1;
             largestCombo = 0;
@@ -183,8 +184,6 @@ namespace NotTetris.GameObjects
                     UpdateExplosion(gameTime);
                     scoreFloater.Update(gameTime);
                 }
-
-                
             }
         }
 
@@ -301,7 +300,6 @@ namespace NotTetris.GameObjects
             {
                 foreach (Block block in explodingBlocks)
                 {
-                    block.IsDisposed = true;
                     blocks.Remove(block);
                 }
                 explodingBlocks.Clear();
@@ -642,12 +640,8 @@ namespace NotTetris.GameObjects
                 scoreCounter.Draw(gameTime);
                 scoreFloater.Draw(gameTime);
                 largestComboText.Draw(gameTime);
-
-                if (currentCluster != null)
-                {
-                    DrawBlock(currentCluster.FirstBlock, gameTime);
-                    DrawBlock(currentCluster.SecondBlock, gameTime);
-                }
+                DrawBlock(currentCluster.FirstBlock, gameTime);
+                DrawBlock(currentCluster.SecondBlock, gameTime);
                 DrawBlock(nextCluster.FirstBlock, gameTime);
                 DrawBlock(nextCluster.SecondBlock, gameTime);
 
@@ -658,7 +652,7 @@ namespace NotTetris.GameObjects
 
         private void DrawBlock(Block block, GameTime gameTime)
         {
-            if (block != null && !block.IsDisposed)
+            if (!block.IsDisposing)
                 block.Draw(gameTime, GetImage(block));
         }
 

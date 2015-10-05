@@ -11,12 +11,6 @@ namespace NotTetris.GameScreens
 {
     class ResultsScreen : GameScreen
     {
-        public Results SetResults
-        {
-            get { return results; }
-            set { results = value; }
-        }
-
         Image backGroundImage;
         Text gameoverText;
         Text infoText;
@@ -26,8 +20,9 @@ namespace NotTetris.GameScreens
         bool newHighscore;
         private Results results;
 
-        public ResultsScreen()
+        public ResultsScreen(Results results)
         {
+            this.results = results;
             backGroundImage = new Image();
             gameoverText = new Text();
             infoText = new Text();

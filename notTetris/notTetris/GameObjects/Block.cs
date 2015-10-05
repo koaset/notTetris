@@ -55,10 +55,10 @@ namespace NotTetris.GameObjects
             set { isCleared = value; }
         }
 
-        public bool IsDisposed
+        public bool IsDisposing
         {
-            get { return isDisposed; }
-            set { isDisposed = value; }
+            get { return isDisposing; }
+            set { isDisposing = value; }
         }
 
         public bool WillBeChecked
@@ -86,7 +86,7 @@ namespace NotTetris.GameObjects
         bool isMoving;
         BlockType type;
         private bool isCleared;
-        private bool isDisposed;
+        private bool isDisposing;
         private bool willBeChecked;
         Vector2 position;
         Vector2 scale;
@@ -135,6 +135,7 @@ namespace NotTetris.GameObjects
 
         public void Dispose()
         {
+            isDisposing = true;
             isExploding = false;
             isCleared = false;
             isMoving = false;

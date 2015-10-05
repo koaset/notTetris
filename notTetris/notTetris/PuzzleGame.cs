@@ -173,25 +173,10 @@ namespace NotTetris
 
             if (type == ScreenType.ResultsScreen)
             {
-
-                Results r = new Results();
-
-                if (currentScreen is OnePlayerGame)
-                {
-                    OnePlayerGame g = (OnePlayerGame)currentScreen;
-                    r = g.GetResults();
-                }
-                else if (currentScreen is TwoPlayerGame)
-                {
-                    TwoPlayerGame g = (TwoPlayerGame)currentScreen;
-                    r = g.GetResults();
-                }
-
-                currentScreen = new ResultsScreen();
+                Results r = currentScreen.GetResults();
+                currentScreen = new ResultsScreen(r);
                 currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
                 spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-                ResultsScreen rs = (ResultsScreen)currentScreen;
-                rs.SetResults = r;
                 currentScreen.Initialize(spriteBatch, settings);
                 currentScreen.LoadContent();
             }

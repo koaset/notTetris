@@ -48,6 +48,11 @@ namespace NotTetris.GameScreens
             args.ScreenType = type;
             ChangeScreen(this, args);
         }
+
+        public virtual Results GetResults()
+        {
+            return null;
+        }
     }
 
     public class ScreenEventArgs : EventArgs

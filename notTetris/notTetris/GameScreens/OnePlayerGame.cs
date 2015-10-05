@@ -24,7 +24,7 @@ namespace NotTetris.GameScreens
         public OnePlayerGame(Settings settings)
         {
             //to do: read field grid size from settings
-            playerOneField = new Playfield(GameType.Normal, 500f, settings.PlayfieldSize);
+            playerOneField = new Playfield(GameType.Normal, new Vector2(500f, 325f), settings.PlayfieldSize);
             backgroundImage = new Image();
             pauseImage = new Image();
             startText = new Text();
@@ -150,7 +150,7 @@ namespace NotTetris.GameScreens
             NewScreen(ScreenType.ResultsScreen);
         }
 
-        public Results GetResults()
+        public override Results GetResults()
         {
             Results r = new Results();
 

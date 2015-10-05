@@ -22,23 +22,17 @@ namespace NotTetris.GameObjects
 
         public Vector2 Position
         {
-            get { return position; }
-            set
-            {
-                position = value;
-                text.Position = position;
-            }
+            get { return text.Position; }
+            set { text.Position = value; }
         }
         #endregion
 
         Text text;
         private float score;
-        private Vector2 position;
 
-        public ScoreCounter(Vector2 position)
+        public ScoreCounter()
         {
             text = new Text();
-            this.position = position;
         }
 
         public void Initialize()
@@ -51,7 +45,7 @@ namespace NotTetris.GameObjects
             text.Layer = 0.5f;
             text.TextColor = Color.MediumSlateBlue;
             text.TextValue = "Score: " + score.ToString("F0");
-            text.Position = position;
+            text.Position = Vector2.Zero;
         }
 
         public void LoadContent(SpriteBatch spriteBatch)

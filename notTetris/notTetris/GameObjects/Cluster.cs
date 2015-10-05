@@ -158,7 +158,6 @@ namespace NotTetris.GameObjects
         {
             firstBlock.DropSpeed = speed;
             secondBlock.DropSpeed = speed;
-
         }
     }
 }
