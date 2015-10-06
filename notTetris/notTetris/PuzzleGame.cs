@@ -98,21 +98,17 @@ namespace NotTetris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (IsActive)
-            {
-                KeyboardState newState = Keyboard.GetState();
+            KeyboardState newState = Keyboard.GetState();
 
-                if (newState.IsKeyDown(Keys.LeftAlt) && newState.IsKeyDown(Keys.Enter) && oldState.IsKeyUp(Keys.Enter))
-                    graphics.ToggleFullScreen();
+            if (newState.IsKeyDown(Keys.LeftAlt) && newState.IsKeyDown(Keys.Enter) && oldState.IsKeyUp(Keys.Enter))
+                graphics.ToggleFullScreen();
 
-                if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
-                    ChangeScreen(ScreenType.MainMenu);
+            if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
+                ChangeScreen(ScreenType.MainMenu);
 
-                currentScreen.Update(gameTime);
+            currentScreen.Update(gameTime);
 
-                oldState = newState;
-            }
-
+            oldState = newState;
 
             base.Update(gameTime);
         }
@@ -147,8 +143,15 @@ namespace NotTetris
                 currentScreen = new SinglePlayerGame(settings);
             else if (type == ScreenType.SplitscreenGame)
                 currentScreen = new SplitScreenGame(settings);
-            else if (type == ScreenType.NetworkGame)
+            else if (type == ScreenType.NetworkGameSetup)
                 currentScreen = new NetworkGameSetup();
+            else if (type == ScreenType.HostScreen)
+                currentScreen = new HostScreen();
+            else if (type == ScreenType.ConnectionScreen)
+            {
+                string ip = currentScreen.ToString();
+                currentScreen = new ConnectionScreen(ip);
+            }
             else if (type == ScreenType.ResultsScreen)
             {
                 Results r = currentScreen.GetResults();

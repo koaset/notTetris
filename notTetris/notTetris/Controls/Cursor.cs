@@ -22,6 +22,7 @@ namespace NotTetris.Controls
             image.Layer = 0.9f;
             image.Size = new Vector2(14f, 28f);
             image.TextureName = TextureNames.mouse_cursor;
+            image.Position = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
         }
 
         public void LoadContent(SpriteBatch spriteBatch)

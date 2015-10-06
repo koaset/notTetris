@@ -17,9 +17,12 @@ namespace NotTetris.GameScreens
         SingleplayerGame,
         SplitscreenGame,
         NetworkGame,
+        NetworkGameSetup,
         ResultsScreen,
         SettingsMenu,
         HighscoreScreen,
+        HostScreen,
+        ConnectionScreen,
     }
     #endregion
 

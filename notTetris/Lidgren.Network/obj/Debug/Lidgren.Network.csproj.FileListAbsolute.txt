@@ -1,0 +1,6 @@
+D:\Google drive\Programmering\nottetris\notTetris\Lidgren.Network\bin\Debug\Lidgren.Network.XML
+D:\Google drive\Programmering\nottetris\notTetris\Lidgren.Network\bin\Debug\Lidgren.Network.dll
+D:\Google drive\Programmering\nottetris\notTetris\Lidgren.Network\bin\Debug\Lidgren.Network.pdb
+D:\Google drive\Programmering\nottetris\notTetris\Lidgren.Network\obj\Debug\Lidgren.Network.csprojResolveAssemblyReference.cache
+D:\Google drive\Programmering\nottetris\notTetris\Lidgren.Network\obj\Debug\Lidgren.Network.dll
+D:\Google drive\Programmering\nottetris\notTetris\Lidgren.Network\obj\Debug\Lidgren.Network.pdb

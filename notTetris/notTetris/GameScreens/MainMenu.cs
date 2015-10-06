@@ -77,7 +77,7 @@ namespace NotTetris.GameScreens
 
         private void StartNetworkGame(object o, EventArgs e)
         {
-            NewScreen(ScreenType.NetworkGame);
+            NewScreen(ScreenType.NetworkGameSetup);
         }
 
         private void StartSettings(object o, EventArgs e)

@@ -25,6 +25,7 @@ namespace NotTetris.Controls
         IP,
         Host,
         Connect,
+        Start,
     }
     #endregion
 
@@ -36,6 +37,9 @@ namespace NotTetris.Controls
             Hover,
             Down,
         }
+
+        public bool IsShowing { get { return buttonText.IsShowing; } set { buttonText.IsShowing = value; } }
+        public bool Enabled { get { return enabled; } set { enabled = value; } }
 
         private MouseState oldState;
         private TextButtonType type;
@@ -105,6 +109,8 @@ namespace NotTetris.Controls
                 buttonText.TextValue = "Connect to IP";
                 buttonText.Scale = new Vector2(0.75f);
             }
+            else if (type == TextButtonType.Start)
+                buttonText.TextValue = "Start";
             #endregion
 
             SetState(ButtonState.Normal);

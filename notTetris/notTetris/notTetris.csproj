@@ -96,10 +96,13 @@
     <Compile Include="GameObjects\Playfield.cs" />
     <Compile Include="GameObjects\ScoreCounter.cs" />
     <Compile Include="GameObjects\ScoreFloater.cs" />
+    <Compile Include="GameScreens\ConnectionScreen.cs" />
     <Compile Include="GameScreens\GameScreen.cs" />
     <Compile Include="GameScreens\HighscoreScreen.cs" />
     <Compile Include="GameScreens\MainMenu.cs" />
+    <Compile Include="GameScreens\NetworkGame.cs" />
     <Compile Include="GameScreens\NetworkGameSetup.cs" />
+    <Compile Include="GameScreens\HostScreen.cs" />
     <Compile Include="GameScreens\SinglePlayerGame.cs" />
     <Compile Include="GameScreens\ResultsScreen.cs" />
     <Compile Include="GameScreens\SettingsMenu.cs" />
@@ -109,7 +112,6 @@
     <Compile Include="Graphics\Image.cs" />
     <Compile Include="Graphics\OutlineText.cs" />
     <Compile Include="Graphics\Text.cs" />
-    <Compile Include="Networking\Delegates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="PuzzleGame.cs" />
@@ -149,6 +151,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Lidgren.Network\Lidgren.Network.csproj">
+      <Project>{49ba1c69-6104-41ac-a5d8-b54fa9f696e8}</Project>
+      <Name>Lidgren.Network</Name>
+    </ProjectReference>
     <ProjectReference Include="..\notTetris Content\notTetris Content.contentproj">
       <Project>{769C2684-552F-4140-A44F-435956DC3C94}</Project>
       <Name>notTetris Content %28Content%29</Name>

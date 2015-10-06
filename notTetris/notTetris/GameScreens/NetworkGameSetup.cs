@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Net;
 using NotTetris.Controls;
 using NotTetris.Graphics;
+using Lidgren.Network;
 
 namespace NotTetris.GameScreens
 {
@@ -20,9 +21,10 @@ namespace NotTetris.GameScreens
         TextButton connectButton;
         TextButton backButton;
 
-        TcpClient client;
-        string IP = "127.0.0.1";
-        int PORT = 1490;
+        string ip = "127.0.0.1";
+            //"127.0.0.1";
+            //"192.168.0.104";
+            //"83.233.223.246";
 
         public NetworkGameSetup()
         {
@@ -34,8 +36,6 @@ namespace NotTetris.GameScreens
             hostButton = new TextButton(TextButtonType.Host, new Vector2(100f, 250f));
             ipButton = new TextButton(TextButtonType.IP, new Vector2(100f, 350f));
             backButton = new TextButton(TextButtonType.Back, new Vector2(100f, 500f));
-
-            client = new TcpClient();
         }
 
         public override void Initialize(SpriteBatch spriteBatch, Settings settings)
@@ -47,7 +47,7 @@ namespace NotTetris.GameScreens
             ipPopup.ClosePopup += new ClosePopupEventHandler(OnClosePopup);
             ipText.Initialize();
             ipText.Position = new Vector2(550f, 150);
-            ipText.TextValue = "Target IP\n192.168.0.1";
+            ipText.TextValue = "Target IP\n" + ip;
             ipButton.Initialize();
             ipButton.Click += OnIPButtonClick;
             hostButton.Initialize();
@@ -124,32 +124,50 @@ namespace NotTetris.GameScreens
             return true;
         }
 
+        public override string ToString()
+        {
+            return ip;
+        }
+
         private void OnClosePopup(object o, EventArgs e)
         {
             if (ipPopup.ShouldSave)
                 if (IsValidIP(e.ToString()))
-                    ipText.TextValue = "Target IP\n" + e.ToString();
+                {
+                    ip = e.ToString();
+                    ipText.TextValue = "Target IP\n" + ip;
+                }
         }
 
-        void OnIPButtonClick(object o, EventArgs e)
+        private void OnIPButtonClick(object o, EventArgs e)
         {
             ipPopup.Show();
+            /*NetOutgoingMessage sendMsg = client.CreateMessage();
+            sendMsg.Write("Hello");
+            client.SendMessage(sendMsg, connection, NetDeliveryMethod.ReliableOrdered);*/
         }
-
-        void OnConnectButtonClick(object o, EventArgs e)
+        private void OnConnectButtonClick(object o, EventArgs e)
         {
-            client.Connect(IP, PORT);
-            client.NoDelay = true;
+            if (IsValidIP(ipText.TextValue))
+                NewScreen(ScreenType.ConnectionScreen);
+            else
+                ipText.TextValue = "IP invalid";
+            /*NetPeerConfiguration clientConfig = new NetPeerConfiguration("NotTetris");
+            client = new NetClient(clientConfig);
+            client.Start();
+            connection = client.Connect(host, port);*/
+            
         }
-
-        void OnHostButtonClick(object o, EventArgs e)
+        private void OnHostButtonClick(object o, EventArgs e)
         {
-            throw new NotImplementedException();
+            NewScreen(ScreenType.HostScreen);
         }
 
-        void OnBackButtonClick(object o, EventArgs e)
+        private void OnBackButtonClick(object o, EventArgs e)
         {
             NewScreen(ScreenType.MainMenu);
         }
+
+
     }
 }
