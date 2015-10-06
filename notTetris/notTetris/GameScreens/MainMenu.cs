@@ -22,12 +22,12 @@ namespace NotTetris.GameScreens
         {
             cursor = new Cursor();
             backgroundImage = new Image();
-            singleplayerButton = new TextButton(TextButtonType.Singleplayer, new Vector2(300f, 150f));
-            splitscreenButton = new TextButton(TextButtonType.Splitscreen, new Vector2(300f, 235));
-            networkButton = new TextButton(TextButtonType.Network, new Vector2(300f, 320));
-            highscoreButton = new TextButton(TextButtonType.HighScore, new Vector2(300, 405));
-            settingsButton = new TextButton(TextButtonType.Settings, new Vector2(300f, 490));
-            exitButton = new TextButton(TextButtonType.Exit, new Vector2(300f, 575));
+            singleplayerButton = new TextButton();
+            splitscreenButton = new TextButton();
+            networkButton = new TextButton();
+            highscoreButton = new TextButton();
+            settingsButton = new TextButton();
+            exitButton = new TextButton();
             titleImage = new Image();
         }
 
@@ -50,16 +50,28 @@ namespace NotTetris.GameScreens
             titleImage.Layer = 0.6f;
 
             singleplayerButton.Initialize();
+            singleplayerButton.Text = "Single Player Game";
+            singleplayerButton.Position = new Vector2(300f, 150f);
             singleplayerButton.Click += new ButtonEventHandler(StartOnePlayerGame);
             splitscreenButton.Initialize();
+            splitscreenButton.Text = "Split Screen Game";
+            splitscreenButton.Position = new Vector2(300f, 235);
             splitscreenButton.Click += new ButtonEventHandler(StartTwoPlayerGame);
             networkButton.Initialize();
+            networkButton.Text = "Network Game";
+            networkButton.Position = new Vector2(300f, 320);
             networkButton.Click += new ButtonEventHandler(StartNetworkGame);
-            settingsButton.Initialize();
-            settingsButton.Click += new ButtonEventHandler(StartSettings);
             highscoreButton.Initialize();
-            highscoreButton.Click += new ButtonEventHandler(StartHighScore);
+            highscoreButton.Text = "High Score";
+            highscoreButton.Position = new Vector2(300f, 405);
+            highscoreButton.Click += new ButtonEventHandler(StartHighScore); 
+            settingsButton.Initialize();
+            settingsButton.Text = "Settings";
+            settingsButton.Position = new Vector2(300f, 490);
+            settingsButton.Click += new ButtonEventHandler(StartSettings);
             exitButton.Initialize();
+            exitButton.Text = "Exit";
+            exitButton.Position = new Vector2(300f, 575);
             exitButton.Click += new ButtonEventHandler(OnExit);
         }
 

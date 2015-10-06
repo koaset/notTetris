@@ -9,26 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Controls
 {
-    #region ButtonType Enum
-    public enum TextButtonType
-    {
-        Singleplayer,
-        Splitscreen,
-        Network,
-        Ok,
-        Cancel,
-        Settings,
-        Exit,
-        ChangeDifficulty,
-        HighScore,
-        Back,
-        IP,
-        Host,
-        Connect,
-        Start,
-    }
-    #endregion
-
     class TextButton
     {
         private enum ButtonState
@@ -40,78 +20,31 @@ namespace NotTetris.Controls
 
         public bool IsShowing { get { return buttonText.IsShowing; } set { buttonText.IsShowing = value; } }
         public bool Enabled { get { return enabled; } set { enabled = value; } }
+        public string Text { get { return buttonText.TextValue; } set { buttonText.TextValue = value; } }
+        public Vector2 Position { get { return buttonText.Position; } set { buttonText.Position = value; } }
+        public Vector2 Scale { get { return buttonText.Scale; } set { buttonText.Scale = value; } }
 
         private MouseState oldState;
-        private TextButtonType type;
         private bool enabled;
-        private Vector2 position;
         private OutlineText buttonText;
         private Vector2 size;
         public event ButtonEventHandler Click;
 
-        public TextButton(TextButtonType type, Vector2 position)
+        public TextButton()
         {
-            this.type = type;
-            this.position = position;
             buttonText = new OutlineText();
         }
 
         public void Initialize()
         {
             enabled = true;
-            
             buttonText.Initialize();
             buttonText.IsCentered = false;
             buttonText.Font = FontNames.Segoe_UI_Mono_Large;
-            buttonText.Position = position;
             buttonText.TextColor = Color.Yellow;
             buttonText.OutlineColor = Color.Black;
-            buttonText.Position = position;
             buttonText.Layer = 0.7f;
             buttonText.OutlineSize = 1.0f;
-
-            #region Set Text
-            if (type == TextButtonType.Singleplayer)
-                buttonText.TextValue = "Single Player Game";
-            else if (type == TextButtonType.Cancel)
-                buttonText.TextValue = "Cancel";
-            else if (type == TextButtonType.Ok)
-                buttonText.TextValue = "Ok";
-            else if (type == TextButtonType.Network)
-                buttonText.TextValue = "Network Game";
-            else if (type == TextButtonType.Splitscreen)
-                buttonText.TextValue = "Split Screen Game";
-            else if (type == TextButtonType.Settings)
-                buttonText.TextValue = "Settings";
-            else if (type == TextButtonType.Exit)
-                buttonText.TextValue = "Exit";
-            else if (type == TextButtonType.ChangeDifficulty)
-            {
-                buttonText.TextValue = "Change Difficulty";
-                buttonText.Scale = new Vector2(0.75f);
-            }
-            else if (type == TextButtonType.HighScore)
-                buttonText.TextValue = "High Score";
-            else if (type == TextButtonType.Back)
-                buttonText.TextValue = "Back";
-            else if (type == TextButtonType.IP)
-            {
-                buttonText.TextValue = "Change target IP";
-                buttonText.Scale = new Vector2(0.75f);
-            }
-            else if (type == TextButtonType.Host)
-            {
-                buttonText.TextValue = "Host Game";
-                buttonText.Scale = new Vector2(0.75f);
-            }
-            else if (type == TextButtonType.Connect)
-            {
-                buttonText.TextValue = "Connect to IP";
-                buttonText.Scale = new Vector2(0.75f);
-            }
-            else if (type == TextButtonType.Start)
-                buttonText.TextValue = "Start";
-            #endregion
 
             SetState(ButtonState.Normal);
         }
@@ -142,7 +75,7 @@ namespace NotTetris.Controls
             {
                 MouseState newState = Mouse.GetState();
                 Rectangle mousePosition = new Rectangle(newState.X, newState.Y, 1, 1);
-                Rectangle buttonPosition = new Rectangle(Convert.ToInt16(position.X), Convert.ToInt16(position.Y),
+                Rectangle buttonPosition = new Rectangle(Convert.ToInt16(buttonText.Position.X), Convert.ToInt16(buttonText.Position.Y),
                     Convert.ToInt16(size.X), Convert.ToInt16(size.Y));
 
                 if (mousePosition.Intersects(buttonPosition))

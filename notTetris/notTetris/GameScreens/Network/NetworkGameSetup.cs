@@ -32,36 +32,46 @@ namespace NotTetris.GameScreens
             cursor = new Cursor();
             ipPopup = new TextboxPopup("Enter target IP", 15);
             ipText = new Text();
-            connectButton = new TextButton(TextButtonType.Connect, new Vector2(100f, 150f));
-            hostButton = new TextButton(TextButtonType.Host, new Vector2(100f, 250f));
-            ipButton = new TextButton(TextButtonType.IP, new Vector2(100f, 350f));
-            backButton = new TextButton(TextButtonType.Back, new Vector2(100f, 500f));
+            connectButton = new TextButton();
+            hostButton = new TextButton();
+            ipButton = new TextButton();
+            backButton = new TextButton();
         }
 
         public override void Initialize(SpriteBatch spriteBatch, Settings settings)
         {
             base.Initialize(spriteBatch, settings);
 
+            backgroundImage.Initialize();
+            backgroundImage.TextureName = TextureNames.game_background;
+            backgroundImage.Size = new Vector2(1000, 720);
+            backgroundImage.Position = new Vector2(500, 360);
+            backgroundImage.Layer = 0.3f;
             cursor.Initialize();
             ipPopup.Initialize();
             ipPopup.ClosePopup += new ClosePopupEventHandler(OnClosePopup);
             ipText.Initialize();
             ipText.Position = new Vector2(550f, 150);
             ipText.TextValue = "Target IP\n" + ip;
-            ipButton.Initialize();
-            ipButton.Click += OnIPButtonClick;
-            hostButton.Initialize();
-            hostButton.Click += OnHostButtonClick;
             connectButton.Initialize();
+            connectButton.Text = "Connect to IP";
+            connectButton.Scale = new Vector2(0.75f);
+            connectButton.Position = new Vector2(100f, 150f);
             connectButton.Click += OnConnectButtonClick;
+            hostButton.Initialize();
+            hostButton.Text = "Host Game";
+            hostButton.Scale = new Vector2(0.75f);
+            hostButton.Position = new Vector2(100f, 250f);
+            hostButton.Click += OnHostButtonClick;
+            ipButton.Initialize();
+            ipButton.Text = "Change target IP";
+            ipButton.Scale = new Vector2(0.75f);
+            ipButton.Position = new Vector2(100f, 350f);
+            ipButton.Click += OnIPButtonClick;
             backButton.Initialize();
+            backButton.Text = "Back";
+            backButton.Position = new Vector2(100f, 500f);
             backButton.Click += OnBackButtonClick;
-
-            backgroundImage.Initialize();
-            backgroundImage.TextureName = TextureNames.game_background;
-            backgroundImage.Size = new Vector2(1000, 720);
-            backgroundImage.Position = new Vector2(500, 360);
-            backgroundImage.Layer = 0.3f;
         }
 
         public override void LoadContent()

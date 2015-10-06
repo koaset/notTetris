@@ -26,8 +26,8 @@ namespace NotTetris.GameScreens
             cursor = new Cursor();
             backgroundImage = new Image();
             infoText = new OutlineText();
-            cancelButton = new TextButton(TextButtonType.Cancel, new Vector2(100f, 500f));
-            startButton = new TextButton(TextButtonType.Start, new Vector2(100f, 400f));
+            cancelButton = new TextButton();
+            startButton = new TextButton();
 
             NetPeerConfiguration config = new NetPeerConfiguration("NotTetris");
             config.Port = PORT;
@@ -50,8 +50,12 @@ namespace NotTetris.GameScreens
             infoText.Position = new Vector2(500, 200);
             infoText.TextValue = "Waiting for connections";
             cancelButton.Initialize();
+            cancelButton.Text = "Cancel";
+            cancelButton.Position = new Vector2(100f, 500f);
             cancelButton.Click += OnCancelButtonClick;
             startButton.Initialize();
+            startButton.Text = "Start";
+            startButton.Position = new Vector2(100f, 400f);
             startButton.Click += OnStartButtonClick;
             startButton.IsShowing = false;
             startButton.Enabled = false;

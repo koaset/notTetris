@@ -33,9 +33,9 @@ namespace NotTetris.GameScreens
             backgroundImage = new Image();
             cursor = new Cursor();
             difficulties = new Text[3];
-            okButton = new TextButton(TextButtonType.Ok, new Vector2(100, 600));
-            cancelButton = new TextButton(TextButtonType.Cancel, new Vector2(250, 600));
-            difficultyButton = new TextButton(TextButtonType.ChangeDifficulty, new Vector2(60, 180));
+            okButton = new TextButton();
+            cancelButton = new TextButton();
+            difficultyButton = new TextButton();
             increaseTimeButton = new AnimationButton(AnimationButtonType.Increase, new Vector2(500, 325));
             decreaseTimeButton = new AnimationButton(AnimationButtonType.Decrease, new Vector2(380, 325));
             increaseSizeButton = new AnimationButton(AnimationButtonType.Increase, new Vector2(500, 425));
@@ -117,10 +117,17 @@ namespace NotTetris.GameScreens
             playfieldSizeText.Position = new Vector2(70, 400);
 
             okButton.Initialize();
+            okButton.Text = "Ok";
+            okButton.Position = new Vector2(100f, 600f);
             okButton.Click += new ButtonEventHandler(OnOk);
             cancelButton.Initialize();
+            cancelButton.Text = "Cancel";
+            cancelButton.Position = new Vector2(250f, 600f);
             cancelButton.Click += new ButtonEventHandler(OnCancel);
             difficultyButton.Initialize();
+            difficultyButton.Text = "Change Difficulty";
+            difficultyButton.Scale = new Vector2(0.75f);
+            difficultyButton.Position = new Vector2(60, 180);
             difficultyButton.Click += new ButtonEventHandler(OnChangeDifficulty);
             increaseTimeButton.Initialize();
             increaseTimeButton.Click += new ButtonEventHandler(OnIncreaseTime);

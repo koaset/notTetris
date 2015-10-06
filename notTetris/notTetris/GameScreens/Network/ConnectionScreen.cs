@@ -27,7 +27,7 @@ namespace NotTetris.GameScreens
             cursor = new Cursor();
             backgroundImage = new Image();
             infoText = new OutlineText();
-            cancelButton = new TextButton(TextButtonType.Cancel, new Vector2(100f, 500f));
+            cancelButton = new TextButton();
 
             NetPeerConfiguration config = new NetPeerConfiguration("NotTetris");
             client = new NetClient(config);
@@ -52,6 +52,8 @@ namespace NotTetris.GameScreens
             infoText.OutlineColor = Color.Black;
             infoText.TextColor = Color.White;
             cancelButton.Initialize();
+            cancelButton.Text = "Cancel";
+            cancelButton.Position = new Vector2(100f, 500f);
             cancelButton.Click += OnCancelButtonClick;
         }
 

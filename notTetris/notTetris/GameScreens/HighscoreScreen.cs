@@ -21,7 +21,7 @@ namespace NotTetris.GameScreens
             backgroundImage = new Image();
             header = new Text();
             highscores = new Text[5];
-            backButton = new TextButton(TextButtonType.Back, new Vector2(100, 620));
+            backButton = new TextButton();
             cursor = new Cursor();
         }
 
@@ -34,6 +34,8 @@ namespace NotTetris.GameScreens
             backgroundImage.TextureName = TextureNames.game_background;            
 
             backButton.Initialize();
+            backButton.Text = "Back";
+            backButton.Position = new Vector2(100, 620);
             backButton.Click += new ButtonEventHandler(OnBack);
 
             header.Initialize();
