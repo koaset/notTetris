@@ -41,6 +41,7 @@ namespace NotTetris.GameScreens
         {
             this.spriteBatch = spriteBatch;
             this.settings = settings;
+            mouseVisible = false;
         }
 
         public abstract void LoadContent();

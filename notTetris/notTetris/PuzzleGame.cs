@@ -131,8 +131,6 @@ namespace NotTetris
             base.Draw(gameTime);
         }
 
-        #region ChangeScreen
-
         private void ChangeScreen(GameScreen newScreen)
         {
             spriteBatch.Dispose();
@@ -154,7 +152,6 @@ namespace NotTetris
 
             GC.Collect();
         }
-        #endregion
 
         private void OnChangeScreen(object o, ScreenEventArgs e)
         {

@@ -16,7 +16,7 @@ namespace NotTetris.Graphics
         {
             base.Initialize();
             OutlineColor = Color.White;
-            OutlineSize = 2f;
+            OutlineSize = 1f;
         }
 
         public override void Draw(GameTime gameTime)
