@@ -66,9 +66,9 @@ namespace NotTetris.GameScreens
             ipPopup.ClosePopup += new ClosePopupEventHandler(OnClosePopup);
             ipText.Initialize();
             ipText.Position = new Vector2(500f, 150);
-            ipText.TextValue = ip;
+            ipText.TextValue = "IP: " + ip;
             infoText.Initialize();
-            infoText.Position = new Vector2(500f, 350);
+            infoText.Position = new Vector2(500f, 250);
             infoText.IsShowing = true;
             infoText.TextValue = "";
             connectButton.Initialize();
@@ -149,8 +149,8 @@ namespace NotTetris.GameScreens
                 infoText.TextValue = "Connected.\nWaiting for server...";
             else if (newStatus != NetConnectionStatus.Connected && oldStatus == NetConnectionStatus.Connected)
             {
-                infoText.TextValue = "Lost connection";
                 StopConnecting();
+                infoText.TextValue = "Lost connection";
             }
 
                 
@@ -224,26 +224,23 @@ namespace NotTetris.GameScreens
 
         private bool IsValidIP(string ip)
         {
+            ip = ip + ".";
             int numDots = 0;
-            int numbers = 0;
+            int lastDotPos = 0;
             for (int i = 0; i < ip.Length; i++)
             {
                 if (ip.ToCharArray()[i] == '.')
                 {
+                    if (lastDotPos == i || Convert.ToInt32(ip.Substring(lastDotPos, i - lastDotPos)) > 255)
+                        return false;
                     numDots++;
+                    lastDotPos = i + 1;
                 }
-                else
-                    numbers++;
             }
 
             if (numDots != 3)
                 return false;
             return true;
-        }
-
-        public override string ToString()
-        {
-            return ip;
         }
 
         private void OnClosePopup(object o, EventArgs e)
@@ -252,11 +249,12 @@ namespace NotTetris.GameScreens
                 if (IsValidIP(e.ToString()))
                 {
                     ip = e.ToString();
-                    ipText.TextValue = "Target IP\n" + ip;
+                    ipText.TextValue = "IP: " + ip;
+                    infoText.TextValue = "";
                 }
                 else
                 {
-                    ipText.TextValue = "Target IP\n" + ip + "\nNew IP invalid";
+                    infoText.TextValue = "Entered IP not valid";
                 }
         }
 
@@ -300,6 +298,7 @@ namespace NotTetris.GameScreens
             client.Shutdown("Client shutdown");
             connecting = false;
             connectButton.Text = "Connect to IP";
+            infoText.TextValue = "";
         }
 
         private void OnHostButtonClick(object o, EventArgs e)
@@ -329,6 +328,7 @@ namespace NotTetris.GameScreens
             server.Shutdown("Server shutdown");
             hosting = false;
             hostButton.Text = "Host Game";
+            infoText.TextValue = "";
         }
 
         private void OnBackButtonClick(object o, EventArgs e)
