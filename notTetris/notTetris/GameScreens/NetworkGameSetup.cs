@@ -224,23 +224,32 @@ namespace NotTetris.GameScreens
 
         private bool IsValidIP(string ip)
         {
-            ip = ip + ".";
             int numDots = 0;
             int lastDotPos = 0;
             for (int i = 0; i < ip.Length; i++)
             {
                 if (ip.ToCharArray()[i] == '.')
                 {
-                    if (lastDotPos == i || Convert.ToInt32(ip.Substring(lastDotPos, i - lastDotPos)) > 255)
+                    if (lastDotPos == i)
+                        return false;
+                    string sub = ip.Substring(lastDotPos, i - lastDotPos);
+                    if (Convert.ToInt32(sub) > 255)
                         return false;
                     numDots++;
                     lastDotPos = i + 1;
                 }
             }
+            if (Convert.ToInt32(ip.Substring(lastDotPos, ip.Length - lastDotPos)) > 255)
+                return false;
 
             if (numDots != 3)
                 return false;
             return true;
+        }
+
+        public override string ToString()
+        {
+            return ip;
         }
 
         private void OnClosePopup(object o, EventArgs e)
