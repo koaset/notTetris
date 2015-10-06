@@ -114,24 +114,32 @@ namespace NotTetris.GameScreens
                     playerOneField.MoveClusterDown();
             }
 
-            if (newState.IsKeyDown(Keys.Pause) && oldState.IsKeyUp(Keys.Pause))
+            if (isStarted)
             {
-                if (isStarted)
+                if (newState.IsKeyDown(Keys.Pause) && oldState.IsKeyUp(Keys.Pause)) 
                 {
                     if (playerOneField.IsPaused)
-                    {
-                        pauseImage.IsShowing = false;
-                        playerOneField.UnPause();
-                    }
+                        UnPause();
                     else
-                    {
-                        pauseImage.IsShowing = true;
-                        playerOneField.Pause();
-                    }
+                        Pause();
                 }
+                else if (!isFocused)
+                    Pause();
             }
 
             oldState = newState;
+        }
+
+        private void Pause()
+        {
+            playerOneField.Pause();
+            pauseImage.IsShowing = true;
+        }
+
+        private void UnPause()
+        {
+            pauseImage.IsShowing = false;
+            playerOneField.UnPause();
         }
 
         public override void Draw(GameTime gameTime)
@@ -145,7 +153,8 @@ namespace NotTetris.GameScreens
 
         public void OnGameOver(object o, EventArgs e)
         {
-            NewScreen(ScreenType.ResultsScreen);
+            settings.Save(PuzzleGame.SETTINGSPATH);
+            NewScreen(new ResultsScreen(GetResults()));
         }
 
         public override Results GetResults()

@@ -52,7 +52,9 @@ namespace NotTetris
         {
             Stream stream = File.OpenRead(filename);
             XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-            return (Settings)serializer.Deserialize(stream);
+            Settings loadedSettings = (Settings)serializer.Deserialize(stream);
+            stream.Close();
+            return loadedSettings;
         }
     }
 }

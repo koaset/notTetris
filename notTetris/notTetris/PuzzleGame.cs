@@ -27,7 +27,7 @@ namespace NotTetris
 
         public static Random r = new Random();
 
-        private const string SETTINGSPATH = "Settings.xml";
+        public const string SETTINGSPATH = "Settings.xml";
         private const int WINDOWWIDTH = 1000;
         private const int WINDOWHEIGHT = 720;
 
@@ -98,13 +98,18 @@ namespace NotTetris
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            currentScreen.SetFocus(this.IsActive);
+
             KeyboardState newState = Keyboard.GetState();
 
-            if (newState.IsKeyDown(Keys.LeftAlt) && newState.IsKeyDown(Keys.Enter) && oldState.IsKeyUp(Keys.Enter))
-                graphics.ToggleFullScreen();
+            if (IsActive)
+            {
+                if (newState.IsKeyDown(Keys.LeftAlt) && newState.IsKeyDown(Keys.Enter) && oldState.IsKeyUp(Keys.Enter))
+                    graphics.ToggleFullScreen();
 
-            if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
-                ChangeScreen(ScreenType.MainMenu);
+                if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
+                    ChangeScreen(new MainMenu());
+            }
 
             currentScreen.Update(gameTime);
 
@@ -128,49 +133,24 @@ namespace NotTetris
 
         #region ChangeScreen
 
-        private void ChangeScreen(ScreenType type)
+        private void ChangeScreen(GameScreen newScreen)
         {
             spriteBatch.Dispose();
-            if (currentScreen is SettingsMenu)
-                settings.Save(SETTINGSPATH);
 
-            else if (currentScreen is ResultsScreen)
+            if (newScreen == null)
+            {
                 settings.Save(SETTINGSPATH);
-
-            if (type == ScreenType.MainMenu)
-                currentScreen = new MainMenu();
-            else if (type == ScreenType.SingleplayerGame)
-                currentScreen = new SinglePlayerGame(settings);
-            else if (type == ScreenType.SplitscreenGame)
-                currentScreen = new SplitScreenGame(settings);
-            else if (type == ScreenType.NetworkGameSetup)
-                currentScreen = new NetworkGameSetup();
-            else if (type == ScreenType.HostScreen)
-                currentScreen = new HostScreen();
-            else if (type == ScreenType.ConnectionScreen)
-            {
-                string ip = currentScreen.ToString();
-                currentScreen = new ConnectionScreen(ip);
-            }
-            else if (type == ScreenType.ResultsScreen)
-            {
-                Results r = currentScreen.GetResults();
-                currentScreen = new ResultsScreen(r);
-            }
-            else if (type == ScreenType.SettingsMenu)
-                currentScreen = new SettingsMenu();
-            else if (type == ScreenType.HighscoreScreen)
-                currentScreen = new HighscoreScreen();
-            else if (type == ScreenType.Exit)
-            {
                 UnloadContent();
                 Exit();
             }
-
-            currentScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
-            spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
-            currentScreen.Initialize(spriteBatch, settings);
-            currentScreen.LoadContent();
+            else
+            {
+                spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
+                newScreen.Initialize(spriteBatch, settings);
+                newScreen.ChangeScreen += new ChangeScreenEventHandler(OnChangeScreen);
+                newScreen.LoadContent();
+                currentScreen = newScreen;
+            }
 
             GC.Collect();
         }
@@ -178,7 +158,7 @@ namespace NotTetris
 
         private void OnChangeScreen(object o, ScreenEventArgs e)
         {
-            ChangeScreen(e.ScreenType);
+            ChangeScreen(e.NewScreen);
         }
     }
 }

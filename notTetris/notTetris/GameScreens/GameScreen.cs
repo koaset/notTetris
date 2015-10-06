@@ -26,14 +26,16 @@ namespace NotTetris.GameScreens
     }
     #endregion
 
-    public delegate void ChangeScreenEventHandler(object o, ScreenEventArgs e);
+    internal delegate void ChangeScreenEventHandler(object o, ScreenEventArgs e);
 
-    abstract class GameScreen
+    internal abstract class GameScreen
     {
         public event ChangeScreenEventHandler ChangeScreen;
         protected SpriteBatch spriteBatch;
         protected Settings settings;
         protected KeyboardState oldState;
+        protected bool isFocused;
+        protected bool mouseVisible;
 
         public virtual void Initialize(SpriteBatch spriteBatch, Settings settings)
         {
@@ -47,11 +49,15 @@ namespace NotTetris.GameScreens
 
         public abstract void Draw(GameTime gameTime);
 
-        protected void NewScreen(ScreenType type)
+        protected void NewScreen(GameScreen newScreen)
         {
-            ScreenEventArgs args = new ScreenEventArgs();
-            args.ScreenType = type;
+            ScreenEventArgs args = new ScreenEventArgs(newScreen);
             ChangeScreen(this, args);
+        }
+
+        public void SetFocus(bool focus)
+        {
+            isFocused = focus;
         }
 
         public virtual Results GetResults()
@@ -60,14 +66,15 @@ namespace NotTetris.GameScreens
         }
     }
 
-    public class ScreenEventArgs : EventArgs
+    internal class ScreenEventArgs : EventArgs
     {
-        private ScreenType screenType;
+        private GameScreen newScreen;
 
-        public ScreenType ScreenType
+        public ScreenEventArgs(GameScreen newScreen) {this.newScreen = newScreen;}
+
+        public GameScreen NewScreen
         {
-            get { return screenType; }
-            set { screenType = value; }
+            get { return newScreen; }
         }
     }
 }

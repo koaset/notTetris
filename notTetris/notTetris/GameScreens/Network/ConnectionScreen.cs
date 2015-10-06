@@ -94,7 +94,7 @@ namespace NotTetris.GameScreens
         void OnCancelButtonClick(object o, EventArgs e)
         {
             client.Shutdown("Connection closed");
-            NewScreen(ScreenType.NetworkGameSetup);
+            NewScreen(new NetworkGameSetup());
         }
     }
 }

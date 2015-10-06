@@ -40,9 +40,9 @@ namespace NotTetris.GameScreens
             header.Font = FontNames.Segoe_UI_Mono;
             header.Layer = 0.7f;
             header.IsCentered = true;
-            header.Position = new Vector2(500, 50);
+            header.Position = new Vector2(500, 100);
             header.TextColor = Color.Navy;
-            header.TextValue = "High Score";
+            header.TextValue = "Single Player\n High Score";
 
             cursor.Initialize();
 
@@ -52,7 +52,7 @@ namespace NotTetris.GameScreens
                 highscores[i].Initialize();
                 highscores[i].Font = FontNames.Segoe_UI_Mono;
                 highscores[i].Layer = 0.7f;
-                highscores[i].Position = new Vector2(300, 175 + i * 75);
+                highscores[i].Position = new Vector2(375, 175 + i * 75);
                 highscores[i].TextColor = Color.MintCream;
                 int num = i + 1;
                 highscores[i].TextValue = num.ToString() + ":    " + settings.score[i].ToString("F0");
@@ -74,8 +74,8 @@ namespace NotTetris.GameScreens
 
         public override void Update(GameTime gameTime)
         {
-            backgroundImage.Update(gameTime);
-            backButton.Update(gameTime);
+            if (isFocused)
+                backButton.Update(gameTime);
             cursor.Update();
         } 
 
@@ -91,7 +91,7 @@ namespace NotTetris.GameScreens
 
         private void OnBack(object o, EventArgs e)
         {
-            NewScreen(ScreenType.MainMenu);
+            NewScreen(new MainMenu());
         }
     }
 }

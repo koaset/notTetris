@@ -144,13 +144,13 @@ namespace NotTetris.GameScreens
                 settings.Difficulty = "Hard";
             settings.PlayTime = timeLimit;
             settings.PlayfieldSize = size;
-
-            NewScreen(ScreenType.MainMenu);
+            settings.Save(PuzzleGame.SETTINGSPATH);
+            NewScreen(new MainMenu());
         }
 
         private void OnCancel(object o, EventArgs e)
         {
-            NewScreen(ScreenType.MainMenu);
+            NewScreen(new MainMenu());
         }
 
         private void OnChangeDifficulty(object o, EventArgs e)
@@ -222,19 +222,20 @@ namespace NotTetris.GameScreens
 
         public override void Update(GameTime gameTime)
         {
-            backgroundImage.Update(gameTime);
             cursor.Update();
 
-            okButton.Update(gameTime);
-            cancelButton.Update(gameTime);
-
-            difficultyButton.Update(gameTime);
-            increaseTimeButton.Update(gameTime);
-            decreaseTimeButton.Update(gameTime);
-            timeLimitText.TextValue = timeLimit.ToString();
-            increaseSizeButton.Update(gameTime);
-            decreaseSizeButton.Update(gameTime);
-            sizeText.TextValue = size.ToString();
+            if (isFocused)
+            {
+                okButton.Update(gameTime);
+                cancelButton.Update(gameTime);
+                difficultyButton.Update(gameTime);
+                increaseTimeButton.Update(gameTime);
+                decreaseTimeButton.Update(gameTime);
+                timeLimitText.TextValue = timeLimit.ToString();
+                increaseSizeButton.Update(gameTime);
+                decreaseSizeButton.Update(gameTime);
+                sizeText.TextValue = size.ToString();
+            }
         }
 
         public override void Draw(GameTime gameTime)

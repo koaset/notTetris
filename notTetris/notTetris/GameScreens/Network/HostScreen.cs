@@ -108,7 +108,7 @@ namespace NotTetris.GameScreens
         void OnCancelButtonClick(object o, EventArgs e)
         {
             server.Shutdown("Server closed");
-            NewScreen(ScreenType.NetworkGameSetup);
+            NewScreen(new NetworkGameSetup());
         }
 
         private void OnStartButtonClick(object o, EventArgs e)

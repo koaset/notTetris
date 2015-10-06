@@ -67,32 +67,33 @@ namespace NotTetris.GameScreens
 
         private void StartOnePlayerGame(object o, EventArgs e)
         {
-            NewScreen(ScreenType.SingleplayerGame);
+            NewScreen(new SinglePlayerGame(settings));
+            
         }
 
         private void StartTwoPlayerGame(object o, EventArgs e)
         {
-            NewScreen(ScreenType.SplitscreenGame);
+            NewScreen(new SplitScreenGame(settings));
         }
 
         private void StartNetworkGame(object o, EventArgs e)
         {
-            NewScreen(ScreenType.NetworkGameSetup);
+            NewScreen(new NetworkGameSetup());
         }
 
         private void StartSettings(object o, EventArgs e)
         {
-            NewScreen(ScreenType.SettingsMenu);
+            NewScreen(new SettingsMenu());
         }
 
         private void StartHighScore(object o, EventArgs e)
         {
-            NewScreen(ScreenType.HighscoreScreen);
+            NewScreen(new HighscoreScreen());
         }
 
         private void OnExit(object o, EventArgs e)
         {
-            NewScreen(ScreenType.Exit);
+            NewScreen(null);
         }
         #endregion
 
@@ -112,14 +113,15 @@ namespace NotTetris.GameScreens
         public override void Update(GameTime gameTime)
         {
             cursor.Update();
-            backgroundImage.Update(gameTime);
-            singleplayerButton.Update(gameTime);
-            splitscreenButton.Update(gameTime);
-            networkButton.Update(gameTime);
-            settingsButton.Update(gameTime);
-            highscoreButton.Update(gameTime);
-            exitButton.Update(gameTime);
-            titleImage.Update(gameTime);
+            if (isFocused)
+            {
+                singleplayerButton.Update(gameTime);
+                splitscreenButton.Update(gameTime);
+                networkButton.Update(gameTime);
+                settingsButton.Update(gameTime);
+                highscoreButton.Update(gameTime);
+                exitButton.Update(gameTime);
+            }
         }
 
         public override void Draw(GameTime gameTime)

@@ -90,24 +90,20 @@ namespace NotTetris.GameScreens
 
             #region Pause
 
-            if (newState.IsKeyDown(Keys.Pause) && oldState.IsKeyUp(Keys.Pause))
+            if (isStarted) 
             {
-                if (isStarted)
+                if (newState.IsKeyDown(Keys.Pause) && oldState.IsKeyUp(Keys.Pause))
                 {
                     if (playerOneField.IsPaused)
-                    {
-                        playerOneField.UnPause();
-                        playerTwoField.UnPause();
-                        pauseImage.IsShowing = false;
-                    }
+                        UnPause();
                     else
                     {
-                        playerOneField.Pause();
-                        playerTwoField.Pause();
-                        pauseImage.IsShowing = true;
+                        Pause();
                         time.Add(gameTime.ElapsedGameTime);
                     }
                 }
+                else if (!isFocused)
+                    Pause();
             }
             #endregion
 
@@ -168,6 +164,20 @@ namespace NotTetris.GameScreens
             oldState = newState;
         }
 
+        private void Pause()
+        {
+            playerOneField.Pause();
+            playerTwoField.Pause();
+            pauseImage.IsShowing = true;
+        }
+
+        private void UnPause()
+        {
+            playerOneField.UnPause();
+            playerTwoField.UnPause();
+            pauseImage.IsShowing = false;
+        }
+
         public override void Draw(GameTime gameTime)
         {
             backgroundImage.Draw(gameTime);
@@ -184,7 +194,7 @@ namespace NotTetris.GameScreens
             else
                 p1Won = true;
 
-            NewScreen(ScreenType.ResultsScreen);            
+            NewScreen(new ResultsScreen(GetResults()));            
         }
 
         public override Results GetResults()

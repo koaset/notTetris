@@ -107,7 +107,6 @@ namespace NotTetris.GameScreens
                 newList.RemoveAt(5);
                 int[] newHighscoreList = newList.ToArray();
                 settings.score = newHighscoreList;
-
             }
         }
 

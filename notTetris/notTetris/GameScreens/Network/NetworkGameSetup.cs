@@ -80,15 +80,19 @@ namespace NotTetris.GameScreens
         {
             
             KeyboardState newState = Keyboard.GetState();
-
-            ipPopup.Update(gameTime);
             cursor.Update();
-            if (!ipPopup.IsShowing)
+
+            if (isFocused)
             {
-                ipButton.Update(gameTime);
-                hostButton.Update(gameTime);
-                connectButton.Update(gameTime);
-                backButton.Update(gameTime);
+                ipPopup.Update(gameTime);
+
+                if (!ipPopup.IsShowing)
+                {
+                    ipButton.Update(gameTime);
+                    hostButton.Update(gameTime);
+                    connectButton.Update(gameTime);
+                    backButton.Update(gameTime);
+                }
             }
             oldState = newState;
         }
@@ -149,7 +153,7 @@ namespace NotTetris.GameScreens
         private void OnConnectButtonClick(object o, EventArgs e)
         {
             if (IsValidIP(ipText.TextValue))
-                NewScreen(ScreenType.ConnectionScreen);
+                NewScreen(new ConnectionScreen(ip));
             else
                 ipText.TextValue = "IP invalid";
             /*NetPeerConfiguration clientConfig = new NetPeerConfiguration("NotTetris");
@@ -160,12 +164,12 @@ namespace NotTetris.GameScreens
         }
         private void OnHostButtonClick(object o, EventArgs e)
         {
-            NewScreen(ScreenType.HostScreen);
+            NewScreen(new HostScreen());
         }
 
         private void OnBackButtonClick(object o, EventArgs e)
         {
-            NewScreen(ScreenType.MainMenu);
+            NewScreen(new MainMenu());
         }
 
 
