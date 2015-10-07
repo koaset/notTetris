@@ -93,14 +93,16 @@
     <Compile Include="Controls\Cursor.cs" />
     <Compile Include="GameObjects\Block.cs" />
     <Compile Include="GameObjects\Cluster.cs" />
+    <Compile Include="GameObjects\NetworkPlayfield.cs" />
     <Compile Include="GameObjects\Playfield.cs" />
     <Compile Include="GameObjects\ScoreCounter.cs" />
     <Compile Include="GameObjects\ScoreFloater.cs" />
     <Compile Include="GameScreens\GameScreen.cs" />
     <Compile Include="GameScreens\HighscoreScreen.cs" />
     <Compile Include="GameScreens\MainMenu.cs" />
-    <Compile Include="GameScreens\NetworkGame.cs" />
+    <Compile Include="GameScreens\HostedNetworkGame.cs" />
     <Compile Include="GameScreens\NetworkGameSetup.cs" />
+    <Compile Include="GameScreens\RemoteNetworkGame.cs" />
     <Compile Include="GameScreens\SinglePlayerGame.cs" />
     <Compile Include="GameScreens\ResultsScreen.cs" />
     <Compile Include="GameScreens\SettingsMenu.cs" />

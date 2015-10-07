@@ -24,6 +24,7 @@ namespace NotTetris.GameObjects
         public Block FirstBlock
         {
             get { return firstBlock; }
+            set { firstBlock = value; }
         }
 
         public Block SecondBlock
@@ -158,6 +159,11 @@ namespace NotTetris.GameObjects
         {
             firstBlock.DropSpeed = speed;
             secondBlock.DropSpeed = speed;
+        }
+
+        public void SetBlockTypes(BlockType firstBlock, BlockType secondBlock)
+        {
+
         }
     }
 }

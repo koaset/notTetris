@@ -36,6 +36,7 @@ namespace NotTetris.GameScreens
         protected KeyboardState oldState;
         protected bool isFocused;
         protected bool mouseVisible;
+        protected static Vector2 SCREENSIZE = new Vector2(1000, 720);
 
         public virtual void Initialize(SpriteBatch spriteBatch, Settings settings)
         {
@@ -50,7 +51,7 @@ namespace NotTetris.GameScreens
 
         public abstract void Draw(GameTime gameTime);
 
-        protected void NewScreen(GameScreen newScreen)
+        protected virtual void NewScreen(GameScreen newScreen)
         {
             ScreenEventArgs args = new ScreenEventArgs(newScreen);
             ChangeScreen(this, args);

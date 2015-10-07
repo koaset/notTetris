@@ -32,6 +32,7 @@ namespace NotTetris.Graphics
     {
         Segoe_UI_Mono,
         Segoe_UI_Mono_Large,
+        Segoe_UI_Mono_Huge,
     }
 
     class GraphicsManager
@@ -58,6 +59,7 @@ namespace NotTetris.Graphics
         private static string[] fontPaths = {
             @"Content\Fonts\Segoe UI Mono",
             @"Content\Fonts\Segoe UI Mono - Large",
+            @"Content\Fonts\Segoe UI Mono - Huge",
         };
 
         private static Texture2D[] loadedTextures;

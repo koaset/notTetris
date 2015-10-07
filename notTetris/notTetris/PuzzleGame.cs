@@ -102,15 +102,6 @@ namespace NotTetris
 
             KeyboardState newState = Keyboard.GetState();
 
-            if (IsActive)
-            {
-                if (newState.IsKeyDown(Keys.LeftAlt) && newState.IsKeyDown(Keys.Enter) && oldState.IsKeyUp(Keys.Enter))
-                    graphics.ToggleFullScreen();
-
-                if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
-                    ChangeScreen(new MainMenu());
-            }
-
             currentScreen.Update(gameTime);
 
             oldState = newState;

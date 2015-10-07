@@ -30,7 +30,29 @@ namespace NotTetris
         public Keys Player2Rotate = Keys.G;
 
         public int[] score = { 0, 0, 0, 0, 0 };
-        
+
+        public Settings Clone()
+        {
+            Settings ret = new Settings();
+            ret.WindowTitle = WindowTitle;
+            ret.Difficulty = Difficulty;
+            ret.BlockDropSpeed = BlockDropSpeed;
+            ret.PlayTime = PlayTime;
+            ret.PlayfieldSize = 9;
+            ret.Player1Start = Player1Start;
+            ret.Player1Left = Player1Left;
+            ret.Player1Right = Player1Right;
+            ret.Player1Down = Player1Down;
+            ret.Player1Rotate = Player1Rotate;
+            ret.Player2Start = Player2Start;
+            ret.Player2Left = Player2Left;
+            ret.Player2Right = Player2Right;
+            ret.Player2Down = Player2Down;
+            ret.Player2Rotate = Player2Rotate;
+            ret.score = score;
+            return ret;
+        }
+
         /// <summary>
         /// Saves the current settings
         /// </summary>

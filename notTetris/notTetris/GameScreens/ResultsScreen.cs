@@ -19,10 +19,12 @@ namespace NotTetris.GameScreens
         Text p2Score;
         bool newHighscore;
         private Results results;
+        bool isNetwork;
 
-        public ResultsScreen(Results results)
+        public ResultsScreen(Results results, bool isNetwork)
         {
             this.results = results;
+            this.isNetwork = isNetwork;
             backGroundImage = new Image();
             gameoverText = new Text();
             infoText = new Text();
@@ -77,18 +79,34 @@ namespace NotTetris.GameScreens
             if (!results.IsSinglerplayer)
             {
                 if (results.Player1Won)
-                    gameoverText.TextValue = "Player 1 Won!";
+                {
+                    if (!isNetwork)
+                        gameoverText.TextValue = "Player 1 Won!";
+                    else
+                        gameoverText.TextValue = "You Lost!";
+                }
                 else
-                    gameoverText.TextValue = "Player 2 Won!";
+                {
+                    if (!isNetwork)
+                        gameoverText.TextValue = "Player 2 Won!";
+                    else
+                        gameoverText.TextValue = "You Won!";
+                }
 
-                p1Score.TextValue = "Player 1 Score: " + results.Player1Score.ToString("F0");
+                if (!isNetwork)
+                    p1Score.TextValue = "Player 1 Score: " + results.Player1Score.ToString("F0");
+                else
+                    p1Score.TextValue = "Your score: " + results.Player1Score.ToString("F0");
                 p2Score.Initialize();
                 p2Score.Font = FontNames.Segoe_UI_Mono;
                 p2Score.Layer = 0.7f;
                 p2Score.IsCentered = true;
                 p2Score.Position = new Vector2(500, 575);
                 p2Score.TextColor = Color.Red;
-                p2Score.TextValue = "Player 2 Score: " + results.Player2Score.ToString("F0");
+                if (!isNetwork)
+                    p2Score.TextValue = "Player 2 Score: " + results.Player2Score.ToString("F0");
+                else
+                    p2Score.TextValue = "Opponent Score: " + results.Player2Score.ToString("F0");
                 p2Score.IsShowing = true;
             }
 
@@ -126,7 +144,14 @@ namespace NotTetris.GameScreens
 
         public override void Update(GameTime gameTime)
         {
-            //Nothing to update
+
+            if (oldState.IsKeyUp(Keys.F10) && Keyboard.GetState().IsKeyDown(Keys.F10))
+            {
+                if (!isNetwork)
+                    NewScreen(new MainMenu());
+                else
+                    NewScreen(new NetworkGameSetup());
+            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -134,7 +159,8 @@ namespace NotTetris.GameScreens
             backGroundImage.Draw(gameTime);
             gameoverText.Draw(gameTime);
             infoText.Draw(gameTime);
-            time.Draw(gameTime);
+            if (!isNetwork)
+                time.Draw(gameTime);
             p1Score.Draw(gameTime);
 
             if (!results.IsSinglerplayer)

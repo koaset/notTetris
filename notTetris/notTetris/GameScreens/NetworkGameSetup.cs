@@ -156,18 +156,12 @@ namespace NotTetris.GameScreens
                 
             while ((msg = client.ReadMessage()) != null)
             {
-                /*switch (msg.MessageType)
-                {
-                    case NetIncomingMessageType.VerboseDebugMessage:
-                    case NetIncomingMessageType.DebugMessage:
-                    case NetIncomingMessageType.WarningMessage:
-                    case NetIncomingMessageType.ErrorMessage:
-                        Console.WriteLine(msg.ReadString());
-                        break;
-                    default:
-                        infoText.TextValue = "Unhandled type: " + msg.MessageType;
-                        break;
-                }*/
+                if (msg.MessageType == NetIncomingMessageType.Data)
+                    if (msg.ReadString() == "Start")
+                    {
+                        Settings readSettings = ReadSettingsFromMessage(msg);
+                        NewScreen(new RemoteNetworkGame(readSettings, client));
+                    }
                 client.Recycle(msg);
             }
 
@@ -351,8 +345,28 @@ namespace NotTetris.GameScreens
         private void OnStartButtonClick(object o, EventArgs e)
         {
             NetOutgoingMessage message = server.CreateMessage();
-            message.Write("Sheever you fool!");
+            message.Write("Start");
+            WriteSettingsToMessage(message, this.settings);
             server.SendMessage(message, connection, NetDeliveryMethod.ReliableOrdered);
+            NewScreen(new HostedNetworkGame(settings, server));
+        }
+
+        private void WriteSettingsToMessage(NetOutgoingMessage msg, Settings settings)
+        {
+            msg.Write(settings.Difficulty);
+            msg.Write(settings.BlockDropSpeed);
+            msg.Write(settings.PlayTime);
+            msg.Write(settings.PlayfieldSize);
+        }
+
+        private Settings ReadSettingsFromMessage(NetIncomingMessage msg)
+        {
+            Settings readSettings = settings.Clone();
+            readSettings.Difficulty = msg.ReadString();
+            readSettings.BlockDropSpeed = (float)Convert.ToDouble(msg.ReadFloat());
+            readSettings.PlayTime = Convert.ToInt32(msg.ReadInt32());
+            readSettings.PlayfieldSize = Convert.ToInt32(msg.ReadInt32());
+            return readSettings;
         }
 
 

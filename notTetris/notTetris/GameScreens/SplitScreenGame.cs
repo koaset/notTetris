@@ -83,6 +83,9 @@ namespace NotTetris.GameScreens
         {
             KeyboardState newState = Keyboard.GetState();
 
+            if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
+                NewScreen(new MainMenu());
+
             playerOneField.Update(gameTime);
 
             if (!playerOneField.IsPaused)
@@ -194,7 +197,7 @@ namespace NotTetris.GameScreens
             else
                 p1Won = true;
 
-            NewScreen(new ResultsScreen(GetResults()));            
+            NewScreen(new ResultsScreen(GetResults(), false));            
         }
 
         public override Results GetResults()

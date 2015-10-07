@@ -6,21 +6,9 @@ using NotTetris.Graphics;
 
 namespace NotTetris.GameObjects
 {
-    public delegate void GameOverEventHandler(object o, EventArgs e);
-    public delegate void NewNextClusterEventHandler(object o, NewNextClusterEventArgs e);
-    public delegate void ClusterSeparateEventHandler(object o, ClusterSeparateEventArgs e);
-
-    public enum GameType
-    {
-        Normal,
-        Time_match,
-    }
-
-    class Playfield
+    class NetworkPlayfield
     {
         public event GameOverEventHandler GameOver;
-        public event NewNextClusterEventHandler NewNextCluster;
-        public event ClusterSeparateEventHandler ClusterSeparate;
 
         Vector2 position;
         SpriteBatch spriteBatch;
@@ -45,6 +33,7 @@ namespace NotTetris.GameObjects
         ScoreFloater scoreFloater;
         int largestCombo;
 
+        public bool WaitingForCluster { get; set; }
         public Cluster NextCluster { get { return nextCluster; } set { nextCluster = value; } }
         public Cluster CurrentCluster { get { return currentCluster; } set { currentCluster = value; } }
         public float SpeedMultiplier { get; set; }
@@ -56,7 +45,7 @@ namespace NotTetris.GameObjects
         public bool IsShowing { get; set; }
         public float GetScore { get { return scoreCounter.Score; } set { scoreCounter.Score = value; } }
 
-        public Playfield(GameType gameType, Vector2 position, int sizeX)
+        public NetworkPlayfield(GameType gameType, Vector2 position, int sizeX)
         {
             this.position = position;
             if (sizeX % 2 == 0)
@@ -69,7 +58,7 @@ namespace NotTetris.GameObjects
             explodingBlocks = new List<Block>();
             backgroundImage = new Image();
             cutoffLine = new Image();
-            
+
             scoreCounter = new ScoreCounter();
             scoreFloater = new ScoreFloater();
             scale = new Vector2(blockSize / Block.STANDARDSIZE);
@@ -87,6 +76,7 @@ namespace NotTetris.GameObjects
         {
             this.spriteBatch = spriteBatch;
             ControlsLocked = true;
+            WaitingForCluster = false;
             IsPaused = true;
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.playfieldbackground_yellow;
@@ -99,7 +89,7 @@ namespace NotTetris.GameObjects
             cutoffLine.Layer = 1.0f;
             scoreCounter.Initialize();
             scoreCounter.Position = new Vector2(position.X - 150, (position.Y - 25f) * 2.0f);
-            
+
 
             for (int i = 0; i < blockImages.Length; i++)
             {
@@ -128,7 +118,7 @@ namespace NotTetris.GameObjects
             explosionAnimation.TextureName = TextureNames.block_explosion;
 
             scoreFloater.Initialize();
-            scoreFloater.Interval = explosionAnimation.NumFrames / explosionAnimation.FramesPerSecond; 
+            scoreFloater.Interval = explosionAnimation.NumFrames / explosionAnimation.FramesPerSecond;
 
             largestComboText.Initialize();
             largestComboText.Font = FontNames.Segoe_UI_Mono;
@@ -140,10 +130,9 @@ namespace NotTetris.GameObjects
             largestComboText.TextValue = "Max Combo: " + largestCombo;
 
             currentCluster = new Cluster(new Vector2(-100f, -100f), blockSize);
-            CreateNextCluster();
             SpeedMultiplier = 1;
             largestCombo = 0;
-            
+
             this.difficulty = difficulty;
         }
 
@@ -169,9 +158,9 @@ namespace NotTetris.GameObjects
                     if (ClearUpBlocks())
                         ReleaseBlocks();
 
-                    UpdateClusters(gameTime);
+                    //UpdateClusters(gameTime);
 
-                    CheckForClusterCollision();
+                    //CheckForClusterCollision();
 
                     UpdateBlocks(gameTime);
 
@@ -324,13 +313,21 @@ namespace NotTetris.GameObjects
                 {
                     ControlsLocked = true;
                     currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-                    Block[] separatedCluster = currentCluster.Separate();
-                    if (ClusterSeparate != null)
-                        ClusterSeparate(this, new ClusterSeparateEventArgs(separatedCluster[0].Position, separatedCluster[1].Position));
-                    CheckForBlockCollision(separatedCluster[0]);
-                    CheckForBlockCollision(separatedCluster[1]);
-                    blocks.AddRange(separatedCluster);
+                    CheckForBlockCollision(currentCluster.FirstBlock);
+                    CheckForBlockCollision(currentCluster.SecondBlock);
+                    blocks.AddRange(currentCluster.Separate());
                 }
+        }
+
+        public void MoveAndSeparate(Vector2 firstBlock, Vector2 secondBlock)
+        {
+            ControlsLocked = true;
+            currentCluster.FirstBlock.Position = firstBlock;
+            currentCluster.SecondBlock.Position = secondBlock;
+            currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+            CheckForBlockCollision(currentCluster.FirstBlock);
+            CheckForBlockCollision(currentCluster.SecondBlock);
+            blocks.AddRange(currentCluster.Separate());
         }
 
         /// <summary>
@@ -358,8 +355,14 @@ namespace NotTetris.GameObjects
         {
             int posX = GridPositionX(block.Position);
             int posY = GridPositionY(block.Position);
-            //bottom collision (left) & block collision (right)
-            return block.Position.Y >= position.Y + 0.5 * (Height - blockSize) || staticBlocks[posX, posY - 1] != null;
+            if (block.Position.Y >= position.Y + 0.5 * (Height - blockSize))
+                return true;
+            else
+            {
+                if (staticBlocks[posX, posY - 1] != null)
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -468,7 +471,7 @@ namespace NotTetris.GameObjects
             int blockY = GridPositionY(block.Position);
             foreach (Block sameColorBlock in sameColorBlocks)
             {
-                if ( block != sameColorBlock && !sameColorBlock.IsExploding && !connectedBlocks.Contains(sameColorBlock))
+                if (block != sameColorBlock && !sameColorBlock.IsExploding && !connectedBlocks.Contains(sameColorBlock))
                 {
                     int samecolBlockX = GridPositionX(sameColorBlock.Position);
                     int samecolBlockY = GridPositionY(sameColorBlock.Position);
@@ -635,25 +638,26 @@ namespace NotTetris.GameObjects
         }
         #endregion
 
-        private void DropNextCluster()
+        public void DropNextCluster()
         {
             currentCluster = nextCluster;
             currentCluster.Move(position - new Vector2(0f, (Height - blockSize) * 0.5f));
             currentCluster.IsMoving = true;
             currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-            nextCluster = null;
-            CreateNextCluster();
             ControlsLocked = false;
+            nextCluster = null;
             scoreMultiplier = 1;
+            WaitingForCluster = true;
         }
 
-        private void CreateNextCluster()
+        public void CreateNextCluster(BlockType firstBlock, BlockType secondBlock)
         {
             nextCluster = new Cluster(position - new Vector2(250f, 175f), blockSize);
             nextCluster.Initialize();
             nextCluster.IsMoving = false;
-            if (NewNextCluster != null)
-                NewNextCluster(this, new NewNextClusterEventArgs((int)nextCluster.FirstBlock.BlockType, (int)nextCluster.SecondBlock.BlockType));
+            nextCluster.FirstBlock.BlockType = firstBlock;
+            nextCluster.SecondBlock.BlockType = secondBlock;
+            WaitingForCluster = false;
         }
 
         public void Draw(GameTime gameTime)
@@ -690,35 +694,5 @@ namespace NotTetris.GameObjects
                 return explosionAnimation;
             return blockImages[(int)block.BlockType];
         }
-    }
-
-    public class NewNextClusterEventArgs : EventArgs
-    {
-        private int firstBlock;
-        private int secondBlock;
-
-        public NewNextClusterEventArgs(int firstBlock, int secondBlock) 
-        {
-            this.firstBlock = firstBlock;
-            this.secondBlock = secondBlock;
-        }
-
-        public int FirstBlock { get { return firstBlock; } }
-        public int SecondBlock { get { return secondBlock; } }
-    }
-
-    public class ClusterSeparateEventArgs : EventArgs
-    {
-        private Vector2 firstBlockPos;
-        private Vector2 secondBlockPos;
-
-        public ClusterSeparateEventArgs(Vector2 firstBlockPos, Vector2 secondBlockPos)
-        {
-            this.firstBlockPos = firstBlockPos;
-            this.secondBlockPos = secondBlockPos;
-        }
-
-        public Vector2 FirstBlockPosition { get { return firstBlockPos; } }
-        public Vector2 SecondBlockPosition { get { return secondBlockPos; } }
     }
 }

@@ -47,6 +47,7 @@ namespace NotTetris.GameObjects
         public BlockType BlockType
         {
             get { return type; }
+            set { type = value; }
         }
 
         public bool IsCleared
