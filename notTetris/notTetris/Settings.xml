@@ -7,6 +7,7 @@
   <PlayTime>3</PlayTime>
   <PlayfieldSize>9</PlayfieldSize>
   <IP>127.0.0.1</IP>
+  <PORT>12345</PORT>
 
   <Player1Start>Enter</Player1Start>
   <Player1Left>Left</Player1Left>

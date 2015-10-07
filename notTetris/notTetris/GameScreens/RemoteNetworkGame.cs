@@ -27,6 +27,7 @@ namespace NotTetris.GameScreens
         float updateTime;
         BlockType nextFirstBlock;
         BlockType nextSecondBlock;
+        float updateInterval;
 
         public RemoteNetworkGame(Settings settings, NetClient client)
         {
@@ -44,6 +45,7 @@ namespace NotTetris.GameScreens
             base.Initialize(spriteBatch, settings);
 
             updateTime = 0;
+            updateInterval = 30;
             isStarted = false;
             remotePlayerDown = false;
             localPlayerField.Initialize(spriteBatch, settings.Difficulty);
@@ -163,7 +165,7 @@ namespace NotTetris.GameScreens
                     }
                     #endregion
 
-                    if (localPlayerField.CurrentCluster.IsMoving)
+                    if (updateTime > updateInterval && localPlayerField.CurrentCluster.IsMoving)
                     {
                         NetOutgoingMessage outMsg = client.CreateMessage();
                         outMsg.Write("pos");
@@ -171,6 +173,10 @@ namespace NotTetris.GameScreens
                         outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.Y);
                         outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.X);
                         outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.Y);
+                        if (newState.IsKeyDown(settings.Player1Down))
+                            outMsg.Write("Down");
+                        else
+                            outMsg.Write("Up");
                         client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);
                         updateTime = 0;
                     }
@@ -194,6 +200,10 @@ namespace NotTetris.GameScreens
                                     float secondY = msg.ReadFloat();
                                     remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
                                     remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
+                                    if (msg.ReadString() == "Down")
+                                        remotePlayerDown = true;
+                                    else
+                                        remotePlayerDown = false;
                                 }
                                 else if (temp == "nc")
                                 {
@@ -209,7 +219,12 @@ namespace NotTetris.GameScreens
                                     remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
                                 }
                                 else if (temp == "Game Over")
+                                {
+                                    NetOutgoingMessage outMsg = client.CreateMessage();
+                                    outMsg.Write("Ok");
+                                    client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);
                                     WinGame();
+                                }
                             }
                             client.Recycle(msg);
                         }
@@ -264,8 +279,6 @@ namespace NotTetris.GameScreens
             }
             else
                 countdownText.TextValue = Convert.ToString((int)countdownValue + 1);
-
-            
         }
 
         void localPlayerField_ClusterSeparate(object o, ClusterSeparateEventArgs e)
@@ -327,11 +340,25 @@ namespace NotTetris.GameScreens
         private void OnGameOver(object o, EventArgs e)
         {
             p1Won = false;
-            NetOutgoingMessage msg = client.CreateMessage();
-            msg.Write("Game Over");
-            client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
+            NetOutgoingMessage outMsg = client.CreateMessage();
+            outMsg.Write("Game Over");
+            client.SendMessage(outMsg, NetDeliveryMethod.ReliableOrdered);
+            bool waiting = true;
+            while (waiting)
+            {
+                NetIncomingMessage inMsg;
+                while ((inMsg = client.ReadMessage()) != null)
+                {
+                    if (inMsg.MessageType == NetIncomingMessageType.Data)
+                    {
+                        if (inMsg.ReadString() == "Ok")
+                            waiting = false;
+                    }
+                    client.Recycle(inMsg);
+                }
+            }
             System.Threading.Thread.Sleep(1000);
-            NewScreen(new ResultsScreen(GetResults(), true), "Game Over");
+            NewScreen(new ResultsScreen(GetResults(), true), "Game Over");         
         }
 
         public override Results GetResults()

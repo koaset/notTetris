@@ -29,7 +29,7 @@ namespace NotTetris.GameScreens
         NetConnection connection;
         NetConnectionStatus oldStatus;
 
-        private const int PORT = 12345;
+        private string port;
         string ip;
 
         public NetworkGameSetup()
@@ -53,6 +53,7 @@ namespace NotTetris.GameScreens
             hosting = false;
             connecting = false;
             ip = settings.IP;
+            port = settings.PORT;
 
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.game_background;
@@ -159,6 +160,7 @@ namespace NotTetris.GameScreens
                     {
                         Settings readSettings = ReadSettingsFromMessage(msg);
                         settings.IP = ip;
+                        settings.PORT = port;
                         NewScreen(new RemoteNetworkGame(readSettings, client));
                     }
                 client.Recycle(msg);
@@ -292,7 +294,7 @@ namespace NotTetris.GameScreens
             NetPeerConfiguration config = new NetPeerConfiguration("NotTetris");
             client = new NetClient(config);
             client.Start();
-            connection = client.Connect(ip, PORT);
+            connection = client.Connect(ip, Convert.ToInt32(port));
         }
 
         private void StopConnecting()
@@ -320,7 +322,7 @@ namespace NotTetris.GameScreens
             infoText.TextValue = "Hosting...";
             NetPeerConfiguration config = new NetPeerConfiguration("NotTetris");
             config.MaximumConnections = 1;
-            config.Port = PORT;
+            config.Port = Convert.ToInt32(port);
             server = new NetServer(config);
             server.Start();
         }
@@ -340,6 +342,7 @@ namespace NotTetris.GameScreens
             if (connecting)
                 StopConnecting();
             settings.IP = ip;
+            settings.PORT = port;
             NewScreen(new MainMenu());
         }
         private void OnStartButtonClick(object o, EventArgs e)

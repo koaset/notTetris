@@ -17,6 +17,7 @@ namespace NotTetris
         public int PlayTime = 3;
         public int PlayfieldSize = 9;
         public string IP = "127.0.0.1";
+        public string PORT = "12345";
 
         public Keys Player1Start = Keys.Enter;
         public Keys Player1Left = Keys.Left;
@@ -41,6 +42,7 @@ namespace NotTetris
             ret.PlayTime = PlayTime;
             ret.PlayfieldSize = 9;
             ret.IP = IP;
+            ret.PORT = PORT;
             ret.Player1Start = Player1Start;
             ret.Player1Left = Player1Left;
             ret.Player1Right = Player1Right;
