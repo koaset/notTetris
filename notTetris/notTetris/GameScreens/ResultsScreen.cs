@@ -11,6 +11,7 @@ namespace NotTetris.GameScreens
 {
     class ResultsScreen : GameScreen
     {
+        Cursor cursor;
         Image backGroundImage;
         Text gameoverText;
         Text infoText;
@@ -32,6 +33,7 @@ namespace NotTetris.GameScreens
             time = new Text();
             p1Score = new Text();
             p2Score = new Text();
+            cursor = new Cursor();
         }
 
         public override void Initialize(SpriteBatch spriteBatch, Settings settings)
@@ -76,6 +78,8 @@ namespace NotTetris.GameScreens
             p1Score.TextColor = Color.Red;
             p1Score.TextValue = "Score: " + results.Player1Score.ToString("F0");
 
+            cursor.Initialize();
+
             if (!results.IsSinglerplayer)
             {
                 if (results.Player1Won)
@@ -83,14 +87,14 @@ namespace NotTetris.GameScreens
                     if (!isNetwork)
                         gameoverText.TextValue = "Player 1 Won!";
                     else
-                        gameoverText.TextValue = "You Lost!";
+                        gameoverText.TextValue = "You Won!";
                 }
                 else
                 {
                     if (!isNetwork)
                         gameoverText.TextValue = "Player 2 Won!";
                     else
-                        gameoverText.TextValue = "You Won!";
+                        gameoverText.TextValue = "You Lost!";
                 }
 
                 if (!isNetwork)
@@ -135,6 +139,7 @@ namespace NotTetris.GameScreens
             infoText.LoadContent(spriteBatch);
             time.LoadContent(spriteBatch);
             p1Score.LoadContent(spriteBatch);
+            cursor.LoadContent(spriteBatch);
 
             if (!results.IsSinglerplayer)
             {
@@ -152,6 +157,8 @@ namespace NotTetris.GameScreens
                 else
                     NewScreen(new NetworkGameSetup());
             }
+
+            cursor.Update();
         }
 
         public override void Draw(GameTime gameTime)
@@ -162,6 +169,7 @@ namespace NotTetris.GameScreens
             if (!isNetwork)
                 time.Draw(gameTime);
             p1Score.Draw(gameTime);
+            cursor.Draw(gameTime);
 
             if (!results.IsSinglerplayer)
             {

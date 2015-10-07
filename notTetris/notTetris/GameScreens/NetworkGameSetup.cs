@@ -52,7 +52,7 @@ namespace NotTetris.GameScreens
 
             hosting = false;
             connecting = false;
-            ip = settings.IP;
+            ip = "127.0.0.1";// settings.IP;
 
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.game_background;

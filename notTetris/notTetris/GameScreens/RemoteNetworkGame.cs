@@ -52,8 +52,14 @@ namespace NotTetris.GameScreens
             remotePlayerField.Initialize(spriteBatch, settings.Difficulty);
             remotePlayerField.IsShowing = true;
 
+            localPlayerField.GameOver += new GameOverEventHandler(OnGameOver);
+            localPlayerField.NewNextCluster += new NewNextClusterEventHandler(localPlayerField_NewNextCluster);
+            localPlayerField.ClusterSeparate += new ClusterSeparateEventHandler(localPlayerField_ClusterSeparate);
+
             NetOutgoingMessage msg = client.CreateMessage();
             msg.Write("init");
+            msg.Write((int)localPlayerField.CurrentCluster.FirstBlock.BlockType);
+            msg.Write((int)localPlayerField.CurrentCluster.SecondBlock.BlockType);
             msg.Write((int)localPlayerField.NextCluster.FirstBlock.BlockType);
             msg.Write((int)localPlayerField.NextCluster.SecondBlock.BlockType);
             client.SendMessage(msg, NetDeliveryMethod.ReliableOrdered);
@@ -74,11 +80,6 @@ namespace NotTetris.GameScreens
             backgroundImage.Size = SCREENSIZE;
             backgroundImage.Position = SCREENSIZE * 0.5f;
             backgroundImage.TextureName = TextureNames.game_background;
-
-            localPlayerField.GameOver += new GameOverEventHandler(OnGameOver);
-            localPlayerField.NewNextCluster += new NewNextClusterEventHandler(localPlayerField_NewNextCluster);
-            localPlayerField.ClusterSeparate += new ClusterSeparateEventHandler(localPlayerField_ClusterSeparate);
-            remotePlayerField.GameOver += new GameOverEventHandler(OnGameOver);
 
             /*timeLimit = new TimeSpan(0, settings.PlayTime, 0);
             timer.Initialize();
@@ -113,6 +114,8 @@ namespace NotTetris.GameScreens
                         if (msg.ReadString() == "init")
                         {
                             remotePlayerField.CreateNextCluster((BlockType)msg.ReadInt32(), (BlockType)msg.ReadInt32());
+                            remotePlayerField.DropNextCluster();
+                            remotePlayerField.CreateNextCluster((BlockType)msg.ReadInt32(), (BlockType)msg.ReadInt32());
                             notDone = false;
                         }
                     }
@@ -135,7 +138,6 @@ namespace NotTetris.GameScreens
         {
             if (client.ConnectionStatus == NetConnectionStatus.Connected)
             {
-
                 KeyboardState newState = Keyboard.GetState();
 
                 if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
@@ -145,10 +147,7 @@ namespace NotTetris.GameScreens
                     UpdateCountDown(gameTime);
                 else
                 {
-
                     localPlayerField.Update(gameTime);
-
-
 
                     #region Local Player Controls
                     if (!localPlayerField.ControlsLocked)
@@ -240,7 +239,7 @@ namespace NotTetris.GameScreens
             }
             else
             {
-                NewScreen(new NetworkGameSetup());
+                NewScreen(new NetworkGameSetup(), "Lost Connection");
             }
         }
 
@@ -265,6 +264,8 @@ namespace NotTetris.GameScreens
             }
             else
                 countdownText.TextValue = Convert.ToString((int)countdownValue + 1);
+
+            
         }
 
         void localPlayerField_ClusterSeparate(object o, ClusterSeparateEventArgs e)
@@ -320,7 +321,7 @@ namespace NotTetris.GameScreens
         private void WinGame()
         {
             p1Won = true;
-            NewScreen(new ResultsScreen(GetResults(), true));
+            NewScreen(new ResultsScreen(GetResults(), true), "Win");
         }
 
         private void OnGameOver(object o, EventArgs e)

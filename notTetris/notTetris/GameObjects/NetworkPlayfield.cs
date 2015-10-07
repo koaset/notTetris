@@ -128,8 +128,6 @@ namespace NotTetris.GameObjects
             largestComboText.IsCentered = false;
             largestComboText.Spacing = 6;
             largestComboText.TextValue = "Max Combo: " + largestCombo;
-
-            currentCluster = new Cluster(new Vector2(-100f, -100f), blockSize);
             SpeedMultiplier = 1;
             largestCombo = 0;
 
@@ -501,7 +499,6 @@ namespace NotTetris.GameObjects
 
         public void StartGame()
         {
-            DropNextCluster();
             UnPause();
         }
 
@@ -520,7 +517,6 @@ namespace NotTetris.GameObjects
         public void EndGame()
         {
             Pause();
-            GameOver(this, EventArgs.Empty);
         }
 
         #region Commands
@@ -669,8 +665,11 @@ namespace NotTetris.GameObjects
                 scoreCounter.Draw(gameTime);
                 scoreFloater.Draw(gameTime);
                 largestComboText.Draw(gameTime);
-                DrawBlock(currentCluster.FirstBlock, gameTime);
-                DrawBlock(currentCluster.SecondBlock, gameTime);
+                if (currentCluster != null)
+                {
+                    DrawBlock(currentCluster.FirstBlock, gameTime);
+                    DrawBlock(currentCluster.SecondBlock, gameTime);
+                }
                 if (nextCluster != null)
                 {
                     DrawBlock(nextCluster.FirstBlock, gameTime);

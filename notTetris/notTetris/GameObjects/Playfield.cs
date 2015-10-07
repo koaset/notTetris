@@ -139,8 +139,8 @@ namespace NotTetris.GameObjects
             largestComboText.Spacing = 6;
             largestComboText.TextValue = "Max Combo: " + largestCombo;
 
-            currentCluster = new Cluster(new Vector2(-100f, -100f), blockSize);
             CreateNextCluster();
+            DropNextCluster();
             SpeedMultiplier = 1;
             largestCombo = 0;
             
@@ -498,7 +498,6 @@ namespace NotTetris.GameObjects
 
         public void StartGame()
         {
-            DropNextCluster();
             UnPause();
         }
 
@@ -635,7 +634,7 @@ namespace NotTetris.GameObjects
         }
         #endregion
 
-        private void DropNextCluster()
+        public void DropNextCluster()
         {
             currentCluster = nextCluster;
             currentCluster.Move(position - new Vector2(0f, (Height - blockSize) * 0.5f));
@@ -652,7 +651,7 @@ namespace NotTetris.GameObjects
             nextCluster = new Cluster(position - new Vector2(250f, 175f), blockSize);
             nextCluster.Initialize();
             nextCluster.IsMoving = false;
-            if (NewNextCluster != null)
+            if (NewNextCluster != null && !IsPaused)
                 NewNextCluster(this, new NewNextClusterEventArgs((int)nextCluster.FirstBlock.BlockType, (int)nextCluster.SecondBlock.BlockType));
         }
 
@@ -665,8 +664,11 @@ namespace NotTetris.GameObjects
                 scoreCounter.Draw(gameTime);
                 scoreFloater.Draw(gameTime);
                 largestComboText.Draw(gameTime);
-                DrawBlock(currentCluster.FirstBlock, gameTime);
-                DrawBlock(currentCluster.SecondBlock, gameTime);
+                if (currentCluster != null)
+                {
+                    DrawBlock(currentCluster.FirstBlock, gameTime);
+                    DrawBlock(currentCluster.SecondBlock, gameTime);
+                }
                 if (nextCluster != null)
                 {
                     DrawBlock(nextCluster.FirstBlock, gameTime);
