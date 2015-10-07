@@ -30,10 +30,7 @@ namespace NotTetris.GameScreens
         NetConnectionStatus oldStatus;
 
         private const int PORT = 12345;
-        string ip = "127.0.0.1";
-            //"127.0.0.1";
-            //"192.168.0.104";
-            //"83.233.223.246";
+        string ip;
 
         public NetworkGameSetup()
         {
@@ -55,6 +52,7 @@ namespace NotTetris.GameScreens
 
             hosting = false;
             connecting = false;
+            ip = settings.IP;
 
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.game_background;
@@ -160,6 +158,7 @@ namespace NotTetris.GameScreens
                     if (msg.ReadString() == "Start")
                     {
                         Settings readSettings = ReadSettingsFromMessage(msg);
+                        settings.IP = ip;
                         NewScreen(new RemoteNetworkGame(readSettings, client));
                     }
                 client.Recycle(msg);
@@ -340,6 +339,7 @@ namespace NotTetris.GameScreens
                 StopHosting();
             if (connecting)
                 StopConnecting();
+            settings.IP = ip;
             NewScreen(new MainMenu());
         }
         private void OnStartButtonClick(object o, EventArgs e)

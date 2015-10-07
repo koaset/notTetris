@@ -6,6 +6,7 @@
   <BlockDropSpeed>120</BlockDropSpeed>
   <PlayTime>3</PlayTime>
   <PlayfieldSize>9</PlayfieldSize>
+  <IP>127.0.0.1</IP>
 
   <Player1Start>Enter</Player1Start>
   <Player1Left>Left</Player1Left>

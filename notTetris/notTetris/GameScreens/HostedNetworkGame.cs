@@ -175,7 +175,7 @@ namespace NotTetris.GameScreens
                     }
                     #endregion
 
-                    if (updateTime > 200 && localPlayerField.CurrentCluster.IsMoving)
+                    if (localPlayerField.CurrentCluster.IsMoving)
                     {
                         NetOutgoingMessage outMsg = server.CreateMessage();
                         outMsg.Write("pos");
@@ -204,8 +204,8 @@ namespace NotTetris.GameScreens
                                     float firstY = msg.ReadFloat();
                                     float secondX = msg.ReadFloat() - 480;
                                     float secondY = msg.ReadFloat();
-                                    //remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
-                                    //remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
+                                    remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
+                                    remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
                                 }
                                 else if (temp == "nc")
                                 {

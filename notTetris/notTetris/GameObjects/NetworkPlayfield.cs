@@ -158,7 +158,7 @@ namespace NotTetris.GameObjects
                     if (ClearUpBlocks())
                         ReleaseBlocks();
 
-                    //UpdateClusters(gameTime);
+                    UpdateClusters(gameTime);
 
                     //CheckForClusterCollision();
 
