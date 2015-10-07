@@ -161,7 +161,7 @@ namespace NotTetris.GameScreens
                         Settings readSettings = ReadSettingsFromMessage(msg);
                         settings.IP = ip;
                         settings.PORT = port;
-                        NewScreen(new RemoteNetworkGame(readSettings, client));
+                        NewScreen(new NetworkGame(readSettings, client));
                     }
                 client.Recycle(msg);
             }
@@ -351,7 +351,7 @@ namespace NotTetris.GameScreens
             message.Write("Start");
             WriteSettingsToMessage(message, this.settings);
             server.SendMessage(message, connection, NetDeliveryMethod.ReliableOrdered);
-            NewScreen(new HostedNetworkGame(settings, server));
+            NewScreen(new NetworkGame(settings, server));
         }
 
         private void WriteSettingsToMessage(NetOutgoingMessage msg, Settings settings)

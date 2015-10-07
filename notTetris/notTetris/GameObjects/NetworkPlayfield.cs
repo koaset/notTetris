@@ -8,8 +8,6 @@ namespace NotTetris.GameObjects
 {
     class NetworkPlayfield
     {
-        public event GameOverEventHandler GameOver;
-
         Vector2 position;
         SpriteBatch spriteBatch;
         Image backgroundImage;

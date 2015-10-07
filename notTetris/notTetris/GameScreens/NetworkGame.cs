@@ -12,7 +12,7 @@ using Lidgren.Network;
 
 namespace NotTetris.GameScreens
 {
-    class HostedNetworkGame : GameScreen
+    class NetworkGame : GameScreen
     {
         Playfield localPlayerField;
         NetworkPlayfield remotePlayerField;
@@ -22,7 +22,7 @@ namespace NotTetris.GameScreens
         float countdownValue;
         bool p1Won;
         bool isStarted;
-        NetServer server;
+        NetPeer peer;
         NetConnection connection;
         bool remotePlayerDown;
         float updateTime;
@@ -30,19 +30,19 @@ namespace NotTetris.GameScreens
         BlockType nextFirstBlock;
         BlockType nextSecondBlock;
 
-        public HostedNetworkGame(Settings settings, NetServer server)
+        public NetworkGame(Settings settings, NetPeer peer)
         {
-            this.server = server;
+            this.peer = peer;
             localPlayerField = new Playfield(GameType.Normal, new Vector2(780f, 325f), settings.PlayfieldSize);
             remotePlayerField = new NetworkPlayfield(GameType.Normal, new Vector2(300f, 325f), settings.PlayfieldSize);
             backgroundImage = new Image();
             pauseImage = new Image();
             //timer = new Text();
             countdownText = new OutlineText();
-            if (server.ConnectionsCount == 0)
+            if (peer.ConnectionsCount == 0)
                 NewScreen(new NetworkGameSetup(), "No Connection");
             else
-                connection = server.Connections.ToArray()[0];
+                connection = peer.Connections.ToArray()[0];
         }
 
         public override void Initialize(SpriteBatch spriteBatch, Settings settings)
@@ -63,13 +63,13 @@ namespace NotTetris.GameScreens
             localPlayerField.NewNextCluster += new NewNextClusterEventHandler(localPlayerField_NewNextCluster);
             localPlayerField.ClusterSeparate += new ClusterSeparateEventHandler(localPlayerField_ClusterSeparate);
 
-            NetOutgoingMessage msg = server.CreateMessage();
+            NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("init");
             msg.Write((int)localPlayerField.CurrentCluster.FirstBlock.BlockType);
             msg.Write((int)localPlayerField.CurrentCluster.SecondBlock.BlockType);
             msg.Write((int)localPlayerField.NextCluster.FirstBlock.BlockType);
             msg.Write((int)localPlayerField.NextCluster.SecondBlock.BlockType);
-            server.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
             ListenForInit();
 
             localPlayerField.BaseDropSpeed = settings.BlockDropSpeed;
@@ -114,7 +114,7 @@ namespace NotTetris.GameScreens
             while (notDone)
             {
                 NetIncomingMessage msg;
-                while ((msg = server.ReadMessage()) != null)
+                while ((msg = peer.ReadMessage()) != null)
                 {
                     if (msg.MessageType == NetIncomingMessageType.Data)
                     {
@@ -126,7 +126,7 @@ namespace NotTetris.GameScreens
                             notDone = false;
                         }
                     }
-                    server.Recycle(msg);
+                    peer.Recycle(msg);
                 }
             }
         }
@@ -143,9 +143,9 @@ namespace NotTetris.GameScreens
 
         public override void Update(GameTime gameTime)
         {
-            if (server.ConnectionsCount != 0)
+            if (peer.ConnectionsCount != 0)
             {
-                connection = server.Connections.ToArray()[0];
+                connection = peer.Connections.ToArray()[0];
                 KeyboardState newState = Keyboard.GetState();
 
                 if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
@@ -173,7 +173,7 @@ namespace NotTetris.GameScreens
 
                     if (updateTime > updateInterval && localPlayerField.CurrentCluster.IsMoving)
                     {
-                        NetOutgoingMessage outMsg = server.CreateMessage();
+                        NetOutgoingMessage outMsg = peer.CreateMessage();
                         outMsg.Write("pos");
                         outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.X);
                         outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.Y);
@@ -183,7 +183,7 @@ namespace NotTetris.GameScreens
                             outMsg.Write("Down");
                         else
                             outMsg.Write("Up");
-                        server.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
+                        peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
                         updateTime = 0;
                     }
                     else
@@ -193,7 +193,7 @@ namespace NotTetris.GameScreens
                     if (isStarted && !remotePlayerField.ControlsLocked)
                     {
                         NetIncomingMessage msg;
-                        while ((msg = server.ReadMessage()) != null)
+                        while ((msg = peer.ReadMessage()) != null)
                         {
                             if (msg.MessageType == NetIncomingMessageType.Data)
                             {
@@ -226,13 +226,13 @@ namespace NotTetris.GameScreens
                                 }
                                 else if (temp == "Game Over")
                                 {
-                                    NetOutgoingMessage outMsg = server.CreateMessage();
+                                    NetOutgoingMessage outMsg = peer.CreateMessage();
                                     outMsg.Write("Ok");
-                                    server.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
+                                    peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
                                     WinGame();
                                 }
                             }
-                            server.Recycle(msg);
+                            peer.Recycle(msg);
                         }
                     }
                     #endregion
@@ -265,10 +265,10 @@ namespace NotTetris.GameScreens
 
         private void SendMessage(string code, string message)
         {
-            NetOutgoingMessage msg = server.CreateMessage();
+            NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write(code);
             msg.Write(message);
-            server.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
         private void UpdateCountDown(GameTime gameTime)
@@ -312,27 +312,27 @@ namespace NotTetris.GameScreens
 
         void localPlayerField_ClusterSeparate(object o, ClusterSeparateEventArgs e)
         {
-            NetOutgoingMessage msg = server.CreateMessage();
+            NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("cs");
             msg.Write(e.FirstBlockPosition.X);
             msg.Write(e.FirstBlockPosition.Y);
             msg.Write(e.SecondBlockPosition.X);
             msg.Write(e.SecondBlockPosition.Y);
-            server.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
         void localPlayerField_NewNextCluster(object o, NewNextClusterEventArgs e)
         {
-            NetOutgoingMessage msg = server.CreateMessage();
+            NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("nc");
             msg.Write(e.FirstBlock);
             msg.Write(e.SecondBlock);
-            server.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
         private void NewScreen(GameScreen newScreen, string reason)
         {
-            server.Shutdown(reason);
+            peer.Shutdown(reason);
             NewScreen(newScreen);
         }
 
@@ -346,25 +346,25 @@ namespace NotTetris.GameScreens
         private void OnGameOver(object o, EventArgs e)
         {
             p1Won = false;
-            NetOutgoingMessage outMsg = server.CreateMessage();
+            NetOutgoingMessage outMsg = peer.CreateMessage();
             outMsg.Write("Game Over");
-            server.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
+            peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
             bool waiting = true;
             while (waiting)
             {
                 NetIncomingMessage inMsg;
-                while ((inMsg = server.ReadMessage()) != null)
+                while ((inMsg = peer.ReadMessage()) != null)
                 {
                     if (inMsg.MessageType == NetIncomingMessageType.Data)
                     {
                         if (inMsg.ReadString() == "Ok")
                             waiting = false;
                     }
-                    server.Recycle(inMsg);
+                    peer.Recycle(inMsg);
                 }
             }
             System.Threading.Thread.Sleep(1000);
-            NewScreen(new ResultsScreen(GetResults(), true), "Game Over");         
+            NewScreen(new ResultsScreen(GetResults(), true), "Game Over");
         }
 
         public override Results GetResults()
@@ -375,8 +375,8 @@ namespace NotTetris.GameScreens
             r.Player1Won = p1Won;
             //r.Time = time;
             r.Player1Score = localPlayerField.GetScore;
-            r.Player2Score = remotePlayerField.GetScore;            
-            r.Difficulty = settings.Difficulty;            
+            r.Player2Score = remotePlayerField.GetScore;
+            r.Difficulty = settings.Difficulty;
 
             return r;
         }
