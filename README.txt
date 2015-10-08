@@ -1,4 +1,4 @@
-# Not-Tetris
+# Not-Tetris by Karl-Oskar Smed @koaset
 
 Simple clone of the game Puyo Puyo created for fun.
 Created using Visual Studio 2012 and XNA 4.0.
