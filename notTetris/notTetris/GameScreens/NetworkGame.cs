@@ -19,6 +19,9 @@ namespace NotTetris.GameScreens
         Image backgroundImage;
         Image pauseImage;
         OutlineText countdownText;
+        Text timeText;
+        TimeSpan timePlayed;
+        TimeSpan timeLimit;
         float countdownValue;
         bool p1Won;
         bool isStarted;
@@ -29,15 +32,18 @@ namespace NotTetris.GameScreens
         float updateInterval;
         BlockType nextFirstBlock;
         BlockType nextSecondBlock;
+        KeyboardState newState;
+        float xDiff;
 
         public NetworkGame(Settings settings, NetPeer peer)
         {
             this.peer = peer;
             localPlayerField = new Playfield(GameType.Normal, new Vector2(780f, 325f), settings.PlayfieldSize);
             remotePlayerField = new NetworkPlayfield(GameType.Normal, new Vector2(300f, 325f), settings.PlayfieldSize);
+            xDiff = localPlayerField.Position.X - remotePlayerField.Position.X;
             backgroundImage = new Image();
             pauseImage = new Image();
-            //timer = new Text();
+            timeText = new Text();
             countdownText = new OutlineText();
             if (peer.ConnectionsCount == 0)
                 NewScreen(new NetworkGameSetup(), "No Connection");
@@ -88,13 +94,14 @@ namespace NotTetris.GameScreens
             backgroundImage.Position = SCREENSIZE * 0.5f;
             backgroundImage.TextureName = TextureNames.game_background;
 
-            /*timeLimit = new TimeSpan(0, settings.PlayTime, 0);
-            timer.Initialize();
-            timer.Font = FontNames.Segoe_UI_Mono;
-            timer.Layer = 0.8f;
-            timer.Position = new Vector2(10);
-            timer.TextColor = Color.Navy;
-            timer.TextValue = "Time left: " + timeLimit.Minutes.ToString() + ":" + timeLimit.Seconds.ToString();*/
+            timeLimit = new TimeSpan(0, settings.PlayTime, 0);
+            timeLimit = new TimeSpan(0, 0, 30);
+            timeText.Initialize();
+            timeText.Font = FontNames.Segoe_UI_Mono;
+            timeText.Layer = 0.8f;
+            timeText.Position = new Vector2(10);
+            timeText.TextColor = Color.Navy;
+            timeText.TextValue = "Time left: " + timeLimit.Minutes.ToString() + ":" + timeLimit.Seconds.ToString();
 
             countdownValue = 5.0f;
             countdownText.Initialize();
@@ -137,7 +144,7 @@ namespace NotTetris.GameScreens
             remotePlayerField.LoadContent();
             pauseImage.LoadContent(spriteBatch);
             backgroundImage.LoadContent(spriteBatch);
-            //timer.LoadContent(spriteBatch);
+            timeText.LoadContent(spriteBatch);
             countdownText.LoadContent(spriteBatch);
         }
 
@@ -145,8 +152,7 @@ namespace NotTetris.GameScreens
         {
             if (peer.ConnectionsCount != 0)
             {
-                connection = peer.Connections.ToArray()[0];
-                KeyboardState newState = Keyboard.GetState();
+                newState = Keyboard.GetState();
 
                 if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
                     NewScreen(new MainMenu(), "F10");
@@ -157,85 +163,17 @@ namespace NotTetris.GameScreens
                 {
                     localPlayerField.Update(gameTime);
 
-                    #region Local Player Controls
-                    if (!localPlayerField.ControlsLocked)
-                    {
-                        if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
-                            localPlayerField.RotateCluster();
-                        else if (newState.IsKeyDown(settings.Player1Left) && oldState.IsKeyUp(settings.Player1Left))
-                            localPlayerField.MoveClusterLeft();
-                        else if (newState.IsKeyDown(settings.Player1Right) && oldState.IsKeyUp(settings.Player1Right))
-                            localPlayerField.MoveClusterRight();
-                        if (newState.IsKeyDown(settings.Player1Down))
-                            localPlayerField.MoveClusterDown();
-                    }
-                    #endregion
+                    HandleInput();
 
                     if (updateTime > updateInterval && localPlayerField.CurrentCluster.IsMoving)
                     {
-                        NetOutgoingMessage outMsg = peer.CreateMessage();
-                        outMsg.Write("pos");
-                        outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.X);
-                        outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.Y);
-                        outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.X);
-                        outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.Y);
-                        if (newState.IsKeyDown(settings.Player1Down))
-                            outMsg.Write("Down");
-                        else
-                            outMsg.Write("Up");
-                        peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
+                        SendPositionMessage();
                         updateTime = 0;
                     }
                     else
                         updateTime += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
-                    #region read remote messages
-                    if (isStarted && !remotePlayerField.ControlsLocked)
-                    {
-                        NetIncomingMessage msg;
-                        while ((msg = peer.ReadMessage()) != null)
-                        {
-                            if (msg.MessageType == NetIncomingMessageType.Data)
-                            {
-                                string temp = msg.ReadString();
-                                if (temp == "pos" && !remotePlayerField.ControlsLocked && !remotePlayerField.WaitingForCluster)
-                                {
-                                    float firstX = msg.ReadFloat() - 480;
-                                    float firstY = msg.ReadFloat();
-                                    float secondX = msg.ReadFloat() - 480;
-                                    float secondY = msg.ReadFloat();
-                                    remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
-                                    remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
-                                    if (msg.ReadString() == "Down")
-                                        remotePlayerDown = true;
-                                    else
-                                        remotePlayerDown = false;
-                                }
-                                else if (temp == "nc")
-                                {
-                                    nextFirstBlock = (BlockType)msg.ReadInt32();
-                                    nextSecondBlock = (BlockType)msg.ReadInt32();
-                                }
-                                else if (temp == "cs")
-                                {
-                                    float firstX = msg.ReadFloat() - 480;
-                                    float firstY = msg.ReadFloat();
-                                    float secondX = msg.ReadFloat() - 480;
-                                    float secondY = msg.ReadFloat();
-                                    remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
-                                }
-                                else if (temp == "Game Over")
-                                {
-                                    NetOutgoingMessage outMsg = peer.CreateMessage();
-                                    outMsg.Write("Ok");
-                                    peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
-                                    WinGame();
-                                }
-                            }
-                            peer.Recycle(msg);
-                        }
-                    }
-                    #endregion
+                    ReadMessages();
 
                     if (remotePlayerField.WaitingForCluster)
                         remotePlayerField.CreateNextCluster(nextFirstBlock, nextSecondBlock);
@@ -245,15 +183,7 @@ namespace NotTetris.GameScreens
 
                     remotePlayerField.Update(gameTime);
 
-                    /*TimeSpan timeLeft = timeLimit - time;
-
-                    timer.TextValue = "Time left: " + timeLeft.Minutes.ToString() + ":" + timeLeft.Seconds.ToString();
-
-                    if (timeLeft.Minutes == 0 && timeLeft.Seconds == 0)
-                        if (localPlayerField.GetScore > remotePlayerField.GetScore)
-                            remotePlayerField.EndGame();
-                        else
-                            localPlayerField.EndGame();*/
+                    HandleTimer(gameTime);
                 }
                 oldState = newState;
             }
@@ -261,14 +191,6 @@ namespace NotTetris.GameScreens
             {
                 NewScreen(new NetworkGameSetup(), "Lost Connection");
             }
-        }
-
-        private void SendMessage(string code, string message)
-        {
-            NetOutgoingMessage msg = peer.CreateMessage();
-            msg.Write(code);
-            msg.Write(message);
-            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
         private void UpdateCountDown(GameTime gameTime)
@@ -284,6 +206,99 @@ namespace NotTetris.GameScreens
             }
             else
                 countdownText.TextValue = Convert.ToString((int)countdownValue + 1);
+        }
+
+        private void HandleInput()
+        {
+            if (!localPlayerField.ControlsLocked)
+            {
+                if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
+                    localPlayerField.RotateCluster();
+                else if (newState.IsKeyDown(settings.Player1Left) && oldState.IsKeyUp(settings.Player1Left))
+                    localPlayerField.MoveClusterLeft();
+                else if (newState.IsKeyDown(settings.Player1Right) && oldState.IsKeyUp(settings.Player1Right))
+                    localPlayerField.MoveClusterRight();
+                if (newState.IsKeyDown(settings.Player1Down))
+                    localPlayerField.MoveClusterDown();
+            }
+        }
+
+        private void SendPositionMessage()
+        {
+            NetOutgoingMessage outMsg = peer.CreateMessage();
+            outMsg.Write("pos");
+            outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.X);
+            outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.Y);
+            outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.X);
+            outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.Y);
+            if (newState.IsKeyDown(settings.Player1Down))
+                outMsg.Write("Down");
+            else
+                outMsg.Write("Up");
+            peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        private void ReadMessages()
+        {
+            if (isStarted && !remotePlayerField.ControlsLocked)
+            {
+                NetIncomingMessage msg;
+                while ((msg = peer.ReadMessage()) != null)
+                {
+                    if (msg.MessageType == NetIncomingMessageType.Data)
+                    {
+                        string temp = msg.ReadString();
+                        if (temp == "pos" && !remotePlayerField.ControlsLocked && !remotePlayerField.WaitingForCluster)
+                        {
+                            float firstX = msg.ReadFloat() - xDiff;
+                            float firstY = msg.ReadFloat();
+                            float secondX = msg.ReadFloat() - xDiff;
+                            float secondY = msg.ReadFloat();
+                            remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
+                            remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
+                            if (msg.ReadString() == "Down")
+                                remotePlayerDown = true;
+                            else
+                                remotePlayerDown = false;
+                        }
+                        else if (temp == "nc")
+                        {
+                            nextFirstBlock = (BlockType)msg.ReadInt32();
+                            nextSecondBlock = (BlockType)msg.ReadInt32();
+                        }
+                        else if (temp == "cs")
+                        {
+                            float firstX = msg.ReadFloat() - xDiff;
+                            float firstY = msg.ReadFloat();
+                            float secondX = msg.ReadFloat() - xDiff;
+                            float secondY = msg.ReadFloat();
+                            remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
+                        }
+                        else if (temp == "Game Over")
+                        {
+                            NetOutgoingMessage outMsg = peer.CreateMessage();
+                            outMsg.Write("Ok");
+                            peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
+                            WinGame();
+                        }
+                    }
+                    peer.Recycle(msg);
+                }
+            }
+        }
+
+        private void HandleTimer(GameTime gameTime)
+        {
+            timePlayed += gameTime.ElapsedGameTime;
+            TimeSpan timeLeft = timeLimit - timePlayed;
+            timeText.TextValue = "Time left: " + timeLeft.Minutes.ToString() + ":" + timeLeft.Seconds.ToString();
+            if (timeLeft.Minutes == 0 && timeLeft.Seconds == 0)
+            {
+                if (localPlayerField.GetScore > remotePlayerField.GetScore)
+                    WinGame();
+                else
+                    OnGameOver(this, EventArgs.Empty);
+            }
         }
 
         private void Pause()
@@ -306,7 +321,7 @@ namespace NotTetris.GameScreens
             pauseImage.Draw(gameTime);
             localPlayerField.Draw(gameTime);
             remotePlayerField.Draw(gameTime);
-            //timer.Draw(gameTime);
+            timeText.Draw(gameTime);
             countdownText.Draw(gameTime);
         }
 
@@ -343,6 +358,13 @@ namespace NotTetris.GameScreens
             NewScreen(new ResultsScreen(GetResults(), true), "Win");
         }
 
+        private void LoseGame()
+        {
+            p1Won = false;
+            System.Threading.Thread.Sleep(1000);
+            NewScreen(new ResultsScreen(GetResults(), true), "Lose");
+        }
+
         private void OnGameOver(object o, EventArgs e)
         {
             p1Won = false;
@@ -373,7 +395,7 @@ namespace NotTetris.GameScreens
 
             r.IsSinglerplayer = false;
             r.Player1Won = p1Won;
-            //r.Time = time;
+            r.Time = timePlayed;
             r.Player1Score = localPlayerField.GetScore;
             r.Player2Score = remotePlayerField.GetScore;
             r.Difficulty = settings.Difficulty;

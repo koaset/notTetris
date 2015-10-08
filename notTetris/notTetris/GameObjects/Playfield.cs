@@ -45,6 +45,7 @@ namespace NotTetris.GameObjects
         ScoreFloater scoreFloater;
         int largestCombo;
 
+        public Vector2 Position { get { return position; } }
         public Cluster NextCluster { get { return nextCluster; } set { nextCluster = value; } }
         public Cluster CurrentCluster { get { return currentCluster; } set { currentCluster = value; } }
         public float SpeedMultiplier { get; set; }
