@@ -29,7 +29,7 @@ namespace NotTetris.GameScreens
         NetConnection connection;
         NetConnectionStatus oldStatus;
 
-        private string port;
+        int port;
         string ip;
 
         public NetworkGameSetup()
@@ -54,6 +54,8 @@ namespace NotTetris.GameScreens
             connecting = false;
             ip = settings.IP;
             port = settings.PORT;
+            if (port <= 0 || port >= 60000)
+                port = 12345;
 
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.game_background;
@@ -65,7 +67,7 @@ namespace NotTetris.GameScreens
             ipPopup.ClosePopup += new ClosePopupEventHandler(OnClosePopup);
             ipText.Initialize();
             ipText.Position = new Vector2(500f, 150);
-            ipText.TextValue = "IP: " + ip;
+            ipText.TextValue = "IP: " + ip + ":" + port;
             infoText.Initialize();
             infoText.Position = new Vector2(500f, 250);
             infoText.IsShowing = true;
@@ -145,7 +147,7 @@ namespace NotTetris.GameScreens
             NetConnectionStatus newStatus = client.ConnectionStatus;
 
             if (newStatus == NetConnectionStatus.Connected && oldStatus != NetConnectionStatus.Connected)
-                infoText.TextValue = "Connected.\nWaiting for server...";
+                infoText.TextValue = "Connected.\nWaiting for host...";
             else if (newStatus != NetConnectionStatus.Connected && oldStatus == NetConnectionStatus.Connected)
             {
                 StopConnecting();
@@ -253,7 +255,7 @@ namespace NotTetris.GameScreens
                 if (IsValidIP(e.ToString()))
                 {
                     ip = e.ToString();
-                    ipText.TextValue = "IP: " + ip;
+                    ipText.TextValue = "IP: " + ip + ":" + port;
                     infoText.TextValue = "";
                 }
                 else
