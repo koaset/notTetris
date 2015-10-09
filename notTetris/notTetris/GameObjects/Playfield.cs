@@ -22,27 +22,27 @@ namespace NotTetris.GameObjects
         public event NewNextClusterEventHandler NewNextCluster;
         public event ClusterSeparateEventHandler ClusterSeparate;
 
-        Vector2 position;
+        protected Vector2 position;
         SpriteBatch spriteBatch;
         Image backgroundImage;
         Image cutoffLine;
         Image[] blockImages;
-        Animation explosionAnimation;
+        protected Animation explosionAnimation;
         ScoreCounter scoreCounter;
-        float blockSize;
+        protected float blockSize;
         Vector2 scale;
-        List<Block> blocks;
+        protected List<Block> blocks;
         List<Block> connectedBlocks;
-        List<Block> explodingBlocks;
-        Cluster currentCluster;
-        Cluster nextCluster;
+        protected List<Block> explodingBlocks;
+        protected Cluster currentCluster;
+        protected Cluster nextCluster;
         Block[,] staticBlocks;
         int startingColumn;
-        int scoreMultiplier;
+        protected int scoreMultiplier;
         int maxBlocks;
         string difficulty;
         Text largestComboText;
-        ScoreFloater scoreFloater;
+        protected ScoreFloater scoreFloater;
         int largestCombo;
 
         public Vector2 Position { get { return position; } }
@@ -84,11 +84,20 @@ namespace NotTetris.GameObjects
             largestComboText = new Text();
         }
 
-        public void Initialize(SpriteBatch spriteBatch, string difficulty)
+        public virtual void Initialize(SpriteBatch spriteBatch, string difficulty)
+        {
+            InitializeContent(spriteBatch, difficulty);
+
+            CreateNextCluster();
+            DropNextCluster();
+        }
+
+        protected void InitializeContent(SpriteBatch spriteBatch, string difficulty)
         {
             this.spriteBatch = spriteBatch;
             ControlsLocked = true;
             IsPaused = true;
+
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.playfieldbackground_yellow;
             backgroundImage.Position = position;
@@ -100,7 +109,7 @@ namespace NotTetris.GameObjects
             cutoffLine.Layer = 1.0f;
             scoreCounter.Initialize();
             scoreCounter.Position = new Vector2(position.X - 150, (position.Y - 25f) * 2.0f);
-            
+
 
             for (int i = 0; i < blockImages.Length; i++)
             {
@@ -129,7 +138,7 @@ namespace NotTetris.GameObjects
             explosionAnimation.TextureName = TextureNames.block_explosion;
 
             scoreFloater.Initialize();
-            scoreFloater.Interval = explosionAnimation.NumFrames / explosionAnimation.FramesPerSecond; 
+            scoreFloater.Interval = explosionAnimation.NumFrames / explosionAnimation.FramesPerSecond;
 
             largestComboText.Initialize();
             largestComboText.Font = FontNames.Segoe_UI_Mono;
@@ -140,11 +149,8 @@ namespace NotTetris.GameObjects
             largestComboText.Spacing = 6;
             largestComboText.TextValue = "Max Combo: " + largestCombo;
 
-            CreateNextCluster();
-            DropNextCluster();
             SpeedMultiplier = 1;
             largestCombo = 0;
-            
             this.difficulty = difficulty;
         }
 
@@ -161,7 +167,7 @@ namespace NotTetris.GameObjects
             explosionAnimation.LoadContent(spriteBatch);
         }
 
-        public void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime)
         {
             if (!IsPaused)
             {
@@ -214,7 +220,7 @@ namespace NotTetris.GameObjects
         /// Updates explosion animation and removes exploded block at the end
         /// </summary>
         /// <param name="gameTime"></param>
-        private void UpdateExplosion(GameTime gameTime)
+        protected void UpdateExplosion(GameTime gameTime)
         {
             explosionAnimation.Update(gameTime);
             if (explosionAnimation.CurrentFrame >= explosionAnimation.NumFrames - 1)
@@ -248,7 +254,7 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Checks newly stationary blocks for explosion conditions
         /// </summary>
-        private void CheckForExplosions()
+        protected void CheckForExplosions()
         {
             bool checkBlocks = true;
 
@@ -267,7 +273,7 @@ namespace NotTetris.GameObjects
         /// Retruns true if game over conditions are met
         /// </summary>
         /// <returns></returns>
-        private bool IsGameOver()
+        protected bool IsGameOver()
         {
             for (int i = 0; i < staticBlocks.GetLength(0); i++)
                 for (int j = staticBlocks.GetLength(1) - 3; j < staticBlocks.GetLength(1); j++)
@@ -279,7 +285,7 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Makes blocks fall if there is space below
         /// </summary>
-        private void ReleaseBlocks()
+        protected void ReleaseBlocks()
         {
             for (int i = 0; i < staticBlocks.GetLength(0); i++)
             {
@@ -301,7 +307,7 @@ namespace NotTetris.GameObjects
         /// Clears up exploded blocks.
         /// </summary>
         /// <returns>True if blocks ar</returns>
-        private bool ClearUpBlocks()
+        protected bool ClearUpBlocks()
         {
             if (explodingBlocks.Count != 0)
             {
@@ -338,7 +344,7 @@ namespace NotTetris.GameObjects
         /// Checks if a block collides with anything
         /// </summary>
         /// <param name="block"></param>
-        private void CheckForBlockCollision(Block block)
+        protected void CheckForBlockCollision(Block block)
         {
             int posX = GridPositionX(block.Position);
             int posY = GridPositionY(block.Position);
@@ -355,7 +361,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
-        private bool BlockHasCollided(Block block)
+        protected bool BlockHasCollided(Block block)
         {
             int posX = GridPositionX(block.Position);
             int posY = GridPositionY(block.Position);
@@ -514,10 +520,11 @@ namespace NotTetris.GameObjects
             ControlsLocked = false;
         }
 
-        public void EndGame()
+        public virtual void EndGame()
         {
             Pause();
-            GameOver(this, EventArgs.Empty);
+            if (GameOver != null)
+                GameOver(this, EventArgs.Empty);
         }
 
         #region Commands
@@ -635,7 +642,7 @@ namespace NotTetris.GameObjects
         }
         #endregion
 
-        public void DropNextCluster()
+        public virtual void DropNextCluster()
         {
             currentCluster = nextCluster;
             currentCluster.Move(position - new Vector2(0f, (Height - blockSize) * 0.5f));

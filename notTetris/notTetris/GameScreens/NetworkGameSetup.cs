@@ -28,7 +28,8 @@ namespace NotTetris.GameScreens
         bool connecting;
         NetConnection connection;
         NetConnectionStatus oldStatus;
-
+        double connectTimer;
+        double connectTimeLimit;
         int port;
         string ip;
 
@@ -50,6 +51,8 @@ namespace NotTetris.GameScreens
         {
             base.Initialize(spriteBatch, settings);
 
+            connectTimer = 0;
+            connectTimeLimit = 5;
             hosting = false;
             connecting = false;
             ip = settings.IP;
@@ -57,6 +60,7 @@ namespace NotTetris.GameScreens
             if (port <= 0 || port >= 60000)
                 port = 12345;
 
+            #region Initialize controls
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.game_background;
             backgroundImage.Size = new Vector2(1000, 720);
@@ -67,7 +71,7 @@ namespace NotTetris.GameScreens
             ipPopup.ClosePopup += new ClosePopupEventHandler(OnClosePopup);
             ipText.Initialize();
             ipText.Position = new Vector2(500f, 150);
-            ipText.TextValue = "IP: " + ip + ":" + port;
+            ipText.TextValue = "IP: " + ip;
             infoText.Initialize();
             infoText.Position = new Vector2(500f, 250);
             infoText.IsShowing = true;
@@ -97,6 +101,7 @@ namespace NotTetris.GameScreens
             startButton.Click += OnStartButtonClick;
             startButton.Enabled = false;
             startButton.IsShowing = false;
+            #endregion
         }
 
         public override void LoadContent()
@@ -136,12 +141,12 @@ namespace NotTetris.GameScreens
             oldState = newState;
 
             if (connecting)
-                UpdateClient();
+                UpdateClient(gameTime);
             else if (hosting)
                 UpdatesServer();
         }
 
-        private void UpdateClient()
+        private void UpdateClient(GameTime gameTime)
         {
             NetIncomingMessage msg;
             NetConnectionStatus newStatus = client.ConnectionStatus;
@@ -153,7 +158,16 @@ namespace NotTetris.GameScreens
                 StopConnecting();
                 infoText.TextValue = "Lost connection";
             }
-
+            else if (newStatus != NetConnectionStatus.Connected && oldStatus != NetConnectionStatus.Connected)
+            {
+                if (connectTimer > connectTimeLimit)
+                {
+                    connectTimer = 0;
+                    StopConnecting();
+                    infoText.TextValue = "No host found";
+                }
+                connectTimer += gameTime.ElapsedGameTime.TotalSeconds;
+            }
                 
             while ((msg = client.ReadMessage()) != null)
             {
@@ -165,6 +179,8 @@ namespace NotTetris.GameScreens
                         settings.PORT = port;
                         NewScreen(new NetworkGame(readSettings, client));
                     }
+                if (msg.MessageType == NetIncomingMessageType.ConnectionApproval)
+                    msg.SenderConnection.Approve();
                 client.Recycle(msg);
             }
 
@@ -197,10 +213,7 @@ namespace NotTetris.GameScreens
             while ((msg = server.ReadMessage()) != null)
             {
                 if (msg.MessageType == NetIncomingMessageType.ConnectionApproval)
-                {
-                    NetIncomingMessage hail = msg.SenderConnection.RemoteHailMessage;
                     msg.SenderConnection.Approve();
-                }
                 server.Recycle(msg);
             }
         }
@@ -255,7 +268,7 @@ namespace NotTetris.GameScreens
                 if (IsValidIP(e.ToString()))
                 {
                     ip = e.ToString();
-                    ipText.TextValue = "IP: " + ip + ":" + port;
+                    ipText.TextValue = "IP: " + ip;
                     infoText.TextValue = "";
                 }
                 else

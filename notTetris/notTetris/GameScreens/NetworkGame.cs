@@ -59,6 +59,8 @@ namespace NotTetris.GameScreens
             updateInterval = 30;
             isStarted = false;
             remotePlayerDown = false;
+
+            #region Initialize playfields
             localPlayerField.Initialize(spriteBatch, settings.Difficulty);
             localPlayerField.IsShowing = true;
             System.Threading.Thread.Sleep(10);
@@ -80,7 +82,9 @@ namespace NotTetris.GameScreens
 
             localPlayerField.BaseDropSpeed = settings.BlockDropSpeed;
             remotePlayerField.BaseDropSpeed = settings.BlockDropSpeed;
+            #endregion
 
+            #region Initialize images & text
             pauseImage.Initialize();
             pauseImage.Layer = 0.9f;
             pauseImage.Size = new Vector2(487, 120);
@@ -95,7 +99,6 @@ namespace NotTetris.GameScreens
             backgroundImage.TextureName = TextureNames.game_background;
 
             timeLimit = new TimeSpan(0, settings.PlayTime, 0);
-            timeLimit = new TimeSpan(0, 0, 30);
             timeText.Initialize();
             timeText.Font = FontNames.Segoe_UI_Mono;
             timeText.Layer = 0.8f;
@@ -113,6 +116,7 @@ namespace NotTetris.GameScreens
             countdownText.OutlineColor = Color.White;
             countdownText.OutlineSize = 3f;
             countdownText.TextValue = Convert.ToString(countdownValue);
+            #endregion
         }
 
         private void ListenForInit()
@@ -150,47 +154,44 @@ namespace NotTetris.GameScreens
 
         public override void Update(GameTime gameTime)
         {
-            if (peer.ConnectionsCount != 0)
-            {
-                newState = Keyboard.GetState();
+            newState = Keyboard.GetState();
 
-                if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
-                    NewScreen(new MainMenu(), "F10");
+            if (newState.IsKeyDown(Keys.F10) && oldState.IsKeyUp(Keys.F10))
+                NewScreen(new MainMenu(), "F10");
 
-                if (!isStarted)
-                    UpdateCountDown(gameTime);
-                else
-                {
-                    localPlayerField.Update(gameTime);
+            if (peer.ConnectionsCount == 0)
+                NewScreen(new NetworkGameSetup(), "Lost Connection");
 
-                    HandleInput();
-
-                    if (updateTime > updateInterval && localPlayerField.CurrentCluster.IsMoving)
-                    {
-                        SendPositionMessage();
-                        updateTime = 0;
-                    }
-                    else
-                        updateTime += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-
-                    ReadMessages();
-
-                    if (remotePlayerField.WaitingForCluster)
-                        remotePlayerField.CreateNextCluster(nextFirstBlock, nextSecondBlock);
-
-                    if (remotePlayerDown)
-                        remotePlayerField.MoveClusterDown();
-
-                    remotePlayerField.Update(gameTime);
-
-                    HandleTimer(gameTime);
-                }
-                oldState = newState;
-            }
+            if (!isStarted)
+                UpdateCountDown(gameTime);
             else
             {
-                NewScreen(new NetworkGameSetup(), "Lost Connection");
+                localPlayerField.Update(gameTime);
+
+                HandleInput();
+
+                if (updateTime > updateInterval && localPlayerField.CurrentCluster.IsMoving)
+                {
+                    SendPositionMessage();
+                    updateTime = 0;
+                }
+                else
+                    updateTime += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                ReadMessages();
+
+                if (remotePlayerField.WaitingForCluster)
+                    remotePlayerField.CreateNextCluster(nextFirstBlock, nextSecondBlock);
+
+                if (remotePlayerDown)
+                    remotePlayerField.MoveClusterDown();
+
+                remotePlayerField.Update(gameTime);
+
+                HandleTimer(gameTime);
             }
+
+            oldState = newState;
         }
 
         private void UpdateCountDown(GameTime gameTime)
@@ -292,12 +293,16 @@ namespace NotTetris.GameScreens
             timePlayed += gameTime.ElapsedGameTime;
             TimeSpan timeLeft = timeLimit - timePlayed;
             timeText.TextValue = "Time left: " + timeLeft.Minutes.ToString() + ":" + timeLeft.Seconds.ToString();
-            if (timeLeft.Minutes == 0 && timeLeft.Seconds == 0)
+            if (timeLeft.Seconds < 0)
             {
                 if (localPlayerField.GetScore > remotePlayerField.GetScore)
                     WinGame();
                 else
-                    OnGameOver(this, EventArgs.Empty);
+                {
+                    p1Won = false;
+                    System.Threading.Thread.Sleep(1000);
+                    NewScreen(new ResultsScreen(GetResults(), true), "Game Over");
+                }
             }
         }
 
