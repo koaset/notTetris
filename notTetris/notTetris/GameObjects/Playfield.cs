@@ -49,6 +49,7 @@ namespace NotTetris.GameObjects
         float moveCooldown;
         float dropTimer;
         float dropInterval;
+        bool waitForDropTimer;
 
         public Vector2 Position { get { return position; } }
         public Cluster NextCluster { get { return nextCluster; } set { nextCluster = value; } }
@@ -108,12 +109,14 @@ namespace NotTetris.GameObjects
             dropInterval = 500f;
             moveRightTimer = 0;
             moveLeftTimer = 0;
-            moveCooldown = 80;
+            moveCooldown = 100;
 
+            #region Initialize images, blocks and text
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.playfieldbackground_yellow;
             backgroundImage.Position = position;
             backgroundImage.Size = new Vector2(Width + 20, Height + 20);
+
             cutoffLine.Initialize();
             cutoffLine.TextureName = TextureNames.red_line;
             cutoffLine.Position = new Vector2(position.X, position.Y + Height * 0.5f - blockSize * (staticBlocks.GetLength(1) - 3));
@@ -160,6 +163,7 @@ namespace NotTetris.GameObjects
             largestComboText.IsCentered = false;
             largestComboText.Spacing = 6;
             largestComboText.TextValue = "Max Combo: " + largestCombo;
+            #endregion
 
             SpeedMultiplier = 1;
             largestCombo = 0;
@@ -183,37 +187,42 @@ namespace NotTetris.GameObjects
         {
             if (!IsPaused)
             {
-                if (dropTimer < dropInterval)
+                if (waitForDropTimer)
+                {
                     dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    if (dropTimer > dropInterval)
+                    {
+                        currentCluster.IsMoving = true;
+                        waitForDropTimer = false;
+                    }
+                }
+                else if (!explosionAnimation.IsStarted && !waitForDropTimer)
+                {
+                    if (ClearUpBlocks())
+                        ReleaseBlocks();
+
+                    UpdateClusters(gameTime);
+
+                    CheckForClusterCollision();
+
+                    UpdateBlocks(gameTime);
+
+                    CheckForExplosions();
+
+                    if (!BlocksAreMoving() && !currentCluster.IsMoving && explodingBlocks.Count == 0)
+                    {
+                        if (IsGameOver())
+                            EndGame();
+                        else
+                            DropNextCluster();
+                    }
+                }
                 else
                 {
-                    if (!explosionAnimation.IsStarted)
-                    {
-                        if (ClearUpBlocks())
-                            ReleaseBlocks();
+                    UpdateExplosion(gameTime);
+                    scoreFloater.Update(gameTime);
+                }
 
-                        UpdateClusters(gameTime);
-
-                        CheckForClusterCollision();
-
-                        UpdateBlocks(gameTime);
-
-                        CheckForExplosions();
-
-                        if (!BlocksAreMoving() && !currentCluster.IsMoving && explodingBlocks.Count == 0)
-                        {
-                            if (IsGameOver())
-                                EndGame();
-                            else
-                                DropNextCluster();
-                        }
-                    }
-                    else
-                    {
-                        UpdateExplosion(gameTime);
-                        scoreFloater.Update(gameTime);
-                    }
-                }   
             }
         }
 
@@ -730,13 +739,14 @@ namespace NotTetris.GameObjects
         {
             currentCluster = nextCluster;
             currentCluster.Move(position - new Vector2(0f, (Height - blockSize) * 0.5f));
-            currentCluster.IsMoving = true;
             currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+            currentCluster.IsMoving = false;
             nextCluster = null;
             CreateNextCluster();
             ControlsLocked = false;
             scoreMultiplier = 1;
             dropTimer = 0;
+            waitForDropTimer = true;
         }
 
         private void CreateNextCluster()
