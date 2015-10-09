@@ -168,7 +168,7 @@ namespace NotTetris.GameScreens
             {
                 localPlayerField.Update(gameTime);
 
-                HandleInput();
+                HandleInput(gameTime);
 
                 if (updateTime > updateInterval && localPlayerField.CurrentCluster.IsMoving)
                 {
@@ -209,16 +209,16 @@ namespace NotTetris.GameScreens
                 countdownText.TextValue = Convert.ToString((int)countdownValue + 1);
         }
 
-        private void HandleInput()
+        private void HandleInput(GameTime gameTime)
         {
             if (!localPlayerField.ControlsLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     localPlayerField.RotateCluster();
-                else if (newState.IsKeyDown(settings.Player1Left) && oldState.IsKeyUp(settings.Player1Left))
-                    localPlayerField.MoveClusterLeft();
-                else if (newState.IsKeyDown(settings.Player1Right) && oldState.IsKeyUp(settings.Player1Right))
-                    localPlayerField.MoveClusterRight();
+                else if (newState.IsKeyDown(settings.Player1Left) && newState.IsKeyUp(settings.Player1Right))
+                    localPlayerField.MoveClusterLeft(gameTime, oldState.IsKeyUp(settings.Player1Left));
+                else if (newState.IsKeyDown(settings.Player1Right) && newState.IsKeyUp(settings.Player1Left))
+                    localPlayerField.MoveClusterRight(gameTime, oldState.IsKeyUp(settings.Player1Right));
                 if (newState.IsKeyDown(settings.Player1Down))
                     localPlayerField.MoveClusterDown();
             }

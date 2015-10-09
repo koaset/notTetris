@@ -123,14 +123,11 @@ namespace NotTetris.GameScreens
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     playerOneField.RotateCluster();
-
-                else if (newState.IsKeyDown(settings.Player1Left) && oldState.IsKeyUp(settings.Player1Left))
-                    playerOneField.MoveClusterLeft();
-
-                else if (newState.IsKeyDown(settings.Player1Right) && oldState.IsKeyUp(settings.Player1Right))
-                    playerOneField.MoveClusterRight();
-
-                if (newState.IsKeyDown(settings.Player1Down))
+                else if (newState.IsKeyDown(settings.Player1Left) && newState.IsKeyUp(settings.Player1Right))
+                    playerOneField.MoveClusterLeft(gameTime, oldState.IsKeyUp(settings.Player1Left));
+                else if (newState.IsKeyDown(settings.Player1Right) && newState.IsKeyUp(settings.Player1Left))
+                    playerOneField.MoveClusterRight(gameTime, oldState.IsKeyUp(settings.Player1Right));
+                if (newState.IsKeyDown(settings.Player1Down) && oldState.IsKeyUp(settings.Player1Down))
                     playerOneField.MoveClusterDown();
             }
             #endregion
@@ -142,14 +139,11 @@ namespace NotTetris.GameScreens
             {
                 if (newState.IsKeyDown(settings.Player2Rotate) && oldState.IsKeyUp(settings.Player2Rotate))
                     playerTwoField.RotateCluster();
-
-                else if (newState.IsKeyDown(settings.Player2Left) && oldState.IsKeyUp(settings.Player2Left))
-                    playerTwoField.MoveClusterLeft();
-
-                else if (newState.IsKeyDown(settings.Player2Right) && oldState.IsKeyUp(settings.Player2Right))
-                    playerTwoField.MoveClusterRight();
-
-                if (newState.IsKeyDown(settings.Player2Down))
+                else if (newState.IsKeyDown(settings.Player2Left) && newState.IsKeyUp(settings.Player2Right))
+                    playerTwoField.MoveClusterLeft(gameTime, oldState.IsKeyUp(settings.Player2Left));
+                else if (newState.IsKeyDown(settings.Player2Right) && newState.IsKeyUp(settings.Player1Left))
+                    playerTwoField.MoveClusterRight(gameTime, oldState.IsKeyUp(settings.Player2Right));
+                if (newState.IsKeyDown(settings.Player2Down) && oldState.IsKeyUp(settings.Player2Down))
                     playerTwoField.MoveClusterDown();
             }
             #endregion

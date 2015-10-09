@@ -55,56 +55,10 @@ namespace NotTetris.GameObjects
         }
 
         /// <summary>
-        /// Updates blocks and checks for collisions.
+        /// Moves current to position and separates according to position from remote
         /// </summary>
-        /// <param name="gameTime"></param>
-        /// <returns></returns>
-        private void UpdateBlocks(GameTime gameTime)
-        {
-            foreach (Block block in blocks)
-                if (block != null)
-                    if (block.IsMoving)
-                    {
-                        block.Update(gameTime);
-                        CheckForBlockCollision(block);
-                    }
-        }
-
-        private void UpdateClusters(GameTime gameTime)
-        {
-            currentCluster.Update(gameTime);
-            nextCluster.Update(gameTime);
-            currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-        }
-
-        /// <summary>
-        /// Returns true if a block is moving
-        /// </summary>
-        /// <returns></returns>
-        private bool BlocksAreMoving()
-        {
-            foreach (Block block in blocks)
-                if (block.IsMoving)
-                    return true;
-            return false;
-        }
-
-        /// <summary>
-        /// Checks if cluster collides with anything
-        /// </summary>
-        private void CheckForClusterCollision()
-        {
-            if (currentCluster.IsMoving)
-                if (BlockHasCollided(currentCluster.FirstBlock) || BlockHasCollided(currentCluster.SecondBlock))
-                {
-                    ControlsLocked = true;
-                    currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-                    CheckForBlockCollision(currentCluster.FirstBlock);
-                    CheckForBlockCollision(currentCluster.SecondBlock);
-                    blocks.AddRange(currentCluster.Separate());
-                }
-        }
-
+        /// <param name="firstBlock"></param>
+        /// <param name="secondBlock"></param>
         public void MoveAndSeparate(Vector2 firstBlock, Vector2 secondBlock)
         {
             ControlsLocked = true;
@@ -121,6 +75,9 @@ namespace NotTetris.GameObjects
             Pause();
         }
 
+        /// <summary>
+        /// Does not create next cluster. Instead waits for one to be sent from remote
+        /// </summary>
         public override void DropNextCluster()
         {
             currentCluster = nextCluster;
@@ -133,6 +90,11 @@ namespace NotTetris.GameObjects
             WaitingForCluster = true;
         }
 
+        /// <summary>
+        /// Creates next cluster according to blocktype from remote
+        /// </summary>
+        /// <param name="firstBlock"></param>
+        /// <param name="secondBlock"></param>
         public void CreateNextCluster(BlockType firstBlock, BlockType secondBlock)
         {
             nextCluster = new Cluster(position - new Vector2(250f, 175f), blockSize);

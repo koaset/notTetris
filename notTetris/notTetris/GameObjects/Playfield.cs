@@ -44,6 +44,11 @@ namespace NotTetris.GameObjects
         Text largestComboText;
         protected ScoreFloater scoreFloater;
         int largestCombo;
+        float moveRightTimer;
+        float moveLeftTimer;
+        float moveCooldown;
+        float dropTimer;
+        float dropInterval;
 
         public Vector2 Position { get { return position; } }
         public Cluster NextCluster { get { return nextCluster; } set { nextCluster = value; } }
@@ -90,6 +95,7 @@ namespace NotTetris.GameObjects
 
             CreateNextCluster();
             DropNextCluster();
+            ControlsLocked = true;
         }
 
         protected void InitializeContent(SpriteBatch spriteBatch, string difficulty)
@@ -97,6 +103,12 @@ namespace NotTetris.GameObjects
             this.spriteBatch = spriteBatch;
             ControlsLocked = true;
             IsPaused = true;
+
+            dropTimer = 0;
+            dropInterval = 500f;
+            moveRightTimer = 0;
+            moveLeftTimer = 0;
+            moveCooldown = 80;
 
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.playfieldbackground_yellow;
@@ -171,32 +183,37 @@ namespace NotTetris.GameObjects
         {
             if (!IsPaused)
             {
-                if (!explosionAnimation.IsStarted)
-                {
-                    if (ClearUpBlocks())
-                        ReleaseBlocks();
-
-                    UpdateClusters(gameTime);
-
-                    CheckForClusterCollision();
-
-                    UpdateBlocks(gameTime);
-
-                    CheckForExplosions();
-
-                    if (!BlocksAreMoving() && !currentCluster.IsMoving && explodingBlocks.Count == 0)
-                    {
-                        if (IsGameOver())
-                            EndGame();
-                        else
-                            DropNextCluster();
-                    }
-                }
+                if (dropTimer < dropInterval)
+                    dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 else
                 {
-                    UpdateExplosion(gameTime);
-                    scoreFloater.Update(gameTime);
-                }
+                    if (!explosionAnimation.IsStarted)
+                    {
+                        if (ClearUpBlocks())
+                            ReleaseBlocks();
+
+                        UpdateClusters(gameTime);
+
+                        CheckForClusterCollision();
+
+                        UpdateBlocks(gameTime);
+
+                        CheckForExplosions();
+
+                        if (!BlocksAreMoving() && !currentCluster.IsMoving && explodingBlocks.Count == 0)
+                        {
+                            if (IsGameOver())
+                                EndGame();
+                            else
+                                DropNextCluster();
+                        }
+                    }
+                    else
+                    {
+                        UpdateExplosion(gameTime);
+                        scoreFloater.Update(gameTime);
+                    }
+                }   
             }
         }
 
@@ -205,7 +222,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         /// <param name="gameTime"></param>
         /// <returns></returns>
-        private void UpdateBlocks(GameTime gameTime)
+        protected void UpdateBlocks(GameTime gameTime)
         {
             foreach (Block block in blocks)
                 if (block != null)
@@ -232,7 +249,7 @@ namespace NotTetris.GameObjects
             }
         }
 
-        private void UpdateClusters(GameTime gameTime)
+        protected void UpdateClusters(GameTime gameTime)
         {
             currentCluster.Update(gameTime);
             nextCluster.Update(gameTime);
@@ -243,7 +260,7 @@ namespace NotTetris.GameObjects
         /// Returns true if a block is moving
         /// </summary>
         /// <returns></returns>
-        private bool BlocksAreMoving()
+        protected bool BlocksAreMoving()
         {
             foreach (Block block in blocks)
                 if (block.IsMoving)
@@ -531,7 +548,7 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Move left command
         /// </summary>
-        public void MoveClusterLeft()
+        public virtual void MoveClusterLeft(GameTime gameTime, bool first)
         {
             if (!ControlsLocked)
             {
@@ -547,14 +564,22 @@ namespace NotTetris.GameObjects
                     collision = true;
 
                 if (!collision)
-                    currentCluster.Move(currentCluster.FirstBlock.Position - new Vector2(blockSize, 0));
+                {
+                    if (first || moveLeftTimer > moveCooldown)
+                    {
+                        currentCluster.Move(currentCluster.FirstBlock.Position - new Vector2(blockSize, 0));
+                        moveLeftTimer = 0;
+                    }
+                    else
+                        moveLeftTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                }
             }
         }
 
         /// <summary>
         /// Move right command
         /// </summary>
-        public void MoveClusterRight()
+        public virtual void MoveClusterRight(GameTime gameTime, bool first)
         {
             if (!ControlsLocked)
             {
@@ -570,7 +595,15 @@ namespace NotTetris.GameObjects
                     collision = true;
 
                 if (!collision)
-                    currentCluster.Move(currentCluster.FirstBlock.Position + new Vector2(blockSize, 0));
+                {
+                    if (first || moveRightTimer > moveCooldown)
+                    {
+                        currentCluster.Move(currentCluster.FirstBlock.Position + new Vector2(blockSize, 0));
+                        moveRightTimer = 0;
+                    }
+                    else
+                        moveRightTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                }
             }
         }
 
@@ -638,9 +671,60 @@ namespace NotTetris.GameObjects
         public void MoveClusterDown()
         {
             if (!ControlsLocked)
-                currentCluster.SetDropSpeed(2 * BaseDropSpeed * SpeedMultiplier);
+                DropClusterFast();
         }
         #endregion
+
+        private void DropClusterFast()
+        {
+            if (currentCluster.Orientation == Orientation.Up)
+            {
+                int firstX = GridPositionX(currentCluster.FirstBlock.Position);
+                Vector2 firstPos = GetAvaliablePositionInColumn(firstX);
+                Vector2 secondPos = firstPos - new Vector2(0, blockSize);
+                currentCluster.FirstBlock.Position = firstPos;
+                currentCluster.SecondBlock.Position = secondPos;
+            }
+            else if (currentCluster.Orientation == Orientation.Down)
+            {
+                int secondX = GridPositionX(currentCluster.SecondBlock.Position);
+                Vector2 secondPos = GetAvaliablePositionInColumn(secondX);
+                Vector2 firstPos = secondPos - new Vector2(0, blockSize);
+                currentCluster.FirstBlock.Position = firstPos;
+                currentCluster.SecondBlock.Position = secondPos;
+            }
+            else
+            {
+                int firstX = GridPositionX(currentCluster.FirstBlock.Position);
+                int secondX = GridPositionX(currentCluster.SecondBlock.Position);
+                Vector2 firstPos = GetAvaliablePositionInColumn(firstX);
+                Vector2 secondPos = GetAvaliablePositionInColumn(secondX);
+                currentCluster.FirstBlock.Position = firstPos;
+                currentCluster.SecondBlock.Position = secondPos;
+            }
+            CheckForClusterCollision();
+        }
+
+        private Vector2 GetAvaliablePositionInColumn(int column)
+        {
+            for (int i = 0; i < staticBlocks.GetLength(1); i++)
+            {
+                if (staticBlocks[column, i] == null)
+                {
+                    if (i == 0)
+                        return GetPositionFromIndex(column, 0);
+                    else
+                        return GetPositionFromIndex(column, i);
+                }
+            }
+
+            throw new Exception("No empty position exception");
+        }
+
+        private Vector2 GetPositionFromIndex(int x, int y)
+        {
+            return position + 0.5f * new Vector2(-Width, Height) + blockSize * new Vector2(x + 0.5f, -y - 0.5f + 0.05f);
+        }
 
         public virtual void DropNextCluster()
         {
@@ -652,6 +736,7 @@ namespace NotTetris.GameObjects
             CreateNextCluster();
             ControlsLocked = false;
             scoreMultiplier = 1;
+            dropTimer = 0;
         }
 
         private void CreateNextCluster()

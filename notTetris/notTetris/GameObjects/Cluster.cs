@@ -9,6 +9,9 @@ using NotTetris.Graphics;
 namespace NotTetris.GameObjects
 {
     #region Orientation enum
+    /// <summary>
+    /// Determines position of second block relative to first
+    /// </summary>
     public enum Orientation
     {
         Down,
