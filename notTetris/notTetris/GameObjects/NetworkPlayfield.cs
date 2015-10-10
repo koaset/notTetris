@@ -30,7 +30,7 @@ namespace NotTetris.GameObjects
                 if (waitForDropTimer)
                 {
                     dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                    if (dropTimer > dropInterval)
+                    if (dropTimer > dropDelay)
                     {
                         currentCluster.IsMoving = true;
                         currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);

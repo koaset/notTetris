@@ -50,15 +50,15 @@ namespace NotTetris.GameScreens
             titleImage.Layer = 0.6f;
 
             singleplayerButton.Initialize();
-            singleplayerButton.Text = "Single Player Game";
+            singleplayerButton.Text = "Single Player";
             singleplayerButton.Position = new Vector2(300f, 150f);
             singleplayerButton.Click += new ButtonEventHandler(StartOnePlayerGame);
             splitscreenButton.Initialize();
-            splitscreenButton.Text = "Split Screen Game";
+            splitscreenButton.Text = "Split Screen";
             splitscreenButton.Position = new Vector2(300f, 235);
             splitscreenButton.Click += new ButtonEventHandler(StartTwoPlayerGame);
             networkButton.Initialize();
-            networkButton.Text = "Network Game";
+            networkButton.Text = "Network Mode";
             networkButton.Position = new Vector2(300f, 320);
             networkButton.Click += new ButtonEventHandler(StartNetworkGame);
             highscoreButton.Initialize();

@@ -138,10 +138,20 @@ namespace NotTetris.GameObjects
                     secondBlock.Position += new Vector2(blockSize, -blockSize);
                     orientation = Orientation.Right;
                 }
+                else if (orientation == Orientation.Left)
+                {
+                    secondBlock.Position += new Vector2(blockSize);
+                    orientation = Orientation.Down;
+                }
                 else if (orientation == Orientation.Up)
                 {
                     secondBlock.Position += new Vector2(-blockSize, blockSize);
-                    orientation = Orientation.Right;
+                    orientation = Orientation.Left;
+                }
+                else if (orientation == Orientation.Right)
+                {
+                    secondBlock.Position += new Vector2(-blockSize);
+                    orientation = Orientation.Up;
                 }
             }
         }
