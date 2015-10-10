@@ -75,7 +75,6 @@ namespace NotTetris.GameObjects
         }
 
         public float Rotation { get; set; }
-
         public bool ShouldDrop { get; set; }
         #endregion
 

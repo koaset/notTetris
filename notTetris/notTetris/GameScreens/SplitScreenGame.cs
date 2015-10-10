@@ -119,7 +119,7 @@ namespace NotTetris.GameScreens
                 }
 
             #region Player 1 Controls
-            if (!playerOneField.ControlsLocked)
+            if (!playerOneField.movementLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     playerOneField.RotateCluster();
@@ -128,14 +128,14 @@ namespace NotTetris.GameScreens
                 else if (newState.IsKeyDown(settings.Player1Right) && newState.IsKeyUp(settings.Player1Left))
                     playerOneField.MoveClusterRight(gameTime, oldState.IsKeyUp(settings.Player1Right));
                 if (newState.IsKeyDown(settings.Player1Down) && oldState.IsKeyUp(settings.Player1Down))
-                    playerOneField.MoveClusterDown();
+                    playerOneField.MoveClusterDown(gameTime);
             }
             #endregion
 
             playerTwoField.Update(gameTime);
 
             #region Player 2 Controls
-            if (!playerTwoField.ControlsLocked)
+            if (!playerTwoField.movementLocked)
             {
                 if (newState.IsKeyDown(settings.Player2Rotate) && oldState.IsKeyUp(settings.Player2Rotate))
                     playerTwoField.RotateCluster();
@@ -144,7 +144,7 @@ namespace NotTetris.GameScreens
                 else if (newState.IsKeyDown(settings.Player2Right) && newState.IsKeyUp(settings.Player1Left))
                     playerTwoField.MoveClusterRight(gameTime, oldState.IsKeyUp(settings.Player2Right));
                 if (newState.IsKeyDown(settings.Player2Down) && oldState.IsKeyUp(settings.Player2Down))
-                    playerTwoField.MoveClusterDown();
+                    playerTwoField.MoveClusterDown(gameTime);
             }
             #endregion
 

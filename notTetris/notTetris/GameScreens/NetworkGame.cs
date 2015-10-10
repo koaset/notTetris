@@ -184,7 +184,7 @@ namespace NotTetris.GameScreens
                     remotePlayerField.CreateNextCluster(nextFirstBlock, nextSecondBlock);
 
                 if (remotePlayerDown)
-                    remotePlayerField.MoveClusterDown();
+                    remotePlayerField.MoveClusterDown(gameTime);
 
                 remotePlayerField.Update(gameTime);
 
@@ -211,7 +211,7 @@ namespace NotTetris.GameScreens
 
         private void HandleInput(GameTime gameTime)
         {
-            if (!localPlayerField.ControlsLocked)
+            if (!localPlayerField.movementLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     localPlayerField.RotateCluster();
@@ -219,8 +219,8 @@ namespace NotTetris.GameScreens
                     localPlayerField.MoveClusterLeft(gameTime, oldState.IsKeyUp(settings.Player1Left));
                 else if (newState.IsKeyDown(settings.Player1Right) && newState.IsKeyUp(settings.Player1Left))
                     localPlayerField.MoveClusterRight(gameTime, oldState.IsKeyUp(settings.Player1Right));
-                if (newState.IsKeyDown(settings.Player1Down))
-                    localPlayerField.MoveClusterDown();
+                if (newState.IsKeyDown(settings.Player1Down) && oldState.IsKeyUp(settings.Player1Down))
+                    localPlayerField.MoveClusterDown(gameTime);
             }
         }
 
@@ -241,7 +241,7 @@ namespace NotTetris.GameScreens
 
         private void ReadMessages()
         {
-            if (isStarted && !remotePlayerField.ControlsLocked)
+            if (isStarted && !remotePlayerField.movementLocked)
             {
                 NetIncomingMessage msg;
                 while ((msg = peer.ReadMessage()) != null)
@@ -249,7 +249,7 @@ namespace NotTetris.GameScreens
                     if (msg.MessageType == NetIncomingMessageType.Data)
                     {
                         string temp = msg.ReadString();
-                        if (temp == "pos" && !remotePlayerField.ControlsLocked && !remotePlayerField.WaitingForCluster)
+                        if (temp == "pos" && !remotePlayerField.movementLocked && !remotePlayerField.WaitingForCluster)
                         {
                             float firstX = msg.ReadFloat() - xDiff;
                             float firstY = msg.ReadFloat();

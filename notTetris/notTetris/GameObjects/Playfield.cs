@@ -41,15 +41,16 @@ namespace NotTetris.GameObjects
         protected int scoreMultiplier;
         int maxBlocks;
         string difficulty;
+        protected float dropSpeedBonus;
         Text largestComboText;
         protected ScoreFloater scoreFloater;
         int largestCombo;
         float moveRightTimer;
         float moveLeftTimer;
         float moveCooldown;
-        float dropTimer;
-        float dropInterval;
-        bool waitForDropTimer;
+        protected float dropTimer;
+        protected float dropInterval;
+        protected bool waitForDropTimer;
 
         public Vector2 Position { get { return position; } }
         public Cluster NextCluster { get { return nextCluster; } set { nextCluster = value; } }
@@ -58,7 +59,7 @@ namespace NotTetris.GameObjects
         public float BaseDropSpeed { get; set; }
         public static float Width { get { return 350f; } }
         public static float Height { get { return 500f; } }
-        public bool ControlsLocked { get; set; }
+        public bool movementLocked { get; set; }
         public bool IsPaused { get; set; }
         public bool IsShowing { get; set; }
         public float GetScore { get { return scoreCounter.Score; } set { scoreCounter.Score = value; } }
@@ -96,13 +97,13 @@ namespace NotTetris.GameObjects
 
             CreateNextCluster();
             DropNextCluster();
-            ControlsLocked = true;
+            movementLocked = true;
         }
 
         protected void InitializeContent(SpriteBatch spriteBatch, string difficulty)
         {
             this.spriteBatch = spriteBatch;
-            ControlsLocked = true;
+            movementLocked = true;
             IsPaused = true;
 
             dropTimer = 0;
@@ -110,6 +111,7 @@ namespace NotTetris.GameObjects
             moveRightTimer = 0;
             moveLeftTimer = 0;
             moveCooldown = 100;
+            dropSpeedBonus = 2.5f;
 
             #region Initialize images, blocks and text
             backgroundImage.Initialize();
@@ -193,6 +195,7 @@ namespace NotTetris.GameObjects
                     if (dropTimer > dropInterval)
                     {
                         currentCluster.IsMoving = true;
+                        currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
                         waitForDropTimer = false;
                     }
                 }
@@ -201,11 +204,10 @@ namespace NotTetris.GameObjects
                     if (ClearUpBlocks())
                         ReleaseBlocks();
 
+                    UpdateBlocks(gameTime);
                     UpdateClusters(gameTime);
 
-                    CheckForClusterCollision();
-
-                    UpdateBlocks(gameTime);
+                    CheckForClusterCollision(gameTime);
 
                     CheckForExplosions();
 
@@ -262,7 +264,6 @@ namespace NotTetris.GameObjects
         {
             currentCluster.Update(gameTime);
             nextCluster.Update(gameTime);
-            currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
         }
 
         /// <summary>
@@ -322,6 +323,7 @@ namespace NotTetris.GameObjects
                         shouldFall = true;
                     else if (shouldFall && staticBlocks[i, j] != null)
                     {
+                        staticBlocks[i, j].DropSpeed = BaseDropSpeed * dropSpeedBonus;
                         staticBlocks[i, j].IsMoving = true;
                         staticBlocks[i, j] = null;
                     }
@@ -350,13 +352,13 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Checks if cluster collides with anything
         /// </summary>
-        private void CheckForClusterCollision()
+        private void CheckForClusterCollision(GameTime gameTime)
         {
             if (currentCluster.IsMoving)
                 if (BlockHasCollided(currentCluster.FirstBlock) || BlockHasCollided(currentCluster.SecondBlock))
                 {
-                    ControlsLocked = true;
-                    currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+                    movementLocked = true;
+                    currentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
                     Block[] separatedCluster = currentCluster.Separate();
                     if (ClusterSeparate != null)
                         ClusterSeparate(this, new ClusterSeparateEventArgs(separatedCluster[0].Position, separatedCluster[1].Position));
@@ -448,7 +450,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         private void ExplodeChain()
         {
-            ControlsLocked = true;
+            movementLocked = true;
             explosionAnimation.Play();
 
             float oldScore = scoreCounter.Score;
@@ -537,13 +539,13 @@ namespace NotTetris.GameObjects
         public void Pause()
         {
             IsPaused = true;
-            ControlsLocked = true;
+            movementLocked = true;
         }
 
         public void UnPause()
         {
             IsPaused = false;
-            ControlsLocked = false;
+            movementLocked = false;
         }
 
         public virtual void EndGame()
@@ -559,7 +561,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         public virtual void MoveClusterLeft(GameTime gameTime, bool first)
         {
-            if (!ControlsLocked)
+            if (!movementLocked)
             {
                 int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
                 int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
@@ -590,7 +592,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         public virtual void MoveClusterRight(GameTime gameTime, bool first)
         {
-            if (!ControlsLocked)
+            if (!movementLocked)
             {
                 int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
                 int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
@@ -621,7 +623,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         public void RotateCluster()
         {
-            if (!ControlsLocked)
+            if (!movementLocked)
             {
                 int secondBlockX = GridPositionX(currentCluster.SecondBlock.Position);
                 int secondBlockY = GridPositionY(currentCluster.SecondBlock.Position);
@@ -677,15 +679,16 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Move down command
         /// </summary>
-        public void MoveClusterDown()
+        public void MoveClusterDown(GameTime gameTime)
         {
-            if (!ControlsLocked)
-                DropClusterFast();
+            if (!movementLocked)
+                DropClusterFast(gameTime);
         }
         #endregion
 
-        private void DropClusterFast()
+        private void DropClusterFast(GameTime gameTime)
         {
+            currentCluster.IsMoving = true;
             if (currentCluster.Orientation == Orientation.Up)
             {
                 int firstX = GridPositionX(currentCluster.FirstBlock.Position);
@@ -711,7 +714,8 @@ namespace NotTetris.GameObjects
                 currentCluster.FirstBlock.Position = firstPos;
                 currentCluster.SecondBlock.Position = secondPos;
             }
-            CheckForClusterCollision();
+            currentCluster.Update(gameTime);
+            CheckForClusterCollision(gameTime);
         }
 
         private Vector2 GetAvaliablePositionInColumn(int column)
@@ -732,18 +736,18 @@ namespace NotTetris.GameObjects
 
         private Vector2 GetPositionFromIndex(int x, int y)
         {
-            return position + 0.5f * new Vector2(-Width, Height) + blockSize * new Vector2(x + 0.5f, -y - 0.5f + 0.05f);
+            return position + 0.5f * new Vector2(-Width, Height) + blockSize * new Vector2(x + 0.5f, -y - 0.5f);
         }
 
         public virtual void DropNextCluster()
         {
             currentCluster = nextCluster;
-            currentCluster.Move(position - new Vector2(0f, (Height - blockSize) * 0.5f));
+            currentCluster.Move(position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
             currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
             currentCluster.IsMoving = false;
             nextCluster = null;
             CreateNextCluster();
-            ControlsLocked = false;
+            movementLocked = false;
             scoreMultiplier = 1;
             dropTimer = 0;
             waitForDropTimer = true;

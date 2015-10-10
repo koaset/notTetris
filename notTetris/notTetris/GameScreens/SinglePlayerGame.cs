@@ -105,7 +105,7 @@ namespace NotTetris.GameScreens
                 }
             }
 
-            if (!playerOneField.ControlsLocked)
+            if (!playerOneField.movementLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     playerOneField.RotateCluster();
@@ -114,7 +114,7 @@ namespace NotTetris.GameScreens
                 else if (newState.IsKeyDown(settings.Player1Right) && newState.IsKeyUp(settings.Player1Left))
                     playerOneField.MoveClusterRight(gameTime, oldState.IsKeyUp(settings.Player1Right));
                 if (newState.IsKeyDown(settings.Player1Down) && oldState.IsKeyUp(settings.Player1Down))
-                    playerOneField.MoveClusterDown();
+                    playerOneField.MoveClusterDown(gameTime);
             }
 
             if (isStarted)

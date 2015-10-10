@@ -27,14 +27,24 @@ namespace NotTetris.GameObjects
         {
             if (!IsPaused)
             {
-                if (!explosionAnimation.IsStarted)
+                if (waitForDropTimer)
+                {
+                    dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                    if (dropTimer > dropInterval)
+                    {
+                        currentCluster.IsMoving = true;
+                        currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+                        waitForDropTimer = false;
+                    }
+                }
+                if (!explosionAnimation.IsStarted && !waitForDropTimer)
                 {
                     if (ClearUpBlocks())
                         ReleaseBlocks();
 
-                    UpdateClusters(gameTime);
-
                     UpdateBlocks(gameTime);
+
+                    UpdateClusters(gameTime);
 
                     CheckForExplosions();
 
@@ -61,10 +71,10 @@ namespace NotTetris.GameObjects
         /// <param name="secondBlock"></param>
         public void MoveAndSeparate(Vector2 firstBlock, Vector2 secondBlock)
         {
-            ControlsLocked = true;
+            movementLocked = true;
             currentCluster.FirstBlock.Position = firstBlock;
             currentCluster.SecondBlock.Position = secondBlock;
-            currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+            currentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
             CheckForBlockCollision(currentCluster.FirstBlock);
             CheckForBlockCollision(currentCluster.SecondBlock);
             blocks.AddRange(currentCluster.Separate());
@@ -81,13 +91,15 @@ namespace NotTetris.GameObjects
         public override void DropNextCluster()
         {
             currentCluster = nextCluster;
-            currentCluster.Move(position - new Vector2(0f, (Height - blockSize) * 0.5f));
+            currentCluster.Move(position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
             currentCluster.IsMoving = true;
             currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-            ControlsLocked = false;
+            movementLocked = false;
             nextCluster = null;
             scoreMultiplier = 1;
             WaitingForCluster = true;
+            dropTimer = 0;
+            waitForDropTimer = true;
         }
 
         /// <summary>

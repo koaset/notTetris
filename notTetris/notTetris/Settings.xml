@@ -3,7 +3,7 @@
 
   <WindowTitle>Not Tetris</WindowTitle>
   <Difficulty>Easy</Difficulty>
-  <BlockDropSpeed>120</BlockDropSpeed>
+  <BlockDropSpeed>100</BlockDropSpeed>
   <PlayTime>3</PlayTime>
   <PlayfieldSize>9</PlayfieldSize>
   <IP>127.0.0.1</IP>
