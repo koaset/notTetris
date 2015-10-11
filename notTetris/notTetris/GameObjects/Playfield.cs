@@ -32,7 +32,6 @@ namespace NotTetris.GameObjects
         protected float blockSize;
         Vector2 scale;
         protected List<Block> blocks;
-        List<Block> connectedBlocks;
         protected List<Block> explodingBlocks;
         protected Cluster currentCluster;
         protected Cluster nextCluster;
@@ -107,10 +106,10 @@ namespace NotTetris.GameObjects
             IsPaused = true;
 
             dropTimer = 0;
-            dropDelay = 1000;
+            dropDelay = 500;
             moveRightTimer = 0;
             moveLeftTimer = 0;
-            moveCooldown = 100;
+            moveCooldown = 80;
             dropSpeedBonus = 2.5f;
 
             #region Initialize images, blocks and text
@@ -283,12 +282,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         protected void CheckForExplosions()
         {
-            bool checkBlocks = true;
-
-            if (!currentCluster.IsMoving)
-                checkBlocks = !BlocksAreMoving();
-
-            if (checkBlocks)
+            if (!currentCluster.IsMoving && !BlocksAreMoving())
             {
                 foreach (Block block in blocks)
                     if (block.WillBeChecked)
@@ -340,9 +334,7 @@ namespace NotTetris.GameObjects
             if (explodingBlocks.Count != 0)
             {
                 foreach (Block block in explodingBlocks)
-                {
                     blocks.Remove(block);
-                }
                 explodingBlocks.Clear();
                 return true;
             }
@@ -425,42 +417,52 @@ namespace NotTetris.GameObjects
         /// </summary>
         private void CheckBlock(Block block)
         {
-            connectedBlocks = new List<Block>(blocks.Count);
-            connectedBlocks.Add(block);
+            List<Block> sameColorChain = new List<Block>();
+            sameColorChain = CheckForChain(block, block.BlockType, sameColorChain);
 
-            List<Block> sameColorBlocks = new List<Block>();
-
-            foreach (Block otherBlock in blocks)
-            {
-                if (otherBlock.BlockType == block.BlockType && !otherBlock.IsMoving && !otherBlock.IsExploding)
-                    sameColorBlocks.Add(otherBlock);
-            }
-
-            if (sameColorBlocks.Count > 3)
-            {
-                CheckConnectedBlocks(block, sameColorBlocks);
-
-                if (connectedBlocks.Count > 3)
-                    ExplodeChain();
-            }
+            if (sameColorChain.Count > 3)
+                ExplodeChain(sameColorChain);
         }
 
         /// <summary>
-        /// Explodes a chain of connected blocks
+        /// Adds block if of right type and recursively checks neighbours
         /// </summary>
-        private void ExplodeChain()
+        /// <param name="block"></param>
+        /// <param name="type"></param>
+        /// <param name="chain"></param>
+        /// <returns></returns>
+        private List<Block> CheckForChain(Block block, BlockType type, List<Block> chain)
+        {
+            if (block != null && block.BlockType == type && !chain.Contains(block))
+            {
+                chain.Add(block);
+                int blockX = GridPositionX(block.Position);
+                int blockY = GridPositionY(block.Position);
+                if (blockX - 1 >= 0)
+                    chain = CheckForChain(staticBlocks[blockX - 1, blockY], type, chain);
+                if (blockX + 1 < staticBlocks.GetLength(0))
+                    chain = CheckForChain(staticBlocks[blockX + 1, blockY], type, chain);
+                if (blockY - 1 >= 0)
+                    chain = CheckForChain(staticBlocks[blockX, blockY - 1], type, chain);
+                if (blockY + 1 < staticBlocks.GetLength(1))
+                    chain = CheckForChain(staticBlocks[blockX, blockY + 1], type, chain);
+            }
+            return chain;
+        }
+
+        private void ExplodeChain(List<Block> chain)
         {
             movementLocked = true;
             explosionAnimation.Play();
 
             float oldScore = scoreCounter.Score;
             Vector2 avgPos = Vector2.Zero;
-            foreach (Block clearedBlock in connectedBlocks)
+            foreach (Block clearedBlock in chain)
             {
                 avgPos += clearedBlock.Position;
-                ExplodeAndScore(clearedBlock);
+                ExplodeBlockAndScore(clearedBlock);
             }
-            avgPos /= connectedBlocks.Count;
+            avgPos /= chain.Count;
             scoreFloater.Start(scoreCounter.Score - oldScore, avgPos);
 
             scoreMultiplier++;
@@ -482,7 +484,7 @@ namespace NotTetris.GameObjects
         /// Explodes a block and increments score counter
         /// </summary>
         /// <param name="block"></param>
-        private void ExplodeAndScore(Block block)
+        private void ExplodeBlockAndScore(Block block)
         {
             int blockX = GridPositionX(block.Position);
             int blockY = GridPositionY(block.Position);
@@ -490,45 +492,6 @@ namespace NotTetris.GameObjects
             block.Explode();
             explodingBlocks.Add(block);
             scoreCounter.Score += 50 * scoreMultiplier * SpeedMultiplier;
-        }
-
-        /// <summary>
-        /// Recursive method for determining number of connected blocks of same type
-        /// </summary>
-        /// <param name="block"></param>
-        /// <param name="sameColorBlocks"></param>
-        private void CheckConnectedBlocks(Block block, List<Block> sameColorBlocks)
-        {
-            int blockX = GridPositionX(block.Position);
-            int blockY = GridPositionY(block.Position);
-            foreach (Block sameColorBlock in sameColorBlocks)
-            {
-                if ( block != sameColorBlock && !sameColorBlock.IsExploding && !connectedBlocks.Contains(sameColorBlock))
-                {
-                    int samecolBlockX = GridPositionX(sameColorBlock.Position);
-                    int samecolBlockY = GridPositionY(sameColorBlock.Position);
-                    if (blockX == samecolBlockX + 1 && blockY == samecolBlockY)
-                    {
-                        connectedBlocks.Add(sameColorBlock);
-                        CheckConnectedBlocks(sameColorBlock, sameColorBlocks);
-                    }
-                    if (blockX == samecolBlockX - 1 && blockY == samecolBlockY)
-                    {
-                        connectedBlocks.Add(sameColorBlock);
-                        CheckConnectedBlocks(sameColorBlock, sameColorBlocks);
-                    }
-                    if (blockX == samecolBlockX && blockY == samecolBlockY + 1)
-                    {
-                        connectedBlocks.Add(sameColorBlock);
-                        CheckConnectedBlocks(sameColorBlock, sameColorBlocks);
-                    }
-                    if (blockX == samecolBlockX && blockY == samecolBlockY - 1)
-                    {
-                        connectedBlocks.Add(sameColorBlock);
-                        CheckConnectedBlocks(sameColorBlock, sameColorBlocks);
-                    }
-                }
-            }
         }
 
         public void StartGame()
@@ -776,10 +739,8 @@ namespace NotTetris.GameObjects
                 }
 
                 foreach (Block block in blocks)
-                    if (block.IsMoving)
+                    if (block.IsMoving || block.IsExploding)
                         DrawBlock(block, gameTime);
-                foreach(Block block in explodingBlocks)
-                    DrawBlock(block, gameTime);
                 foreach (Block block in staticBlocks)
                     if (block != null)
                         DrawBlock(block, gameTime);
