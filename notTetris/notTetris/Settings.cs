@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Input;
+using NotTetris.GameObjects;
 
 namespace NotTetris
 {
@@ -12,8 +13,9 @@ namespace NotTetris
     {
         public string WindowTitle = "Not Tetris";
         public string Difficulty = "Easy";
+        public GameType GameType = GameType.Normal;
 
-        public float BlockDropSpeed = 3f;
+        public float BlockDropSpeed = 100f;
         public int PlayTime = 3;
         public int PlayfieldSize = 9;
         public string IP = "127.0.0.1";
@@ -38,9 +40,10 @@ namespace NotTetris
             Settings ret = new Settings();
             ret.WindowTitle = WindowTitle;
             ret.Difficulty = Difficulty;
+            ret.GameType = GameType;
             ret.BlockDropSpeed = BlockDropSpeed;
             ret.PlayTime = PlayTime;
-            ret.PlayfieldSize = 9;
+            ret.PlayfieldSize = PlayfieldSize;
             ret.IP = IP;
             ret.PORT = PORT;
             ret.Player1Start = Player1Start;

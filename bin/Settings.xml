@@ -2,11 +2,12 @@
 <Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <WindowTitle>Not Tetris</WindowTitle>
   <Difficulty>Easy</Difficulty>
+  <GameType>Normal</GameType>
   <BlockDropSpeed>100</BlockDropSpeed>
-  <PlayTime>3</PlayTime>
-  <PlayfieldSize>11</PlayfieldSize>
-  <IP>127.0.0.1</IP>
-  <PORT>30001</PORT>
+  <PlayTime>1</PlayTime>
+  <PlayfieldSize>9</PlayfieldSize>
+  <IP>192.168.0.105</IP>
+  <PORT>12345</PORT>
   <Player1Start>Enter</Player1Start>
   <Player1Left>Left</Player1Left>
   <Player1Right>Right</Player1Right>
@@ -18,10 +19,10 @@
   <Player2Down>S</Player2Down>
   <Player2Rotate>G</Player2Rotate>
   <score>
-    <int>223321</int>
-    <int>85683</int>
-    <int>83649</int>
-    <int>39194</int>
-    <int>32635</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
   </score>
 </Settings>

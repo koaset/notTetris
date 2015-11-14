@@ -22,7 +22,7 @@ namespace NotTetris.GameScreens
 
         public SinglePlayerGame(Settings settings)
         {
-            playerOneField = new Playfield(GameType.Normal, new Vector2(500f, 325f), settings.PlayfieldSize);
+            playerOneField = new Playfield(GameType.Time, new Vector2(500f, 325f), settings.PlayfieldSize);
             backgroundImage = new Image();
             pauseImage = new Image();
             startText = new Text();

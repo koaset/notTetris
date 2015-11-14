@@ -8,12 +8,13 @@ namespace NotTetris.GameObjects
     #region Blocktype enum
     enum BlockType
     {
-        red,
-        blue,
-        yellow,
-        green,
-        orange,
-        black,
+        Red,
+        Blue,
+        Yellow,
+        Green,
+        Orange,
+        Purple,
+        Black,
     }
     #endregion
 

@@ -38,8 +38,8 @@ namespace NotTetris.GameScreens
         public NetworkGame(Settings settings, NetPeer peer)
         {
             this.peer = peer;
-            localPlayerField = new Playfield(GameType.Normal, new Vector2(780f, 325f), settings.PlayfieldSize);
-            remotePlayerField = new NetworkPlayfield(GameType.Normal, new Vector2(300f, 325f), settings.PlayfieldSize);
+            localPlayerField = new Playfield(settings.GameType, new Vector2(780f, 325f), settings.PlayfieldSize);
+            remotePlayerField = new NetworkPlayfield(settings.GameType, new Vector2(300f, 325f), settings.PlayfieldSize);
             xDiff = localPlayerField.Position.X - remotePlayerField.Position.X;
             backgroundImage = new Image();
             pauseImage = new Image();
@@ -67,9 +67,11 @@ namespace NotTetris.GameScreens
             remotePlayerField.Initialize(spriteBatch, settings.Difficulty);
             remotePlayerField.IsShowing = true;
 
-            localPlayerField.GameOver += new GameOverEventHandler(OnGameOver);
-            localPlayerField.NewNextCluster += new NewNextClusterEventHandler(localPlayerField_NewNextCluster);
-            localPlayerField.ClusterSeparate += new ClusterSeparateEventHandler(localPlayerField_ClusterSeparate);
+            localPlayerField.GameOver += OnGameOver;
+            localPlayerField.NewNextCluster += localPlayerField_NewNextCluster;
+            localPlayerField.ClusterSeparate += localPlayerField_ClusterSeparate;
+            localPlayerField.ShouldDropBlackBlocks += localPlayerField_RemoteShouldDropBlackBlocks;
+            localPlayerField.BlackBlocksCreated += localPlayerField_LocalBlackBlocksCreated;
 
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("init");
@@ -105,6 +107,9 @@ namespace NotTetris.GameScreens
             timeText.Position = new Vector2(10);
             timeText.TextColor = Color.Navy;
             timeText.TextValue = "Time left: " + timeLimit.Minutes.ToString() + ":" + timeLimit.Seconds.ToString();
+
+            if (settings.GameType != GameType.Time)
+                timeText.IsShowing = false;
 
             countdownValue = 5.0f;
             countdownText.Initialize();
@@ -275,6 +280,19 @@ namespace NotTetris.GameScreens
                             float secondY = msg.ReadFloat();
                             remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
                         }
+                        else if (temp == "bb")
+                        {
+                            int numBlocks = msg.ReadInt32();
+                            localPlayerField.QueueBlackBlocks(numBlocks);
+                        }
+                        else if (temp == "bbc")
+                        {
+                            int numBlocks = msg.ReadInt32();
+                            var blockIndexes = new List<int>(numBlocks);
+                            for (int i = 0; i < numBlocks; i++)
+                                blockIndexes.Add(msg.ReadInt32());
+                            remotePlayerField.AddBlackBlocks(blockIndexes);
+                        }
                         else if (temp == "Game Over")
                         {
                             NetOutgoingMessage outMsg = peer.CreateMessage();
@@ -290,18 +308,21 @@ namespace NotTetris.GameScreens
 
         private void HandleTimer(GameTime gameTime)
         {
-            timePlayed += gameTime.ElapsedGameTime;
-            TimeSpan timeLeft = timeLimit - timePlayed;
-            timeText.TextValue = "Time left: " + timeLeft.Minutes.ToString() + ":" + timeLeft.Seconds.ToString();
-            if (timeLeft.Seconds < 0)
+            if (settings.GameType == GameType.Time)
             {
-                if (localPlayerField.GetScore > remotePlayerField.GetScore)
-                    WinGame();
-                else
+                timePlayed += gameTime.ElapsedGameTime;
+                TimeSpan timeLeft = timeLimit - timePlayed;
+                timeText.TextValue = "Time left: " + timeLeft.Minutes.ToString() + ":" + timeLeft.Seconds.ToString();
+                if (timeLeft.Seconds < 0)
                 {
-                    p1Won = false;
-                    System.Threading.Thread.Sleep(1000);
-                    NewScreen(new ResultsScreen(GetResults(), true), "Game Over");
+                    if (localPlayerField.GetScore > remotePlayerField.GetScore)
+                        WinGame();
+                    else
+                    {
+                        p1Won = false;
+                        System.Threading.Thread.Sleep(1000);
+                        NewScreen(new ResultsScreen(GetResults(), true), "Game Over");
+                    }
                 }
             }
         }
@@ -330,7 +351,7 @@ namespace NotTetris.GameScreens
             countdownText.Draw(gameTime);
         }
 
-        void localPlayerField_ClusterSeparate(object o, ClusterSeparateEventArgs e)
+        private void localPlayerField_ClusterSeparate(object o, ClusterSeparateEventArgs e)
         {
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("cs");
@@ -341,12 +362,31 @@ namespace NotTetris.GameScreens
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
-        void localPlayerField_NewNextCluster(object o, NewNextClusterEventArgs e)
+        private void localPlayerField_NewNextCluster(object o, NewNextClusterEventArgs e)
         {
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("nc");
             msg.Write(e.FirstBlock);
             msg.Write(e.SecondBlock);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        private void localPlayerField_RemoteShouldDropBlackBlocks(object o, ShouldDropBlackBlocksEventArgs e)
+        {
+            remotePlayerField.WaitForBlackBlocks = true;
+            NetOutgoingMessage msg = peer.CreateMessage();
+            msg.Write("bb");
+            msg.Write(e.NumBlocks);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        private void localPlayerField_LocalBlackBlocksCreated(object o, BlackBlocksCreatedEventArgs e)
+        {
+            NetOutgoingMessage msg = peer.CreateMessage();
+            msg.Write("bbc");
+            msg.Write(e.Indexes.Count);
+            foreach (int i in e.Indexes)
+                msg.Write(i);
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 

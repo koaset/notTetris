@@ -24,8 +24,8 @@ namespace NotTetris.GameScreens
 
         public SplitScreenGame(Settings settings)
         {
-            playerOneField = new Playfield(GameType.Normal, new Vector2(780f, 325f), settings.PlayfieldSize);
-            playerTwoField = new Playfield(GameType.Normal, new Vector2(300f, 325f), settings.PlayfieldSize);
+            playerOneField = new Playfield(settings.GameType, new Vector2(780f, 325f), settings.PlayfieldSize);
+            playerTwoField = new Playfield(settings.GameType, new Vector2(300f, 325f), settings.PlayfieldSize);
             backgroundImage = new Image();
             pauseImage = new Image();
             timer = new Text();
@@ -60,6 +60,8 @@ namespace NotTetris.GameScreens
 
             playerOneField.GameOver += new GameOverEventHandler(OnGameOver);
             playerTwoField.GameOver += new GameOverEventHandler(OnGameOver);
+            playerOneField.ShouldDropBlackBlocks += ShouldDropBlackBlocks;
+            playerTwoField.ShouldDropBlackBlocks += ShouldDropBlackBlocks;
 
             timeLimit = new TimeSpan(0, settings.PlayTime, 0);
             timer.Initialize();
@@ -68,6 +70,18 @@ namespace NotTetris.GameScreens
             timer.Position = new Vector2(10);
             timer.TextColor = Color.Navy;
             timer.TextValue = "Time left: " + timeLimit.Minutes.ToString() + ":" + timeLimit.Seconds.ToString();
+            if (settings.GameType != GameType.Time)
+                timer.IsShowing = false;
+        }
+
+        void ShouldDropBlackBlocks(object o, ShouldDropBlackBlocksEventArgs e)
+        {
+            if (o == playerOneField)
+                playerTwoField.QueueBlackBlocks(e.NumBlocks);
+            else if (o == playerTwoField)
+                playerOneField.QueueBlackBlocks(e.NumBlocks);
+            else
+                throw new Exception("ShouldDropBlackBlocks Exception");
         }
 
         public override void LoadContent()
@@ -88,8 +102,9 @@ namespace NotTetris.GameScreens
 
             playerOneField.Update(gameTime);
 
-            if (!playerOneField.IsPaused)
-                time += gameTime.ElapsedGameTime;
+            if (settings.GameType == GameType.Time)
+                if (!playerOneField.IsPaused)
+                    time += gameTime.ElapsedGameTime;
 
             #region Pause
 
