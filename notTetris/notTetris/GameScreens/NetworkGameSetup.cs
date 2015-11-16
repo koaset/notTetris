@@ -371,6 +371,7 @@ namespace NotTetris.GameScreens
 
         private void WriteSettingsToMessage(NetOutgoingMessage msg, Settings settings)
         {
+            msg.Write((int)settings.GameType);
             msg.Write(settings.Difficulty);
             msg.Write(settings.BlockDropSpeed);
             msg.Write(settings.PlayTime);
@@ -380,6 +381,7 @@ namespace NotTetris.GameScreens
         private Settings ReadSettingsFromMessage(NetIncomingMessage msg)
         {
             Settings readSettings = settings.Clone();
+            readSettings.GameType = (NotTetris.GameObjects.GameType)msg.ReadInt32();
             readSettings.Difficulty = msg.ReadString();
             readSettings.BlockDropSpeed = (float)Convert.ToDouble(msg.ReadFloat());
             readSettings.PlayTime = Convert.ToInt32(msg.ReadInt32());

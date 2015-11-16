@@ -37,6 +37,7 @@ namespace NotTetris.GameScreens
 
         public NetworkGame(Settings settings, NetPeer peer)
         {
+            this.settings = settings;
             this.peer = peer;
             localPlayerField = new Playfield(settings.GameType, new Vector2(780f, 325f), settings.PlayfieldSize);
             remotePlayerField = new NetworkPlayfield(settings.GameType, new Vector2(300f, 325f), settings.PlayfieldSize);
@@ -51,9 +52,10 @@ namespace NotTetris.GameScreens
                 connection = peer.Connections.ToArray()[0];
         }
 
-        public override void Initialize(SpriteBatch spriteBatch, Settings settings)
+        public override void Initialize(SpriteBatch spriteBatch, Settings localSettings)
         {
-            base.Initialize(spriteBatch, settings);
+            this.spriteBatch = spriteBatch;
+            mouseVisible = false;
 
             updateTime = 0;
             updateInterval = 30;
@@ -257,7 +259,8 @@ namespace NotTetris.GameScreens
                     if (msg.MessageType == NetIncomingMessageType.Data)
                     {
                         string temp = msg.ReadString();
-                        if (temp == "pos" && !remotePlayerField.movementLocked && !remotePlayerField.WaitingForCluster && !remotePlayerField.movementLocked)
+                        if (temp == "pos" && !remotePlayerField.movementLocked && !remotePlayerField.WaitingForCluster 
+                            && !remotePlayerField.WaitingForBlackBlocks && remotePlayerField.BlackBlocksQueued == 0)
                         {
                             float firstX = msg.ReadFloat() - xDiff;
                             float firstY = msg.ReadFloat();

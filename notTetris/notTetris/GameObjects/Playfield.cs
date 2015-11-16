@@ -18,6 +18,13 @@ namespace NotTetris.GameObjects
         Time,
     }
 
+    public enum GameState
+    {
+        ClusterFalling,
+        BlocksFalling,
+        BlocksExploding,
+    }
+
     class Playfield
     {
         public event GameOverEventHandler GameOver;
@@ -56,6 +63,9 @@ namespace NotTetris.GameObjects
         protected float dropDelay;
         protected bool waitForDropTimer;
 
+        Text stateText;
+
+        public GameState State { get; set; }
         public Vector2 Position { get { return position; } }
         public Cluster NextCluster { get { return nextCluster; } set { nextCluster = value; } }
         public Cluster CurrentCluster { get { return currentCluster; } set { currentCluster = value; } }
@@ -96,6 +106,8 @@ namespace NotTetris.GameObjects
                 blockImages[i] = new Image();
             explosionAnimation = new Animation();
             largestComboText = new Text();
+
+            stateText = new Text();
         }
 
         public virtual void Initialize(SpriteBatch spriteBatch, string difficulty)
@@ -109,6 +121,11 @@ namespace NotTetris.GameObjects
 
         protected void InitializeContent(SpriteBatch spriteBatch, string difficulty)
         {
+            stateText.Initialize();
+            stateText.Position = new Vector2(this.position.X - 175, 0f);
+            stateText.Font = FontNames.Segoe_UI_Mono;
+            stateText.TextValue = "Init";
+
             this.spriteBatch = spriteBatch;
             movementLocked = true;
             IsPaused = true;
@@ -191,6 +208,8 @@ namespace NotTetris.GameObjects
             for (int i = 0; i < blockImages.Length; i++)
                 blockImages[i].LoadContent(spriteBatch);
             explosionAnimation.LoadContent(spriteBatch);
+
+            stateText.LoadContent(spriteBatch);
         }
 
         public virtual void Update(GameTime gameTime)
@@ -237,6 +256,24 @@ namespace NotTetris.GameObjects
                     UpdateExplosion(gameTime);
                     scoreFloater.Update(gameTime);
                 }
+            }
+
+            UpdateStateText();
+        }
+
+        protected void UpdateStateText()
+        {
+            switch (State)
+            {
+                case GameState.BlocksExploding:
+                    stateText.TextValue = "Exploding";
+                    break;
+                case GameState.BlocksFalling:
+                    stateText.TextValue = "Blocks falling";
+                    break;
+                case GameState.ClusterFalling:
+                    stateText.TextValue = "Cluster falling";
+                    break;
             }
         }
 
@@ -333,6 +370,7 @@ namespace NotTetris.GameObjects
                         staticBlocks[i, j].DropSpeed = BaseDropSpeed * dropSpeedBonus;
                         staticBlocks[i, j].IsMoving = true;
                         staticBlocks[i, j] = null;
+                        State = GameState.BlocksFalling;
                     }
                 }
             }
@@ -365,8 +403,11 @@ namespace NotTetris.GameObjects
                     movementLocked = true;
                     currentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
                     Block[] separatedCluster = currentCluster.Separate();
+
+                    State = GameState.BlocksFalling;
                     if (ClusterSeparate != null)
                         ClusterSeparate(this, new ClusterSeparateEventArgs(separatedCluster[0].Position, separatedCluster[1].Position));
+
                     CheckForBlockCollision(separatedCluster[0]);
                     CheckForBlockCollision(separatedCluster[1]);
                     blocks.AddRange(separatedCluster);
@@ -483,6 +524,8 @@ namespace NotTetris.GameObjects
 
         private void ExplodeChain(List<Block> chain)
         {
+            State = GameState.BlocksExploding;
+
             movementLocked = true;
             explosionAnimation.Play();
 
@@ -782,6 +825,7 @@ namespace NotTetris.GameObjects
             scoreMultiplier = 1;
             dropTimer = 0;
             waitForDropTimer = true;
+            State = GameState.ClusterFalling;
         }
 
         private void CreateNextCluster()
@@ -797,6 +841,8 @@ namespace NotTetris.GameObjects
         {
             if (IsShowing)
             {
+                stateText.Draw(gameTime);
+
                 backgroundImage.Draw(gameTime);
                 cutoffLine.Draw(gameTime);
                 scoreCounter.Draw(gameTime);

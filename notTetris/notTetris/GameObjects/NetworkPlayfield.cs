@@ -9,12 +9,15 @@ namespace NotTetris.GameObjects
     class NetworkPlayfield : Playfield
     {
         public bool WaitingForCluster { get; set; }
+        public bool WaitingForBlackBlocks { get; set; }
 
-        public NetworkPlayfield(GameType gameType, Vector2 position, int sizeX) : base(gameType, position, sizeX) { }
+        public NetworkPlayfield(GameType gameType, Vector2 position, int sizeX) 
+            : base(gameType, position, sizeX) { }
 
         public override void Initialize(SpriteBatch spriteBatch, string difficulty)
         {
             WaitingForCluster = false;
+            WaitingForBlackBlocks = false;
 
             base.InitializeContent(spriteBatch, difficulty);
         }
@@ -52,12 +55,8 @@ namespace NotTetris.GameObjects
                     {
                         if (IsGameOver())
                             EndGame();
-                        else if (BlackBlocksQueued == 0)
+                        else if (!WaitingForBlackBlocks)
                             DropNextCluster();
-                        /*else if (BlackBlocksQueued.Count > 0)
-                            CreateBlackBlocks();
-                        else if (blackBlockQueue.Count == 0 && WaitForBlackBlocks)
-                            WaitForBlackBlocks = false;*/
                     }
                 }
                 else
@@ -66,6 +65,8 @@ namespace NotTetris.GameObjects
                     scoreFloater.Update(gameTime);
                 }
             }
+
+            UpdateStateText();
         }
 
         public void AddBlackBlock(int gridPosX, int gridPosY)
@@ -82,6 +83,9 @@ namespace NotTetris.GameObjects
                 BlackBlocksQueued--;
             else
                 throw new Exception("Wtf exception");
+
+            if (BlackBlocksQueued == 0)
+                DropNextCluster();
         }
 
         /// <summary>
@@ -91,13 +95,14 @@ namespace NotTetris.GameObjects
         /// <param name="secondBlock"></param>
         public void MoveAndSeparate(Vector2 firstBlock, Vector2 secondBlock)
         {
-            movementLocked = true;
+            State = GameState.BlocksFalling;
             currentCluster.FirstBlock.Position = firstBlock;
             currentCluster.SecondBlock.Position = secondBlock;
             currentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
             CheckForBlockCollision(currentCluster.FirstBlock);
             CheckForBlockCollision(currentCluster.SecondBlock);
             blocks.AddRange(currentCluster.Separate());
+            movementLocked = true;   
         }
 
         public override void EndGame()
@@ -110,16 +115,18 @@ namespace NotTetris.GameObjects
         /// </summary>
         public override void DropNextCluster()
         {
+            State = GameState.ClusterFalling;
             currentCluster = nextCluster;
             currentCluster.Move(position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
             currentCluster.IsMoving = true;
             currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-            movementLocked = false;
             nextCluster = null;
             scoreMultiplier = 1;
             WaitingForCluster = true;
             dropTimer = 0;
             waitForDropTimer = true;
+            WaitingForBlackBlocks = false;
+            movementLocked = false;
         }
 
         /// <summary>
