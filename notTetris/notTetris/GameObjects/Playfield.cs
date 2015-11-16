@@ -10,7 +10,6 @@ namespace NotTetris.GameObjects
     public delegate void NewNextClusterEventHandler(object o, NewNextClusterEventArgs e);
     public delegate void ClusterSeparateEventHandler(object o, ClusterSeparateEventArgs e);
     public delegate void ShouldDropBlackBlocksEventHandler(object o, ShouldDropBlackBlocksEventArgs e);
-    public delegate void BlackBlocksCreatedEventHandler(object o, BlackBlocksCreatedEventArgs e);
     public delegate void BlackBlockColiisionEventHandler(object o, BlackBlockCollision e);
 
     public enum GameType
@@ -25,7 +24,6 @@ namespace NotTetris.GameObjects
         public event NewNextClusterEventHandler NewNextCluster;
         public event ClusterSeparateEventHandler ClusterSeparate;
         public event ShouldDropBlackBlocksEventHandler ShouldDropBlackBlocks;
-        public event BlackBlocksCreatedEventHandler BlackBlocksCreated;
         public event BlackBlockColiisionEventHandler BlackBlockCollision;
 
         private GameType gameType;
@@ -40,11 +38,9 @@ namespace NotTetris.GameObjects
         Vector2 scale;
         protected List<Block> blocks;
         protected List<Block> explodingBlocks;
-        protected List<Block> movingBlackBlocks;
         protected Cluster currentCluster;
         protected Cluster nextCluster;
         protected Block[,] staticBlocks;
-        int blackBlocksQueued;
         int startingColumn;
         protected int scoreMultiplier;
         int maxBlocks;
@@ -71,6 +67,7 @@ namespace NotTetris.GameObjects
         public bool IsPaused { get; set; }
         public bool IsShowing { get; set; }
         public float GetScore { get { return scoreCounter.Score; } set { scoreCounter.Score = value; } }
+        public int BlackBlocksQueued { get; set; }
 
         public Playfield(GameType gameType, Vector2 position, int sizeX)
         {
@@ -84,8 +81,7 @@ namespace NotTetris.GameObjects
             maxBlocks = (sizeX - 1) * sizeY + 2;
             blocks = new List<Block>(maxBlocks);
             explodingBlocks = new List<Block>();
-            movingBlackBlocks = new List<Block>();
-            blackBlocksQueued = 0;
+            BlackBlocksQueued = 0;
             backgroundImage = new Image();
             cutoffLine = new Image();
             
@@ -229,7 +225,7 @@ namespace NotTetris.GameObjects
                             EndGame();
                         else
                         {
-                            if (blackBlocksQueued > 0)
+                            if (BlackBlocksQueued > 0)
                                 CreateBlackBlocks();
                             else
                                 DropNextCluster();
@@ -390,14 +386,12 @@ namespace NotTetris.GameObjects
 
             if (BlockHasCollided(block))
             {
-                if (movingBlackBlocks.Contains(block))
-                {
-                    movingBlackBlocks.Remove(block);
-                    if (BlackBlockCollision != null)
-                        BlackBlockCollision(this, new BlackBlockCollision(pos));
-                }
                 block.Attach(pos);
                 staticBlocks[posX, posY] = block;
+
+                if (BlackBlockCollision != null)
+                    if (block.BlockType == BlockType.Black)
+                        BlackBlockCollision(this, new BlackBlockCollision(posX, posY));
             }
         }
 
@@ -542,7 +536,7 @@ namespace NotTetris.GameObjects
         /// <param name="count"></param>
         public void QueueBlackBlocks(int count)
         {
-            blackBlocksQueued += count;
+            BlackBlocksQueued += count;
         }
 
         /// <summary>
@@ -550,7 +544,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         protected virtual void CreateBlackBlocks()
         {
-            int numToAdd = Math.Min(staticBlocks.GetLength(0), blackBlocksQueued);
+            int numToAdd = Math.Min(staticBlocks.GetLength(0), BlackBlocksQueued);
 
             var positionsTaken = new List<int>();
             int stepsToOrigin = (staticBlocks.GetLength(0) - 1) / 2;
@@ -571,14 +565,10 @@ namespace NotTetris.GameObjects
                     blackBlock.IsMoving = true;
                     blackBlock.DropSpeed = BaseDropSpeed * dropSpeedBonus;
                     blocks.Add(blackBlock);
-                    movingBlackBlocks.Add(blackBlock);
                 }
             }
 
-            blackBlocksQueued -= numToAdd;
-
-            if (BlackBlocksCreated != null)
-                BlackBlocksCreated(this, new BlackBlocksCreatedEventArgs(positionsTaken));
+            BlackBlocksQueued -= numToAdd;
         }
 
         public void StartGame()
@@ -776,7 +766,7 @@ namespace NotTetris.GameObjects
             throw new Exception("No empty position exception");
         }
 
-        private Vector2 GetPositionFromIndex(int x, int y)
+        protected Vector2 GetPositionFromIndex(int x, int y)
         {
             return position + 0.5f * new Vector2(-Width, Height) + blockSize * new Vector2(x + 0.5f, -y - 0.5f);
         }
@@ -888,23 +878,15 @@ namespace NotTetris.GameObjects
         }
     }
 
-    public class BlackBlocksCreatedEventArgs : EventArgs
-    {
-        public List<int> Indexes { get; set; }
-
-        public BlackBlocksCreatedEventArgs(List<int> indexes)
-        {
-            Indexes = indexes;
-        }
-    }
-
     public class BlackBlockCollision : EventArgs
     {
-        public Vector2 GridPosition { get; set; }
+        public int GridPosX { get; set; }
+        public int GridPosY { get; set; }
 
-        public BlackBlockCollision(Vector2 gridPosition)
+        public BlackBlockCollision(int gridPosX, int gridPosY)
         {
-            GridPosition = gridPosition;
+            GridPosX = gridPosX;
+            GridPosY = gridPosY;
         }
     }
 }

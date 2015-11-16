@@ -9,19 +9,12 @@ namespace NotTetris.GameObjects
     class NetworkPlayfield : Playfield
     {
         public bool WaitingForCluster { get; set; }
-        public bool WaitForBlackBlocks { get; set; }
 
         public NetworkPlayfield(GameType gameType, Vector2 position, int sizeX) : base(gameType, position, sizeX) { }
-
-        private List<int> blackBlockQueue;
-        private List<Block> movingBlackBlocks;
 
         public override void Initialize(SpriteBatch spriteBatch, string difficulty)
         {
             WaitingForCluster = false;
-            WaitForBlackBlocks = false;
-            blackBlockQueue = new List<int>();
-            movingBlackBlocks = new List<Block>();
 
             base.InitializeContent(spriteBatch, difficulty);
         }
@@ -51,9 +44,6 @@ namespace NotTetris.GameObjects
 
                     UpdateBlocks(gameTime);
 
-                    foreach (Block block in movingBlackBlocks)
-                        block.Update(gameTime);
-
                     UpdateClusters(gameTime);
 
                     CheckForExplosions();
@@ -62,12 +52,12 @@ namespace NotTetris.GameObjects
                     {
                         if (IsGameOver())
                             EndGame();
-                        else if (!WaitForBlackBlocks)
+                        else if (BlackBlocksQueued == 0)
                             DropNextCluster();
-                        else if (blackBlockQueue.Count > 0)
+                        /*else if (BlackBlocksQueued.Count > 0)
                             CreateBlackBlocks();
                         else if (blackBlockQueue.Count == 0 && WaitForBlackBlocks)
-                            WaitForBlackBlocks = false;
+                            WaitForBlackBlocks = false;*/
                     }
                 }
                 else
@@ -78,37 +68,20 @@ namespace NotTetris.GameObjects
             }
         }
 
-        public void AddBlackBlocks(List<int> indexes)
+        public void AddBlackBlock(int gridPosX, int gridPosY)
         {
-            blackBlockQueue.AddRange(indexes);
-        }
 
-        /// <summary>
-        /// Creates black blocks at the indexes specified in the queue, max one for each x position
-        /// </summary>
-        protected override void CreateBlackBlocks()
-        {
-            int stepsToOrigin = (staticBlocks.GetLength(0) - 1) / 2;
-            Vector2 gridOrigin = this.position - new Vector2(stepsToOrigin * blockSize, (Height - blockSize) * 0.5f);
+            Block blackBlock = new Block(BlockType.Black, GetPositionFromIndex(gridPosX, gridPosY), blockSize);
+            blackBlock.Initialize();
+            blackBlock.IsMoving = false;
+            blackBlock.WillBeChecked = false;
+            blocks.Add(blackBlock);
+            staticBlocks[gridPosX, gridPosY] = blackBlock;
 
-            List<int> indexesToAdd = new List<int>();
-
-            foreach (int i in blackBlockQueue)
-                if (!indexesToAdd.Contains(i))
-                    indexesToAdd.Add(i);
-
-            foreach (int i in indexesToAdd)
-            {
-                blackBlockQueue.Remove(i);
-                Block blackBlock = new Block(BlockType.Black,
-                        gridOrigin + new Vector2(i * blockSize, 0), blockSize);
-                blackBlock.IsMoving = true;
-                blackBlock.DropSpeed = BaseDropSpeed * dropSpeedBonus;
-                movingBlackBlocks.Add(blackBlock);
-            }
-
-            if (blackBlockQueue.Count == 0)
-                WaitForBlackBlocks = false;
+            if (BlackBlocksQueued > 0)
+                BlackBlocksQueued--;
+            else
+                throw new Exception("Wtf exception");
         }
 
         /// <summary>

@@ -70,8 +70,11 @@ namespace NotTetris.GameScreens
             localPlayerField.GameOver += OnGameOver;
             localPlayerField.NewNextCluster += localPlayerField_NewNextCluster;
             localPlayerField.ClusterSeparate += localPlayerField_ClusterSeparate;
-            localPlayerField.ShouldDropBlackBlocks += localPlayerField_RemoteShouldDropBlackBlocks;
-            localPlayerField.BlackBlocksCreated += localPlayerField_LocalBlackBlocksCreated;
+            if (settings.GameType == GameType.Normal)
+            {
+                localPlayerField.ShouldDropBlackBlocks += localPlayerField_RemoteShouldDropBlackBlocks;
+                localPlayerField.BlackBlockCollision += localPlayerField_BlackBlockCollision;
+            }
 
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("init");
@@ -246,7 +249,7 @@ namespace NotTetris.GameScreens
 
         private void ReadMessages()
         {
-            if (isStarted && !remotePlayerField.movementLocked)
+            if (isStarted)
             {
                 NetIncomingMessage msg;
                 while ((msg = peer.ReadMessage()) != null)
@@ -254,7 +257,7 @@ namespace NotTetris.GameScreens
                     if (msg.MessageType == NetIncomingMessageType.Data)
                     {
                         string temp = msg.ReadString();
-                        if (temp == "pos" && !remotePlayerField.movementLocked && !remotePlayerField.WaitingForCluster)
+                        if (temp == "pos" && !remotePlayerField.movementLocked && !remotePlayerField.WaitingForCluster && !remotePlayerField.movementLocked)
                         {
                             float firstX = msg.ReadFloat() - xDiff;
                             float firstY = msg.ReadFloat();
@@ -272,7 +275,7 @@ namespace NotTetris.GameScreens
                             nextFirstBlock = (BlockType)msg.ReadInt32();
                             nextSecondBlock = (BlockType)msg.ReadInt32();
                         }
-                        else if (temp == "cs")
+                        else if (temp == "cs" && !remotePlayerField.movementLocked)
                         {
                             float firstX = msg.ReadFloat() - xDiff;
                             float firstY = msg.ReadFloat();
@@ -287,11 +290,9 @@ namespace NotTetris.GameScreens
                         }
                         else if (temp == "bbc")
                         {
-                            int numBlocks = msg.ReadInt32();
-                            var blockIndexes = new List<int>(numBlocks);
-                            for (int i = 0; i < numBlocks; i++)
-                                blockIndexes.Add(msg.ReadInt32());
-                            remotePlayerField.AddBlackBlocks(blockIndexes);
+                            int posX = msg.ReadInt32();
+                            int posY = msg.ReadInt32();
+                            remotePlayerField.AddBlackBlock(posX, posY);
                         }
                         else if (temp == "Game Over")
                         {
@@ -373,20 +374,19 @@ namespace NotTetris.GameScreens
 
         private void localPlayerField_RemoteShouldDropBlackBlocks(object o, ShouldDropBlackBlocksEventArgs e)
         {
-            remotePlayerField.WaitForBlackBlocks = true;
+            remotePlayerField.BlackBlocksQueued += e.NumBlocks;
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("bb");
             msg.Write(e.NumBlocks);
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
-        private void localPlayerField_LocalBlackBlocksCreated(object o, BlackBlocksCreatedEventArgs e)
+        void localPlayerField_BlackBlockCollision(object o, BlackBlockCollision e)
         {
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("bbc");
-            msg.Write(e.Indexes.Count);
-            foreach (int i in e.Indexes)
-                msg.Write(i);
+            msg.Write(e.GridPosX);
+            msg.Write(e.GridPosY);
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
