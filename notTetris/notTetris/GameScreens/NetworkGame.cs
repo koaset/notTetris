@@ -304,8 +304,8 @@ namespace NotTetris.GameScreens
                         }
                         else if (temp == "bbc")
                         {
-                            int posX = msg.ReadInt32();
-                            int posY = msg.ReadInt32();
+                            float posX = msg.ReadFloat() - xDiff;
+                            float posY = msg.ReadFloat();
                             remotePlayerField.AddBlackBlock(posX, posY);
                         }
                         else if (temp == "Game Over")
@@ -406,8 +406,8 @@ namespace NotTetris.GameScreens
         {
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("bbc");
-            msg.Write(e.GridPosX);
-            msg.Write(e.GridPosY);
+            msg.Write(e.Position.X);
+            msg.Write(e.Position.Y);
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 

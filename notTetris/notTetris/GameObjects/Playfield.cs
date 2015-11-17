@@ -435,7 +435,7 @@ namespace NotTetris.GameObjects
 
                 if (BlackBlockCollision != null)
                     if (block.BlockType == BlockType.Black)
-                        BlackBlockCollision(this, new BlackBlockCollision(posX, posY));
+                        BlackBlockCollision(this, new BlackBlockCollision(pos));
             }
         }
 
@@ -457,7 +457,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         /// <param name="blockPosition"></param>
         /// <returns></returns>
-        private int GridPositionX(Vector2 blockPosition)
+        protected int GridPositionX(Vector2 blockPosition)
         {
             float ret = (staticBlocks.GetLength(0) + (blockPosition.X - this.position.X - 0.5f * Width) / blockSize);
             if (ret < 0)
@@ -470,7 +470,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         /// <param name="blockPosition"></param>
         /// <returns></returns>
-        private int GridPositionY(Vector2 blockPosition)
+        protected int GridPositionY(Vector2 blockPosition)
         {
             return (int)(0.5f + (this.position.Y + 0.5f * Height - blockPosition.Y) / blockSize);
         }
@@ -937,13 +937,11 @@ namespace NotTetris.GameObjects
 
     public class BlackBlockCollision : EventArgs
     {
-        public int GridPosX { get; set; }
-        public int GridPosY { get; set; }
+        public Vector2 Position { get; set; }
 
-        public BlackBlockCollision(int gridPosX, int gridPosY)
+        public BlackBlockCollision(Vector2 position)
         {
-            GridPosX = gridPosX;
-            GridPosY = gridPosY;
+            Position = position;
         }
     }
 }

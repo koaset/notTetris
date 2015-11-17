@@ -3,9 +3,10 @@
   <WindowTitle>Not Tetris</WindowTitle>
   <Difficulty>Easy</Difficulty>
   <GameType>Normal</GameType>
+  <ShowDebugInfo>false</ShowDebugInfo>
   <BlockDropSpeed>100</BlockDropSpeed>
   <PlayTime>1</PlayTime>
-  <PlayfieldSize>9</PlayfieldSize>
+  <PlayfieldSize>11</PlayfieldSize>
   <IP>192.168.0.105</IP>
   <PORT>12345</PORT>
   <Player1Start>Enter</Player1Start>

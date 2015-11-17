@@ -67,20 +67,19 @@ namespace NotTetris.GameObjects
             UpdateStateText();
         }
 
-        public void AddBlackBlock(int gridPosX, int gridPosY)
+        public void AddBlackBlock(float posX, float posY)
         {
-
-            Block blackBlock = new Block(BlockType.Black, GetPositionFromIndex(gridPosX, gridPosY), blockSize);
+            var pos = new Vector2(posX, posY);
+            Block blackBlock = new Block(BlockType.Black, pos, blockSize);
             blackBlock.Initialize();
             blackBlock.IsMoving = false;
             blackBlock.WillBeChecked = false;
             blocks.Add(blackBlock);
+            int gridPosX = GridPositionX(pos);
+            int gridPosY = GridPositionY(pos);
             staticBlocks[gridPosX, gridPosY] = blackBlock;
-
-            if (BlackBlocksQueued > 0)
-                BlackBlocksQueued--;
-            else
-                throw new Exception("Wtf exception");
+            
+            BlackBlocksQueued--;
         }
 
         /// <summary>
