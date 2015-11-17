@@ -65,9 +65,11 @@ namespace NotTetris.GameScreens
             #region Initialize playfields
             localPlayerField.Initialize(spriteBatch, settings.Difficulty);
             localPlayerField.IsShowing = true;
+            localPlayerField.SetDebugInfoVisibility(localSettings.ShowDebugInfo);
             System.Threading.Thread.Sleep(10);
             remotePlayerField.Initialize(spriteBatch, settings.Difficulty);
             remotePlayerField.IsShowing = true;
+            remotePlayerField.SetDebugInfoVisibility(localSettings.ShowDebugInfo);
 
             localPlayerField.GameOver += OnGameOver;
             localPlayerField.NewNextCluster += localPlayerField_NewNextCluster;
@@ -222,7 +224,7 @@ namespace NotTetris.GameScreens
 
         private void HandleInput(GameTime gameTime)
         {
-            if (!localPlayerField.movementLocked)
+            if (!localPlayerField.MovementLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     localPlayerField.RotateCluster();

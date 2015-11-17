@@ -97,7 +97,7 @@ namespace NotTetris.GameObjects
             CheckForBlockCollision(currentCluster.FirstBlock);
             CheckForBlockCollision(currentCluster.SecondBlock);
             blocks.AddRange(currentCluster.Separate());
-            movementLocked = true;   
+            MovementLocked = true;   
         }
 
         public override void EndGame()
@@ -121,7 +121,7 @@ namespace NotTetris.GameObjects
             dropTimer = 0;
             waitForDropTimer = true;
             WaitingForBlackBlocks = false;
-            movementLocked = false;
+            MovementLocked = false;
         }
 
         /// <summary>

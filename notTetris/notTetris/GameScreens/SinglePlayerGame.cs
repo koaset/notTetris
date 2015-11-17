@@ -37,6 +37,7 @@ namespace NotTetris.GameScreens
             playerOneField.Initialize(spriteBatch, settings.Difficulty);
             playerOneField.IsShowing = true;
             playerOneField.BaseDropSpeed = settings.BlockDropSpeed;
+            playerOneField.SetDebugInfoVisibility(settings.ShowDebugInfo);
 
             pauseImage.Initialize();
             pauseImage.Layer = 0.9f;
@@ -105,7 +106,7 @@ namespace NotTetris.GameScreens
                 }
             }
 
-            if (!playerOneField.movementLocked)
+            if (!playerOneField.MovementLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     playerOneField.RotateCluster();

@@ -14,6 +14,7 @@ namespace NotTetris
         public string WindowTitle = "Not Tetris";
         public string Difficulty = "Easy";
         public GameType GameType = GameType.Normal;
+        public bool ShowDebugInfo = false;
 
         public float BlockDropSpeed = 100f;
         public int PlayTime = 3;
@@ -41,6 +42,7 @@ namespace NotTetris
             ret.WindowTitle = WindowTitle;
             ret.Difficulty = Difficulty;
             ret.GameType = GameType;
+            ret.ShowDebugInfo = ShowDebugInfo;
             ret.BlockDropSpeed = BlockDropSpeed;
             ret.PlayTime = PlayTime;
             ret.PlayfieldSize = PlayfieldSize;

@@ -75,7 +75,7 @@ namespace NotTetris.GameObjects
         public float BaseDropSpeed { get; set; }
         public static float Width { get { return 350f; } }
         public static float Height { get { return 500f; } }
-        public bool movementLocked { get; set; }
+        public bool MovementLocked { get; set; }
         public bool IsPaused { get; set; }
         public bool IsShowing { get; set; }
         public float GetScore { get { return scoreCounter.Score; } set { scoreCounter.Score = value; } }
@@ -118,7 +118,7 @@ namespace NotTetris.GameObjects
 
             CreateNextCluster();
             DropNextCluster();
-            movementLocked = true;
+            MovementLocked = true;
         }
 
         protected void InitializeContent(SpriteBatch spriteBatch, string difficulty)
@@ -130,7 +130,7 @@ namespace NotTetris.GameObjects
             stateText.IsShowing = false;
 
             this.spriteBatch = spriteBatch;
-            movementLocked = true;
+            MovementLocked = true;
             IsPaused = true;
 
             dropTimer = 0;
@@ -403,7 +403,7 @@ namespace NotTetris.GameObjects
             if (currentCluster.IsMoving)
                 if (BlockHasCollided(currentCluster.FirstBlock) || BlockHasCollided(currentCluster.SecondBlock))
                 {
-                    movementLocked = true;
+                    MovementLocked = true;
                     currentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
                     Block[] separatedCluster = currentCluster.Separate();
 
@@ -529,7 +529,7 @@ namespace NotTetris.GameObjects
         {
             State = GameState.BlocksExploding;
 
-            movementLocked = true;
+            MovementLocked = true;
             explosionAnimation.Play();
 
             float oldScore = scoreCounter.Score;
@@ -625,13 +625,13 @@ namespace NotTetris.GameObjects
         public void Pause()
         {
             IsPaused = true;
-            movementLocked = true;
+            MovementLocked = true;
         }
 
         public void UnPause()
         {
             IsPaused = false;
-            movementLocked = false;
+            MovementLocked = false;
         }
 
         public virtual void EndGame()
@@ -652,7 +652,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         public virtual void MoveClusterLeft(GameTime gameTime, bool first)
         {
-            if (!movementLocked)
+            if (!MovementLocked)
             {
                 int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
                 int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
@@ -683,7 +683,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         public virtual void MoveClusterRight(GameTime gameTime, bool first)
         {
-            if (!movementLocked)
+            if (!MovementLocked)
             {
                 int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
                 int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
@@ -714,7 +714,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         public void RotateCluster()
         {
-            if (!movementLocked)
+            if (!MovementLocked)
             {
                 int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
                 int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
@@ -763,7 +763,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         public void MoveClusterDown(GameTime gameTime)
         {
-            if (!movementLocked)
+            if (!MovementLocked)
                 DropClusterFast(gameTime);
         }
         #endregion
@@ -829,7 +829,7 @@ namespace NotTetris.GameObjects
             currentCluster.IsMoving = false;
             nextCluster = null;
             CreateNextCluster();
-            movementLocked = false;
+            MovementLocked = false;
             scoreMultiplier = 1;
             dropTimer = 0;
             waitForDropTimer = true;

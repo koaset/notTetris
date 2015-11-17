@@ -38,9 +38,11 @@ namespace NotTetris.GameScreens
             isStarted = false;
             playerOneField.Initialize(spriteBatch, settings.Difficulty);
             playerOneField.IsShowing = true;
+            playerOneField.SetDebugInfoVisibility(settings.ShowDebugInfo);
             System.Threading.Thread.Sleep(10);
             playerTwoField.Initialize(spriteBatch, settings.Difficulty);
             playerTwoField.IsShowing = true;
+            playerTwoField.SetDebugInfoVisibility(settings.ShowDebugInfo);
 
             playerOneField.BaseDropSpeed = settings.BlockDropSpeed;
             playerTwoField.BaseDropSpeed = settings.BlockDropSpeed;
@@ -134,7 +136,7 @@ namespace NotTetris.GameScreens
                 }
 
             #region Player 1 Controls
-            if (!playerOneField.movementLocked)
+            if (!playerOneField.MovementLocked)
             {
                 if (newState.IsKeyDown(settings.Player1Rotate) && oldState.IsKeyUp(settings.Player1Rotate))
                     playerOneField.RotateCluster();
@@ -150,7 +152,7 @@ namespace NotTetris.GameScreens
             playerTwoField.Update(gameTime);
 
             #region Player 2 Controls
-            if (!playerTwoField.movementLocked)
+            if (!playerTwoField.MovementLocked)
             {
                 if (newState.IsKeyDown(settings.Player2Rotate) && oldState.IsKeyUp(settings.Player2Rotate))
                     playerTwoField.RotateCluster();
