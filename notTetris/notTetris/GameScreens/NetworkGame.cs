@@ -71,6 +71,7 @@ namespace NotTetris.GameScreens
 
             localPlayerField.GameOver += OnGameOver;
             localPlayerField.NewNextCluster += localPlayerField_NewNextCluster;
+            localPlayerField.ClusterDrop += localPlayerField_ClusterDrop;
             localPlayerField.ClusterSeparate += localPlayerField_ClusterSeparate;
             if (settings.GameType == GameType.Normal)
             {
@@ -259,32 +260,40 @@ namespace NotTetris.GameScreens
                     if (msg.MessageType == NetIncomingMessageType.Data)
                     {
                         string temp = msg.ReadString();
-                        if (temp == "pos" && !remotePlayerField.movementLocked && !remotePlayerField.WaitingForCluster 
-                            && !remotePlayerField.WaitingForBlackBlocks && remotePlayerField.BlackBlocksQueued == 0)
+                        if (remotePlayerField.State == GameState.ClusterFalling)
                         {
-                            float firstX = msg.ReadFloat() - xDiff;
-                            float firstY = msg.ReadFloat();
-                            float secondX = msg.ReadFloat() - xDiff;
-                            float secondY = msg.ReadFloat();
-                            remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
-                            remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
-                            if (msg.ReadString() == "Down")
-                                remotePlayerDown = true;
-                            else
-                                remotePlayerDown = false;
+                            if (temp == "pos")
+                            {
+                                float firstX = msg.ReadFloat() - xDiff;
+                                float firstY = msg.ReadFloat();
+                                float secondX = msg.ReadFloat() - xDiff;
+                                float secondY = msg.ReadFloat();
+                                remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
+                                remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
+                                remotePlayerField.CurrentCluster.IsMoving = true;
+                                if (msg.ReadString() == "Down")
+                                    remotePlayerDown = true;
+                                else
+                                    remotePlayerDown = false;
+                            }
+                            else if (temp == "cs")
+                            {
+                                float firstX = msg.ReadFloat() - xDiff;
+                                float firstY = msg.ReadFloat();
+                                float secondX = msg.ReadFloat() - xDiff;
+                                float secondY = msg.ReadFloat();
+                                remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
+                            }
                         }
-                        else if (temp == "nc")
+
+                        if (temp == "nc")
                         {
                             nextFirstBlock = (BlockType)msg.ReadInt32();
                             nextSecondBlock = (BlockType)msg.ReadInt32();
                         }
-                        else if (temp == "cs" && !remotePlayerField.movementLocked)
+                        else if (temp == "cd")
                         {
-                            float firstX = msg.ReadFloat() - xDiff;
-                            float firstY = msg.ReadFloat();
-                            float secondX = msg.ReadFloat() - xDiff;
-                            float secondY = msg.ReadFloat();
-                            remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
+                            remotePlayerField.DropNextCluster();
                         }
                         else if (temp == "bb")
                         {
@@ -355,6 +364,22 @@ namespace NotTetris.GameScreens
             countdownText.Draw(gameTime);
         }
 
+        private void localPlayerField_NewNextCluster(object o, NewNextClusterEventArgs e)
+        {
+            NetOutgoingMessage msg = peer.CreateMessage();
+            msg.Write("nc");
+            msg.Write(e.FirstBlock);
+            msg.Write(e.SecondBlock);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        private void localPlayerField_ClusterDrop(object o, EventArgs e)
+        {
+            NetOutgoingMessage msg = peer.CreateMessage();
+            msg.Write("cd");
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+        }
+
         private void localPlayerField_ClusterSeparate(object o, ClusterSeparateEventArgs e)
         {
             NetOutgoingMessage msg = peer.CreateMessage();
@@ -363,15 +388,6 @@ namespace NotTetris.GameScreens
             msg.Write(e.FirstBlockPosition.Y);
             msg.Write(e.SecondBlockPosition.X);
             msg.Write(e.SecondBlockPosition.Y);
-            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
-        }
-
-        private void localPlayerField_NewNextCluster(object o, NewNextClusterEventArgs e)
-        {
-            NetOutgoingMessage msg = peer.CreateMessage();
-            msg.Write("nc");
-            msg.Write(e.FirstBlock);
-            msg.Write(e.SecondBlock);
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
@@ -384,7 +400,7 @@ namespace NotTetris.GameScreens
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
-        void localPlayerField_BlackBlockCollision(object o, BlackBlockCollision e)
+        private void localPlayerField_BlackBlockCollision(object o, BlackBlockCollision e)
         {
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("bbc");

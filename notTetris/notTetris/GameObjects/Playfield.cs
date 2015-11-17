@@ -8,6 +8,7 @@ namespace NotTetris.GameObjects
 {
     public delegate void GameOverEventHandler(object o, EventArgs e);
     public delegate void NewNextClusterEventHandler(object o, NewNextClusterEventArgs e);
+    public delegate void ClusterDropEventHandler(object o, EventArgs e);
     public delegate void ClusterSeparateEventHandler(object o, ClusterSeparateEventArgs e);
     public delegate void ShouldDropBlackBlocksEventHandler(object o, ShouldDropBlackBlocksEventArgs e);
     public delegate void BlackBlockColiisionEventHandler(object o, BlackBlockCollision e);
@@ -29,6 +30,7 @@ namespace NotTetris.GameObjects
     {
         public event GameOverEventHandler GameOver;
         public event NewNextClusterEventHandler NewNextCluster;
+        public event ClusterDropEventHandler ClusterDrop;
         public event ClusterSeparateEventHandler ClusterSeparate;
         public event ShouldDropBlackBlocksEventHandler ShouldDropBlackBlocks;
         public event BlackBlockColiisionEventHandler BlackBlockCollision;
@@ -125,6 +127,7 @@ namespace NotTetris.GameObjects
             stateText.Position = new Vector2(this.position.X - 175, 0f);
             stateText.Font = FontNames.Segoe_UI_Mono;
             stateText.TextValue = "Init";
+            stateText.IsShowing = false;
 
             this.spriteBatch = spriteBatch;
             movementLocked = true;
@@ -638,6 +641,11 @@ namespace NotTetris.GameObjects
                 GameOver(this, EventArgs.Empty);
         }
 
+        public void SetDebugInfoVisibility(bool isShowing)
+        {
+            stateText.IsShowing = isShowing;
+        }
+
         #region Commands
         /// <summary>
         /// Move left command
@@ -826,6 +834,9 @@ namespace NotTetris.GameObjects
             dropTimer = 0;
             waitForDropTimer = true;
             State = GameState.ClusterFalling;
+            
+            if (ClusterDrop != null)
+                ClusterDrop(this, new EventArgs());
         }
 
         private void CreateNextCluster()

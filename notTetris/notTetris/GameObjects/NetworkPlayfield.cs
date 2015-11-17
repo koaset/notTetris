@@ -55,8 +55,6 @@ namespace NotTetris.GameObjects
                     {
                         if (IsGameOver())
                             EndGame();
-                        else if (!WaitingForBlackBlocks)
-                            DropNextCluster();
                     }
                 }
                 else
@@ -83,9 +81,6 @@ namespace NotTetris.GameObjects
                 BlackBlocksQueued--;
             else
                 throw new Exception("Wtf exception");
-
-            if (BlackBlocksQueued == 0)
-                DropNextCluster();
         }
 
         /// <summary>
@@ -118,7 +113,7 @@ namespace NotTetris.GameObjects
             State = GameState.ClusterFalling;
             currentCluster = nextCluster;
             currentCluster.Move(position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
-            currentCluster.IsMoving = true;
+            currentCluster.IsMoving = false;
             currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
             nextCluster = null;
             scoreMultiplier = 1;
