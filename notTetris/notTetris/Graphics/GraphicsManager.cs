@@ -83,10 +83,24 @@ namespace NotTetris.Graphics
             loadedFonts = new SpriteFont[fontPaths.Length];
 
             for (int i = 0; i < texturePaths.Length; i++)
-                loadedTextures[i] = content.Load<Texture2D>(texturePaths[i]);
+                loadedTextures[i] = TryLoad<Texture2D>(content, texturePaths[i]);
 
             for (int i = 0; i < fontPaths.Length; i++)
-                loadedFonts[i] = content.Load<SpriteFont>(fontPaths[i]);
+                loadedFonts[i] = TryLoad<SpriteFont>(content, fontPaths[i]);
+        }
+
+        private static T TryLoad<T>(ContentManager content, string path)
+        {
+            T ret;
+            try
+            {
+                ret = content.Load<T>(path);
+            }
+            catch
+            {
+                throw new Exception("Unable to load file at: " + path);
+            }
+            return ret;
         }
     }
 }

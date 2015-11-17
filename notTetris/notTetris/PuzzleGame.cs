@@ -74,7 +74,17 @@ namespace NotTetris
         /// </summary>
         protected override void LoadContent()
         {
-            GraphicsManager.LoadAllContent(content);
+            try
+            {
+                GraphicsManager.LoadAllContent(content);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                Exit();
+                return;
+            }
+
             currentScreen.LoadContent();
 
             base.LoadContent();
