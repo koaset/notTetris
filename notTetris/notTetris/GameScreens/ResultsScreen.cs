@@ -19,17 +19,17 @@ namespace NotTetris.GameScreens
         Text p1Score;
         Text p2Score;
         bool newHighscore;
-        private Results results;
+        private GameResult results;
         bool isNetwork;
 
-        public ResultsScreen(Results results, bool isNetwork)
+        public ResultsScreen(GameResult results, bool isNetwork)
         {
             this.results = results;
             this.isNetwork = isNetwork;
             backGroundImage = new Image();
             gameoverText = new Text();
             infoText = new Text();
-            results = new Results();
+            results = new GameResult();
             time = new Text();
             p1Score = new Text();
             p2Score = new Text();

@@ -154,7 +154,7 @@ namespace NotTetris
             GC.Collect();
         }
 
-        private void OnChangeScreen(object o, ScreenEventArgs e)
+        private void OnChangeScreen(object o, ChangeScreenEventArgs e)
         {
             ChangeScreen(e.NewScreen);
         }

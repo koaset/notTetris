@@ -26,7 +26,7 @@ namespace NotTetris.GameScreens
     }
     #endregion
 
-    internal delegate void ChangeScreenEventHandler(object o, ScreenEventArgs e);
+    internal delegate void ChangeScreenEventHandler(object o, ChangeScreenEventArgs e);
 
     internal abstract class GameScreen
     {
@@ -36,7 +36,7 @@ namespace NotTetris.GameScreens
         protected KeyboardState oldState;
         protected bool isFocused;
         protected bool mouseVisible;
-        protected static Vector2 SCREENSIZE = new Vector2(1000, 720);
+        protected static Vector2 WINDOWSIZE = new Vector2(1000, 720);
 
         public virtual void Initialize(SpriteBatch spriteBatch, Settings settings)
         {
@@ -53,7 +53,7 @@ namespace NotTetris.GameScreens
 
         protected virtual void NewScreen(GameScreen newScreen)
         {
-            ScreenEventArgs args = new ScreenEventArgs(newScreen);
+            ChangeScreenEventArgs args = new ChangeScreenEventArgs(newScreen);
             ChangeScreen(this, args);
         }
 
@@ -62,17 +62,17 @@ namespace NotTetris.GameScreens
             isFocused = focus;
         }
 
-        public virtual Results GetResults()
+        public virtual GameResult GetResults()
         {
             return null;
         }
     }
 
-    internal class ScreenEventArgs : EventArgs
+    internal class ChangeScreenEventArgs : EventArgs
     {
         private GameScreen newScreen;
 
-        public ScreenEventArgs(GameScreen newScreen) {this.newScreen = newScreen;}
+        public ChangeScreenEventArgs(GameScreen newScreen) {this.newScreen = newScreen;}
 
         public GameScreen NewScreen
         {

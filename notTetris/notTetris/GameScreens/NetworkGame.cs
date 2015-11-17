@@ -98,14 +98,14 @@ namespace NotTetris.GameScreens
             pauseImage.Initialize();
             pauseImage.Layer = 0.9f;
             pauseImage.Size = new Vector2(487, 120);
-            pauseImage.Position = SCREENSIZE * 0.5f;
+            pauseImage.Position = WINDOWSIZE * 0.5f;
             pauseImage.IsShowing = false;
             pauseImage.TextureName = TextureNames.game_paused;
 
             backgroundImage.Initialize();
             backgroundImage.Layer = 0.3f;
-            backgroundImage.Size = SCREENSIZE;
-            backgroundImage.Position = SCREENSIZE * 0.5f;
+            backgroundImage.Size = WINDOWSIZE;
+            backgroundImage.Position = WINDOWSIZE * 0.5f;
             backgroundImage.TextureName = TextureNames.game_background;
 
             timeLimit = new TimeSpan(0, settings.PlayTime, 0);
@@ -123,7 +123,7 @@ namespace NotTetris.GameScreens
             countdownText.Initialize();
             countdownText.Font = FontNames.Segoe_UI_Mono_Huge;
             countdownText.Layer = 0.9f;
-            countdownText.Position = SCREENSIZE * 0.5f - new Vector2(0f, 50f);
+            countdownText.Position = WINDOWSIZE * 0.5f - new Vector2(0f, 50f);
             countdownText.IsCentered = true;
             countdownText.TextColor = Color.Navy;
             countdownText.OutlineColor = Color.White;
@@ -455,9 +455,9 @@ namespace NotTetris.GameScreens
             NewScreen(new ResultsScreen(GetResults(), true), "Game Over");
         }
 
-        public override Results GetResults()
+        public override GameResult GetResults()
         {
-            Results r = new Results();
+            GameResult r = new GameResult();
 
             r.IsSinglerplayer = false;
             r.Player1Won = p1Won;

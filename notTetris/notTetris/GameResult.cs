@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NotTetris
 {
-    class Results
+    class GameResult
     {
         public bool IsSinglerplayer
         {
@@ -50,7 +50,7 @@ namespace NotTetris
         private TimeSpan time;
         private string difficulty;
 
-        public Results()
+        public GameResult()
         {
             isSinglerplayer = true;
             p1Won = true;

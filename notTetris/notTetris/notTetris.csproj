@@ -114,7 +114,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="PuzzleGame.cs" />
-    <Compile Include="Results.cs" />
+    <Compile Include="GameResult.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>

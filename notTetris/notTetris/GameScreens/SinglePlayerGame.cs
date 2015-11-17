@@ -161,9 +161,9 @@ namespace NotTetris.GameScreens
             NewScreen(new ResultsScreen(GetResults(), false));
         }
 
-        public override Results GetResults()
+        public override GameResult GetResults()
         {
-            Results r = new Results();
+            GameResult r = new GameResult();
 
             r.IsSinglerplayer = true;
             r.Time = time;
