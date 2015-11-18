@@ -10,19 +10,32 @@ namespace NotTetris
         /// </summary>
         static void Main(string[] args)
         {
-            try
+            
+            if (args.Length > 0 && args[0] == "-nolog")
             {
-                using (PuzzleGame game = new PuzzleGame())
+                Run();
+            }
+            else
+            {
+                try
                 {
-                    game.Run();
+                    Run();
+                }
+                catch (Exception e)
+                {
+                    using (var errorLogger = new ErrorLogger(e))
+                    {
+                        errorLogger.Run();
+                    }
                 }
             }
-            catch (Exception e)
+        }
+
+        static void Run()
+        {
+            using (PuzzleGame game = new PuzzleGame())
             {
-                using (var errorLogger = new ErrorLogger(e))
-                {
-                    errorLogger.Run();
-                }
+                game.Run();
             }
         }
     }

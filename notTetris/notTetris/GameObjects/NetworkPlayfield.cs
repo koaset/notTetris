@@ -14,10 +14,13 @@ namespace NotTetris.GameObjects
         public NetworkPlayfield(GameType gameType, Vector2 position, int sizeX) 
             : base(gameType, position, sizeX) { }
 
+        private Block[] movingBlackBlocks;
+
         public override void Initialize(SpriteBatch spriteBatch, string difficulty)
         {
             WaitingForCluster = false;
             WaitingForBlackBlocks = false;
+            movingBlackBlocks = new Block[staticBlocks.GetLength(0)];
 
             base.InitializeContent(spriteBatch, difficulty);
         }
@@ -67,18 +70,43 @@ namespace NotTetris.GameObjects
             UpdateStateText();
         }
 
-        public void AddBlackBlock(float posX, float posY)
+        /// <summary>
+        /// Drops black blocks from top at columns in indexes
+        /// </summary>
+        /// <param name="indexes"></param>
+        public void AddBlackBlocks(List<int> indexes)
+        {
+            foreach (int i in indexes)
+            {
+                Block blackBlock = CreateBlackBlock(i);
+                blocks.Add(blackBlock);
+                movingBlackBlocks[i] = blackBlock;
+            }
+        }
+
+        /// <summary>
+        /// Creates a stationary black block at a position 
+        /// </summary>
+        /// <param name="posX"></param>
+        /// <param name="posY"></param>
+        public void SetBlackBlock(float posX, float posY)
         {
             var pos = new Vector2(posX, posY);
-            Block blackBlock = new Block(BlockType.Black, pos, blockSize);
-            blackBlock.Initialize();
-            blackBlock.IsMoving = false;
-            blackBlock.WillBeChecked = false;
-            blocks.Add(blackBlock);
             int gridPosX = GridPositionX(pos);
             int gridPosY = GridPositionY(pos);
-            staticBlocks[gridPosX, gridPosY] = blackBlock;
+
+            Block blackBlock;
+            if (movingBlackBlocks[gridPosX] != null)
+            {
+                blackBlock = movingBlackBlocks[gridPosX];
+                movingBlackBlocks[gridPosX] = null;
+            }
+            else
+                blackBlock = CreateBlackBlock(gridPosX);
+
             
+            blackBlock.Attach(new Vector2(posX, posY));
+            staticBlocks[gridPosX, gridPosY] = blackBlock;
             BlackBlocksQueued--;
         }
 
@@ -121,6 +149,7 @@ namespace NotTetris.GameObjects
             waitForDropTimer = true;
             WaitingForBlackBlocks = false;
             MovementLocked = false;
+            movingBlackBlocks = new Block[movingBlackBlocks.Length];
         }
 
         /// <summary>

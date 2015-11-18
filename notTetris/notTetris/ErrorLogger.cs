@@ -10,7 +10,7 @@ namespace NotTetris
     {
         private Exception ex;
         private StreamWriter sw;
-        private const string logPath = "report.log";
+        private const string logPath = "error.log";
 
         public ErrorLogger(Exception ex)
         {

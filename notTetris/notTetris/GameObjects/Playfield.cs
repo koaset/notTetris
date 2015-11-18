@@ -10,8 +10,10 @@ namespace NotTetris.GameObjects
     public delegate void NewNextClusterEventHandler(object o, NewNextClusterEventArgs e);
     public delegate void ClusterDropEventHandler(object o, EventArgs e);
     public delegate void ClusterSeparateEventHandler(object o, ClusterSeparateEventArgs e);
+    public delegate void BlackBlocksCreatedEventHandler(object o, BlackBlocksCreatedEventArgs e);
     public delegate void ShouldDropBlackBlocksEventHandler(object o, ShouldDropBlackBlocksEventArgs e);
-    public delegate void BlackBlockColiisionEventHandler(object o, BlackBlockCollision e);
+    public delegate void BlackBlockCollisionEventHandler(object o, BlackBlockCollision e);
+    
 
     public enum GameType
     {
@@ -32,8 +34,9 @@ namespace NotTetris.GameObjects
         public event NewNextClusterEventHandler NewNextCluster;
         public event ClusterDropEventHandler ClusterDrop;
         public event ClusterSeparateEventHandler ClusterSeparate;
+        public event BlackBlocksCreatedEventHandler BlackBlocksCreated;
         public event ShouldDropBlackBlocksEventHandler ShouldDropBlackBlocks;
-        public event BlackBlockColiisionEventHandler BlackBlockCollision;
+        public event BlackBlockCollisionEventHandler BlackBlockCollision;
 
         private GameType gameType;
         protected Vector2 position;
@@ -588,13 +591,12 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Creates black blocks at top and drops them
         /// </summary>
-        protected virtual void CreateBlackBlocks()
+        private void CreateBlackBlocks()
         {
             int numToAdd = Math.Min(staticBlocks.GetLength(0), BlackBlocksQueued);
 
             var positionsTaken = new List<int>();
-            int stepsToOrigin = (staticBlocks.GetLength(0) - 1) / 2;
-            Vector2 gridOrigin = this.position - new Vector2(stepsToOrigin * blockSize, (Height - blockSize) * 0.5f);
+           
 
             for (int i = 0; i < numToAdd; i++)
             {
@@ -606,15 +608,29 @@ namespace NotTetris.GameObjects
                 if (!positionsTaken.Contains(gridIndex))
                 {
                     positionsTaken.Add(gridIndex);
-                    Block blackBlock = new Block(BlockType.Black,
-                        gridOrigin + new Vector2(gridIndex * blockSize, 0), blockSize);
-                    blackBlock.IsMoving = true;
-                    blackBlock.DropSpeed = BaseDropSpeed * dropSpeedBonus;
-                    blocks.Add(blackBlock);
+                    blocks.Add(CreateBlackBlock(gridIndex));
                 }
             }
 
+            if (BlackBlocksCreated != null && positionsTaken.Count > 0)
+                BlackBlocksCreated(this, new BlackBlocksCreatedEventArgs(positionsTaken));
+
             BlackBlocksQueued -= numToAdd;
+        }
+
+        protected Block CreateBlackBlock(int gridIndex)
+        {
+            Block blackBlock = new Block(BlockType.Black,
+                        GridOrigin() + new Vector2(gridIndex * blockSize, 0), blockSize);
+            blackBlock.IsMoving = true;
+            blackBlock.DropSpeed = BaseDropSpeed * dropSpeedBonus;
+            return blackBlock;
+        }
+
+        private Vector2 GridOrigin()
+        {
+            int stepsToOrigin = (staticBlocks.GetLength(0) - 1) / 2;
+            return this.position - new Vector2(stepsToOrigin * blockSize, (Height - blockSize) * 0.5f);
         }
 
         public void StartGame()
@@ -923,6 +939,16 @@ namespace NotTetris.GameObjects
 
         public Vector2 FirstBlockPosition { get { return firstBlockPos; } }
         public Vector2 SecondBlockPosition { get { return secondBlockPos; } }
+    }
+
+    public class BlackBlocksCreatedEventArgs : EventArgs
+    {
+        public List<int> Indexes { get; set; }
+
+        public BlackBlocksCreatedEventArgs(List<int> indexes)
+        {
+            Indexes = indexes;
+        }
     }
 
     public class ShouldDropBlackBlocksEventArgs : EventArgs

@@ -77,6 +77,7 @@ namespace NotTetris.GameScreens
             localPlayerField.ClusterSeparate += localPlayerField_ClusterSeparate;
             if (settings.GameType == GameType.Normal)
             {
+                localPlayerField.BlackBlocksCreated += localPlayerField_BlackBlocksCreated;
                 localPlayerField.ShouldDropBlackBlocks += localPlayerField_RemoteShouldDropBlackBlocks;
                 localPlayerField.BlackBlockCollision += localPlayerField_BlackBlockCollision;
             }
@@ -306,7 +307,15 @@ namespace NotTetris.GameScreens
                         {
                             float posX = msg.ReadFloat() - xDiff;
                             float posY = msg.ReadFloat();
-                            remotePlayerField.AddBlackBlock(posX, posY);
+                            remotePlayerField.SetBlackBlock(posX, posY);
+                        }
+                        else if (temp == "bbcr")
+                        {
+                            int num = msg.ReadInt32();
+                            var indexes = new List<int>();
+                            for (int i = 0; i < num; i++)
+                                indexes.Add(msg.ReadInt32());
+                            remotePlayerField.AddBlackBlocks(indexes);
                         }
                         else if (temp == "Game Over")
                         {
@@ -390,6 +399,16 @@ namespace NotTetris.GameScreens
             msg.Write(e.FirstBlockPosition.Y);
             msg.Write(e.SecondBlockPosition.X);
             msg.Write(e.SecondBlockPosition.Y);
+            peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        private void localPlayerField_BlackBlocksCreated(object o, BlackBlocksCreatedEventArgs e)
+        {
+            NetOutgoingMessage msg = peer.CreateMessage();
+            msg.Write("bbcr");
+            msg.Write(e.Indexes.Count);
+            foreach (int i in e.Indexes)
+                msg.Write(i);
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
