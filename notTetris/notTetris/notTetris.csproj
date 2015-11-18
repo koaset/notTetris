@@ -91,6 +91,7 @@
     <Compile Include="Controls\TextboxPopup.cs" />
     <Compile Include="Controls\TextButton.cs" />
     <Compile Include="Controls\Cursor.cs" />
+    <Compile Include="ErrorLogger.cs" />
     <Compile Include="GameObjects\Block.cs" />
     <Compile Include="GameObjects\Cluster.cs" />
     <Compile Include="GameObjects\NetworkPlayfield.cs" />

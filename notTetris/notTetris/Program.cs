@@ -10,9 +10,19 @@ namespace NotTetris
         /// </summary>
         static void Main(string[] args)
         {
-            using (PuzzleGame game = new PuzzleGame())
+            try
             {
-                game.Run();
+                using (PuzzleGame game = new PuzzleGame())
+                {
+                    game.Run();
+                }
+            }
+            catch (Exception e)
+            {
+                using (var errorLogger = new ErrorLogger(e))
+                {
+                    errorLogger.Run();
+                }
             }
         }
     }
