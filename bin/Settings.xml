@@ -6,7 +6,7 @@
   <ShowDebugInfo>false</ShowDebugInfo>
   <BlockDropSpeed>100</BlockDropSpeed>
   <PlayTime>1</PlayTime>
-  <PlayfieldSize>11</PlayfieldSize>
+  <PlayfieldSize>9</PlayfieldSize>
   <IP>192.168.0.105</IP>
   <PORT>12345</PORT>
   <Player1Start>Enter</Player1Start>

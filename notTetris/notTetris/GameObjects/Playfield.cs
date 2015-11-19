@@ -394,8 +394,18 @@ namespace NotTetris.GameObjects
                     if (ClusterSeparate != null)
                         ClusterSeparate(this, new ClusterSeparateEventArgs(separatedCluster[0].Position, separatedCluster[1].Position));
 
-                    CheckForBlockCollision(separatedCluster[0]);
-                    CheckForBlockCollision(separatedCluster[1]);
+                    // Avoids jittering if orientation is down
+                    if (currentCluster.Orientation != Orientation.Down)
+                    {
+                        CheckForBlockCollision(separatedCluster[0]);
+                        CheckForBlockCollision(separatedCluster[1]);
+                    }
+                    else
+                    {
+                        CheckForBlockCollision(separatedCluster[1]);
+                        CheckForBlockCollision(separatedCluster[0]);
+                    }
+
                     blocks.AddRange(separatedCluster);
                 }
         }
