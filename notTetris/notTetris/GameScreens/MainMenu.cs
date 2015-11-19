@@ -6,6 +6,9 @@ using NotTetris.Graphics;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// The main menu screen
+    /// </summary>
     class MainMenu : GameScreen
     {
         Cursor cursor;

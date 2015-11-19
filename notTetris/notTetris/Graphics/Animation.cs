@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Graphics
 {
+    /// <summary>
+    /// An animated image
+    /// </summary>
     class Animation : Image
     {
         #region Props

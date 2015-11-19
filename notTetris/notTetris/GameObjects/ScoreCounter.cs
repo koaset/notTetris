@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameObjects
 {
+    /// <summary>
+    /// Displays score during play
+    /// </summary>
     class ScoreCounter
     {
         #region Props

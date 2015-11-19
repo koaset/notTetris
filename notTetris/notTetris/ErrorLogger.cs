@@ -6,6 +6,9 @@ using System.Text;
 
 namespace NotTetris
 {
+    /// <summary>
+    /// Writes an exception to a log file
+    /// </summary>
     class ErrorLogger : IDisposable
     {
         private Exception ex;

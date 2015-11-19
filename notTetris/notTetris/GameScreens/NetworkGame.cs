@@ -12,10 +12,13 @@ using Lidgren.Network;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// The screen used for network multiplayer
+    /// </summary>
     class NetworkGame : GameScreen
     {
         Playfield localPlayerField;
-        NetworkPlayfield remotePlayerField;
+        RemotePlayfield remotePlayerField;
         Image backgroundImage;
         Image pauseImage;
         OutlineText countdownText;
@@ -40,7 +43,7 @@ namespace NotTetris.GameScreens
             this.settings = settings;
             this.peer = peer;
             localPlayerField = new Playfield(settings.GameType, new Vector2(780f, 325f), settings.PlayfieldSize);
-            remotePlayerField = new NetworkPlayfield(settings.GameType, new Vector2(300f, 325f), settings.PlayfieldSize);
+            remotePlayerField = new RemotePlayfield(settings.GameType, new Vector2(300f, 325f), settings.PlayfieldSize);
             xDiff = localPlayerField.Position.X - remotePlayerField.Position.X;
             backgroundImage = new Image();
             pauseImage = new Image();
@@ -421,7 +424,7 @@ namespace NotTetris.GameScreens
             peer.SendMessage(msg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
-        private void localPlayerField_BlackBlockCollision(object o, BlackBlockCollision e)
+        private void localPlayerField_BlackBlockCollision(object o, BlackBlockCollisionEventArgs e)
         {
             NetOutgoingMessage msg = peer.CreateMessage();
             msg.Write("bbc");
@@ -478,7 +481,7 @@ namespace NotTetris.GameScreens
         {
             GameResult r = new GameResult();
 
-            r.IsSinglerplayer = false;
+            r.IsSingleplayer = false;
             r.Player1Won = p1Won;
             r.Time = timePlayed;
             r.Player1Score = localPlayerField.GetScore;

@@ -8,35 +8,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Graphics
 {
-    public enum TextureNames
-    {
-        mouse_cursor,
-        button_increase,
-        game_background,
-        game_paused,
-        playfieldbackground_yellow,
-        block_red,
-        block_blue,
-        block_gray,
-        block_purple,
-        block_yellow,
-        block_green,
-        block_orange,
-        block_explosion,
-        mainmenu_background,
-        title,
-        red_line,
-        popup_background,
-    }
-
-    public enum FontNames
-    {
-        Segoe_UI_Mono,
-        Segoe_UI_Mono_Large,
-        Segoe_UI_Mono_Huge,
-    }
-
-    class GraphicsManager
+    /// <summary>
+    /// Static class handling loading of graphics content
+    /// </summary>
+    public static class GraphicsManager
     {
         private static string[] texturePaths = {
             @"Content\Textures\mouse_cursor",
@@ -102,5 +77,33 @@ namespace NotTetris.Graphics
             }
             return ret;
         }
+    }
+
+    public enum TextureNames
+    {
+        mouse_cursor,
+        button_increase,
+        game_background,
+        game_paused,
+        playfieldbackground_yellow,
+        block_red,
+        block_blue,
+        block_gray,
+        block_purple,
+        block_yellow,
+        block_green,
+        block_orange,
+        block_explosion,
+        mainmenu_background,
+        title,
+        red_line,
+        popup_background,
+    }
+
+    public enum FontNames
+    {
+        Segoe_UI_Mono,
+        Segoe_UI_Mono_Large,
+        Segoe_UI_Mono_Huge,
     }
 }

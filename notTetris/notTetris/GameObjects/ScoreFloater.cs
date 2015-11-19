@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework;
 
 namespace NotTetris.GameObjects
 {
+    /// <summary>
+    /// Displays score earned when blocks explode
+    /// </summary>
     class ScoreFloater : OutlineText
     {
         public Vector2 Velocity { get; set; }

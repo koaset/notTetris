@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Controls
 {
+    /// <summary>
+    /// A popup allowing the user to write input
+    /// </summary>
     class TextboxPopup : Popup
     {
         public bool ShouldSave { get; set; }

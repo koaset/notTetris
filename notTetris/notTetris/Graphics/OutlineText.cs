@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Graphics
 {
+    /// <summary>
+    /// Text string with an outline of some color
+    /// </summary>
     class OutlineText : Text
     {
         public Color OutlineColor { get; set; }

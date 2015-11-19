@@ -10,6 +10,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// Local multiplayer screen.
+    /// </summary>
     class SplitScreenGame : GameScreen
     {
         Playfield playerOneField;
@@ -215,7 +218,7 @@ namespace NotTetris.GameScreens
         {
             GameResult r = new GameResult();
 
-            r.IsSinglerplayer = false;
+            r.IsSingleplayer = false;
             r.Player1Won = p1Won;
             r.Time = time;
             r.Player1Score = playerOneField.GetScore;

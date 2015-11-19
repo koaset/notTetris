@@ -3,6 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Graphics
 {
+    /// <summary>
+    /// Defines a drawable image object
+    /// </summary>
     class Image
     {
         #region Props

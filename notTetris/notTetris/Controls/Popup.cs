@@ -8,8 +8,9 @@ using NotTetris.Graphics;
 
 namespace NotTetris.Controls
 {
-    public delegate void ClosePopupEventHandler(object o, EventArgs e);
-
+    /// <summary>
+    /// A popup image control
+    /// </summary>
     class Popup : Image
     {
         public virtual event ClosePopupEventHandler ClosePopup;
@@ -55,4 +56,6 @@ namespace NotTetris.Controls
             ClosePopup(this, e);
         }
     }
+
+    public delegate void ClosePopupEventHandler(object o, EventArgs e);
 }

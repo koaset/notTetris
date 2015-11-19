@@ -6,28 +6,9 @@ using NotTetris.Graphics;
 
 namespace NotTetris.GameObjects
 {
-    public delegate void GameOverEventHandler(object o, EventArgs e);
-    public delegate void NewNextClusterEventHandler(object o, NewNextClusterEventArgs e);
-    public delegate void ClusterDropEventHandler(object o, EventArgs e);
-    public delegate void ClusterSeparateEventHandler(object o, ClusterSeparateEventArgs e);
-    public delegate void BlackBlocksCreatedEventHandler(object o, BlackBlocksCreatedEventArgs e);
-    public delegate void ShouldDropBlackBlocksEventHandler(object o, ShouldDropBlackBlocksEventArgs e);
-    public delegate void BlackBlockCollisionEventHandler(object o, BlackBlockCollision e);
-    
-
-    public enum GameType
-    {
-        Normal,
-        Time,
-    }
-
-    public enum GameState
-    {
-        ClusterFalling,
-        BlocksFalling,
-        BlocksExploding,
-    }
-
+    /// <summary>
+    /// Handles game logic for a single local player
+    /// </summary>
     class Playfield
     {
         public event GameOverEventHandler GameOver;
@@ -67,7 +48,6 @@ namespace NotTetris.GameObjects
         protected float dropTimer;
         protected float dropDelay;
         protected bool waitForDropTimer;
-
         Text stateText;
 
         public GameState State { get; set; }
@@ -341,7 +321,7 @@ namespace NotTetris.GameObjects
             if (!currentCluster.IsMoving && !BlocksAreMoving())
             {
                 foreach (Block block in blocks)
-                    if (block.WillBeChecked)
+                    if (block.ShouldBeChecked)
                         CheckBlock(block);
             }
         }
@@ -438,7 +418,7 @@ namespace NotTetris.GameObjects
 
                 if (BlackBlockCollision != null)
                     if (block.BlockType == BlockType.Black)
-                        BlackBlockCollision(this, new BlackBlockCollision(pos));
+                        BlackBlockCollision(this, new BlackBlockCollisionEventArgs(pos));
             }
         }
 
@@ -911,6 +891,27 @@ namespace NotTetris.GameObjects
         }
     }
 
+    public enum GameType
+    {
+        Normal,
+        Time,
+    }
+
+    public enum GameState
+    {
+        ClusterFalling,
+        BlocksFalling,
+        BlocksExploding,
+    }
+
+    public delegate void GameOverEventHandler(object o, EventArgs e);
+    public delegate void NewNextClusterEventHandler(object o, NewNextClusterEventArgs e);
+    public delegate void ClusterDropEventHandler(object o, EventArgs e);
+    public delegate void ClusterSeparateEventHandler(object o, ClusterSeparateEventArgs e);
+    public delegate void BlackBlocksCreatedEventHandler(object o, BlackBlocksCreatedEventArgs e);
+    public delegate void ShouldDropBlackBlocksEventHandler(object o, ShouldDropBlackBlocksEventArgs e);
+    public delegate void BlackBlockCollisionEventHandler(object o, BlackBlockCollisionEventArgs e);
+
     public class NewNextClusterEventArgs : EventArgs
     {
         private int firstBlock;
@@ -961,11 +962,11 @@ namespace NotTetris.GameObjects
         }
     }
 
-    public class BlackBlockCollision : EventArgs
+    public class BlackBlockCollisionEventArgs : EventArgs
     {
         public Vector2 Position { get; set; }
 
-        public BlackBlockCollision(Vector2 position)
+        public BlackBlockCollisionEventArgs(Vector2 position)
         {
             Position = position;
         }

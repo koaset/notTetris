@@ -10,6 +10,9 @@ using Lidgren.Network;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// Network game setup screen
+    /// </summary>
     class NetworkGameSetup : GameScreen
     {
         Image backgroundImage;

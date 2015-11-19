@@ -5,6 +5,9 @@ using NotTetris.Graphics;
 
 namespace NotTetris.Controls
 {
+    /// <summary>
+    /// Mouse cursor
+    /// </summary>
     class Cursor
     {
         Image image;

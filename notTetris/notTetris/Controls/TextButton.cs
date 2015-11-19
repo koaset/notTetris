@@ -9,15 +9,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Controls
 {
+    /// <summary>
+    /// A clickable outlined text string.
+    /// </summary>
     class TextButton
     {
-        private enum ButtonState
-        {
-            Normal,
-            Hover,
-            Down,
-        }
-
         public bool IsShowing { get { return buttonText.IsShowing; } set { buttonText.IsShowing = value; } }
         public bool Enabled { get { return enabled; } set { enabled = value; } }
         public string Text { get { return buttonText.TextValue; } set { buttonText.TextValue = value; } }
@@ -98,6 +94,13 @@ namespace NotTetris.Controls
         public void Draw(GameTime gameTime)
         {
             buttonText.Draw(gameTime);
+        }
+
+        private enum ButtonState
+        {
+            Normal,
+            Hover,
+            Down,
         }
     }
 }

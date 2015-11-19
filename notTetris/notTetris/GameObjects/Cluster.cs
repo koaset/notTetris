@@ -8,6 +8,137 @@ using NotTetris.Graphics;
 
 namespace NotTetris.GameObjects
 {
+    /// <summary>
+    /// A unit of two blocks the player can control
+    /// </summary>
+    class Cluster
+    {
+        public Block FirstBlock { get; set; }
+        public Block SecondBlock { get; set; }
+        public Orientation Orientation { get; set; }
+        public bool IsMoving { get; set; }
+
+        private float blockSize;
+
+        public Cluster(Vector2 position, float blockSize)
+        {
+            FirstBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y + blockSize / 2), blockSize);
+            SecondBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y - blockSize / 2), blockSize);
+            this.blockSize = blockSize;
+        }
+
+        public void Initialize()
+        {
+            Orientation = Orientation.Up;
+            FirstBlock.Initialize();
+            SecondBlock.Initialize();
+            IsMoving = true;
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if (IsMoving)
+            {
+                FirstBlock.Update(gameTime);
+                SecondBlock.Update(gameTime);
+            }
+        }
+
+        public Block[] Separate()
+        {
+            Block[] blocks = new Block[2];
+            blocks[0] = FirstBlock;
+            blocks[1] = SecondBlock;
+            IsMoving = false;
+            return blocks;
+        }
+
+        public void Move(Vector2 newPosition)
+        {
+            if (FirstBlock.IsMoving && SecondBlock.IsMoving)
+            {
+                FirstBlock.Position = newPosition;
+
+                if (Orientation == Orientation.Down)
+                    SecondBlock.Position = newPosition + new Vector2(0f, blockSize);
+                else if (Orientation == Orientation.Left)
+                    SecondBlock.Position = newPosition + new Vector2(-blockSize, 0f);
+                else if (Orientation == Orientation.Up)
+                    SecondBlock.Position = newPosition + new Vector2(0f, -blockSize);
+                else if (Orientation == Orientation.Right)
+                    SecondBlock.Position = newPosition + new Vector2(blockSize, 0f);
+            }
+        }
+
+        public void Rotate(bool rotateClockwise)
+        {
+            if (rotateClockwise)
+            {
+                if (Orientation == Orientation.Down)
+                {
+                    SecondBlock.Position += - new Vector2(blockSize);
+                    Orientation = Orientation.Left;
+                }
+                else if (Orientation == Orientation.Left)
+                {
+                    SecondBlock.Position += new Vector2(blockSize, -blockSize);
+                    Orientation = Orientation.Up;
+                }
+                else if (Orientation == Orientation.Up)
+                {
+                    SecondBlock.Position += new Vector2(blockSize);
+                    Orientation = Orientation.Right;
+                }
+                else if (Orientation == Orientation.Right)
+                {
+                    SecondBlock.Position += new Vector2(-blockSize, blockSize);
+                    Orientation = Orientation.Down;
+                }
+            }
+            else
+            {
+                if (Orientation == Orientation.Down)
+                {
+                    SecondBlock.Position += new Vector2(blockSize, -blockSize);
+                    Orientation = Orientation.Right;
+                }
+                else if (Orientation == Orientation.Left)
+                {
+                    SecondBlock.Position += new Vector2(blockSize);
+                    Orientation = Orientation.Down;
+                }
+                else if (Orientation == Orientation.Up)
+                {
+                    SecondBlock.Position += new Vector2(-blockSize, blockSize);
+                    Orientation = Orientation.Left;
+                }
+                else if (Orientation == Orientation.Right)
+                {
+                    SecondBlock.Position += new Vector2(-blockSize);
+                    Orientation = Orientation.Up;
+                }
+            }
+        }
+
+        public void Invert()
+        {
+            if (Orientation == Orientation.Down)
+                Orientation = Orientation.Up;
+            else if (Orientation == Orientation.Up)
+                Orientation = Orientation.Down;
+
+            Vector2 temp = FirstBlock.Position;
+            FirstBlock.Position = SecondBlock.Position;
+            SecondBlock.Position = temp;
+        }
+
+        public void SetDropSpeed(float speed)
+        {
+            FirstBlock.DropSpeed = speed;
+            SecondBlock.DropSpeed = speed;
+        }
+    }
+
     #region Orientation enum
     /// <summary>
     /// Determines position of second block relative to first
@@ -20,158 +151,4 @@ namespace NotTetris.GameObjects
         Up,
     }
     #endregion
-
-    class Cluster
-    {
-        #region Props
-        public Block FirstBlock
-        {
-            get { return firstBlock; }
-            set { firstBlock = value; }
-        }
-
-        public Block SecondBlock
-        {
-            get { return secondBlock; }
-        }
-
-        public Orientation Orientation
-        {
-            get { return orientation; }
-            set { orientation = value; }
-        }
-
-        public bool IsMoving
-        {
-            get { return isMoving; }
-            set { isMoving = value; }
-        }
-        #endregion
-
-        
-
-        Block firstBlock;
-        Block secondBlock;
-        private Orientation orientation;
-        private bool isMoving;
-        float blockSize;
-
-        public Cluster(Vector2 position, float blockSize)
-        {
-            firstBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y + blockSize / 2), blockSize);
-            secondBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y - blockSize / 2), blockSize);
-            this.blockSize = blockSize;
-        }
-
-        public void Initialize()
-        {
-            orientation = Orientation.Up;
-            firstBlock.Initialize();
-            secondBlock.Initialize();
-            isMoving = true;
-        }
-
-        public void Update(GameTime gameTime)
-        {
-            if (isMoving)
-            {
-                firstBlock.Update(gameTime);
-                secondBlock.Update(gameTime);
-            }
-        }
-
-        public Block[] Separate()
-        {
-            Block[] blocks = new Block[2];
-            blocks[0] = firstBlock;
-            blocks[1] = secondBlock;
-            isMoving = false;
-            return blocks;
-        }
-
-        public void Move(Vector2 newPosition)
-        {
-            if (firstBlock.IsMoving && secondBlock.IsMoving)
-            {
-                firstBlock.Position = newPosition;
-
-                if (orientation == Orientation.Down)
-                    secondBlock.Position = newPosition + new Vector2(0f, blockSize);
-                else if (orientation == Orientation.Left)
-                    secondBlock.Position = newPosition + new Vector2(-blockSize, 0f);
-                else if (orientation == Orientation.Up)
-                    secondBlock.Position = newPosition + new Vector2(0f, -blockSize);
-                else if (orientation == Orientation.Right)
-                    secondBlock.Position = newPosition + new Vector2(blockSize, 0f);
-            }
-        }
-
-        public void Rotate(bool rotateClockwise)
-        {
-            if (rotateClockwise)
-            {
-                if (orientation == Orientation.Down)
-                {
-                    secondBlock.Position += - new Vector2(blockSize);
-                    orientation = Orientation.Left;
-                }
-                else if (orientation == Orientation.Left)
-                {
-                    secondBlock.Position += new Vector2(blockSize, -blockSize);
-                    orientation = Orientation.Up;
-                }
-                else if (orientation == Orientation.Up)
-                {
-                    secondBlock.Position += new Vector2(blockSize);
-                    orientation = Orientation.Right;
-                }
-                else if (orientation == Orientation.Right)
-                {
-                    secondBlock.Position += new Vector2(-blockSize, blockSize);
-                    orientation = Orientation.Down;
-                }
-            }
-            else
-            {
-                if (orientation == Orientation.Down)
-                {
-                    secondBlock.Position += new Vector2(blockSize, -blockSize);
-                    orientation = Orientation.Right;
-                }
-                else if (orientation == Orientation.Left)
-                {
-                    secondBlock.Position += new Vector2(blockSize);
-                    orientation = Orientation.Down;
-                }
-                else if (orientation == Orientation.Up)
-                {
-                    secondBlock.Position += new Vector2(-blockSize, blockSize);
-                    orientation = Orientation.Left;
-                }
-                else if (orientation == Orientation.Right)
-                {
-                    secondBlock.Position += new Vector2(-blockSize);
-                    orientation = Orientation.Up;
-                }
-            }
-        }
-
-        public void Invert()
-        {
-            if (orientation == Orientation.Down)
-                orientation = Orientation.Up;
-            else if (orientation == Orientation.Up)
-                orientation = Orientation.Down;
-
-            Vector2 temp = firstBlock.Position;
-            firstBlock.Position = secondBlock.Position;
-            secondBlock.Position = temp;
-        }
-
-        public void SetDropSpeed(float speed)
-        {
-            firstBlock.DropSpeed = speed;
-            secondBlock.DropSpeed = speed;
-        }
-    }
 }

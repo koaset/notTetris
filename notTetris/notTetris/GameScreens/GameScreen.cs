@@ -2,32 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-//using Not_Tetris__Rework_.GameScreens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace NotTetris.GameScreens
 {
-    #region ScreenType enum
-    public enum ScreenType
-    {
-        Exit,
-        MainMenu,
-        SingleplayerGame,
-        SplitscreenGame,
-        NetworkGame,
-        NetworkGameSetup,
-        ResultsScreen,
-        SettingsMenu,
-        HighscoreScreen,
-        HostScreen,
-        ConnectionScreen,
-    }
-    #endregion
-
-    internal delegate void ChangeScreenEventHandler(object o, ChangeScreenEventArgs e);
-
+    /// <summary>
+    /// Base class different game screens
+    /// </summary>
     internal abstract class GameScreen
     {
         public event ChangeScreenEventHandler ChangeScreen;
@@ -79,4 +62,6 @@ namespace NotTetris.GameScreens
             get { return newScreen; }
         }
     }
+
+    internal delegate void ChangeScreenEventHandler(object o, ChangeScreenEventArgs e);
 }

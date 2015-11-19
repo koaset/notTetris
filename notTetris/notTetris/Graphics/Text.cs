@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Graphics
 {
+    /// <summary>
+    /// A drawable text string
+    /// </summary>
     class Text
     {
         #region Props

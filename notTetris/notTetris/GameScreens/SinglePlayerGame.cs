@@ -10,6 +10,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// Used for single player games.
+    /// </summary>
     class SinglePlayerGame : GameScreen
     {
         Playfield playerOneField;
@@ -165,7 +168,7 @@ namespace NotTetris.GameScreens
         {
             GameResult r = new GameResult();
 
-            r.IsSinglerplayer = true;
+            r.IsSingleplayer = true;
             r.Time = time;
             r.Player1Score = playerOneField.GetScore;
             r.Difficulty = settings.Difficulty;

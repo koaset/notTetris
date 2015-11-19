@@ -9,6 +9,9 @@ using NotTetris.GameObjects;
 
 namespace NotTetris
 {
+    /// <summary>
+    /// Holds the game settings
+    /// </summary>
     public class Settings
     {
         public string WindowTitle = "Not Tetris";
@@ -36,9 +39,15 @@ namespace NotTetris
 
         public int[] score = { 0, 0, 0, 0, 0 };
 
+        /// <summary>
+        /// Returns a new object identical to this one.
+        /// </summary>
+        /// <returns></returns>
         public Settings Clone()
         {
             Settings ret = new Settings();
+
+            #region Copy all fields to the new object
             ret.WindowTitle = WindowTitle;
             ret.Difficulty = Difficulty;
             ret.GameType = GameType;
@@ -59,6 +68,8 @@ namespace NotTetris
             ret.Player2Down = Player2Down;
             ret.Player2Rotate = Player2Rotate;
             ret.score = score;
+            #endregion
+
             return ret;
         }
 

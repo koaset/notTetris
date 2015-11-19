@@ -6,12 +6,15 @@ using NotTetris.Graphics;
 
 namespace NotTetris.GameObjects
 {
-    class NetworkPlayfield : Playfield
+    /// <summary>
+    /// The playfield used for displaying the opponents playfield during network play.
+    /// </summary>
+    class RemotePlayfield : Playfield
     {
         public bool WaitingForCluster { get; set; }
         public bool WaitingForBlackBlocks { get; set; }
 
-        public NetworkPlayfield(GameType gameType, Vector2 position, int sizeX) 
+        public RemotePlayfield(GameType gameType, Vector2 position, int sizeX) 
             : base(gameType, position, sizeX) { }
 
         private Block[] movingBlackBlocks;

@@ -9,32 +9,18 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.Controls
 {
-    
-
-    public enum AnimationButtonType
-    {
-        Increase,
-        Decrease,
-    }
-
-    public delegate void ButtonEventHandler(object o, EventArgs e);
-
+    /// <summary>
+    /// A button control using an animation to display button states.
+    /// </summary>
     class AnimationButton
     {
-        private enum ButtonState
-        {
-            Normal,
-            Hover,
-            Down,
-        }
+        public event ButtonEventHandler Click;
 
         private MouseState oldState;
         private AnimationButtonType type;
         private bool enabled;
         private Vector2 position;
         private Animation buttonImage;
-        public event ButtonEventHandler Click;
-
         
         public AnimationButton(AnimationButtonType type, Vector2 position)
         {
@@ -128,5 +114,20 @@ namespace NotTetris.Controls
         {
             buttonImage.Draw(gameTime);
         }
+
+        private enum ButtonState
+        {
+            Normal,
+            Hover,
+            Down,
+        }
     }
+
+    public enum AnimationButtonType
+    {
+        Increase,
+        Decrease,
+    }
+
+    public delegate void ButtonEventHandler(object o, EventArgs e);
 }

@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// Shows the single player high scores saved
+    /// </summary>
     class HighscoreScreen : GameScreen
     {
         Image backgroundImage;

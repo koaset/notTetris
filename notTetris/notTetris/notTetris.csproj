@@ -87,14 +87,13 @@
   <ItemGroup>
     <Compile Include="Controls\AnimationButton.cs" />
     <Compile Include="Controls\Popup.cs" />
-    <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Controls\TextboxPopup.cs" />
     <Compile Include="Controls\TextButton.cs" />
     <Compile Include="Controls\Cursor.cs" />
     <Compile Include="ErrorLogger.cs" />
     <Compile Include="GameObjects\Block.cs" />
     <Compile Include="GameObjects\Cluster.cs" />
-    <Compile Include="GameObjects\NetworkPlayfield.cs" />
+    <Compile Include="GameObjects\RemotePlayfield.cs" />
     <Compile Include="GameObjects\Playfield.cs" />
     <Compile Include="GameObjects\ScoreCounter.cs" />
     <Compile Include="GameObjects\ScoreFloater.cs" />

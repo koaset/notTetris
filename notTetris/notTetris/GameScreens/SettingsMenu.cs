@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// The settings menu screen.
+    /// </summary>
     class SettingsMenu : GameScreen
     {
         Image backgroundImage;

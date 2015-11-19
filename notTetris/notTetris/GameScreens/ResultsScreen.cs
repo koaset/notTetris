@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace NotTetris.GameScreens
 {
+    /// <summary>
+    /// Screen showing the results of a game.
+    /// </summary>
     class ResultsScreen : GameScreen
     {
         Cursor cursor;
@@ -80,7 +83,7 @@ namespace NotTetris.GameScreens
 
             cursor.Initialize();
 
-            if (!results.IsSinglerplayer)
+            if (!results.IsSingleplayer)
             {
                 if (results.Player1Won)
                 {
@@ -114,7 +117,7 @@ namespace NotTetris.GameScreens
                 p2Score.IsShowing = true;
             }
 
-            if (results.IsSinglerplayer)
+            if (results.IsSingleplayer)
                 foreach (int i in settings.score)
                     if (i < results.Player1Score || i < results.Player2Score)
                         newHighscore = true;
@@ -141,7 +144,7 @@ namespace NotTetris.GameScreens
             p1Score.LoadContent(spriteBatch);
             cursor.LoadContent(spriteBatch);
 
-            if (!results.IsSinglerplayer)
+            if (!results.IsSingleplayer)
             {
                 p2Score.LoadContent(spriteBatch);
             }
@@ -171,7 +174,7 @@ namespace NotTetris.GameScreens
             p1Score.Draw(gameTime);
             cursor.Draw(gameTime);
 
-            if (!results.IsSinglerplayer)
+            if (!results.IsSingleplayer)
             {
                 p2Score.Draw(gameTime);
             }
