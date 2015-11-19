@@ -35,6 +35,7 @@ namespace NotTetris.GameScreens
         double connectTimeLimit;
         int port;
         string ip;
+        string appDescription = "NotTetris";
 
         public NetworkGameSetup()
         {
@@ -309,7 +310,7 @@ namespace NotTetris.GameScreens
             connecting = true;
             connectButton.Text = "Cancel connection";
             infoText.TextValue = "Connecting...";
-            NetPeerConfiguration config = new NetPeerConfiguration("NotTetris");
+            NetPeerConfiguration config = new NetPeerConfiguration(appDescription);
             client = new NetClient(config);
             client.Start();
             connection = client.Connect(ip, Convert.ToInt32(port));
@@ -338,11 +339,13 @@ namespace NotTetris.GameScreens
             hosting = true;
             hostButton.Text = "Stop Hosting";
             infoText.TextValue = "Hosting...";
-            NetPeerConfiguration config = new NetPeerConfiguration("NotTetris");
+            NetPeerConfiguration config = new NetPeerConfiguration(appDescription);
+            config.Port = port;
+            config.EnableUPnP = true;
             config.MaximumConnections = 1;
-            config.Port = Convert.ToInt32(port);
             server = new NetServer(config);
             server.Start();
+            server.UPnP.ForwardPort(port, appDescription);
         }
 
         private void StopHosting()
