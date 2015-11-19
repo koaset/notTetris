@@ -270,6 +270,9 @@ namespace NotTetris.GameObjects
         /// <returns></returns>
         protected void UpdateBlocks(GameTime gameTime)
         {
+            // Sort in ascending order to ensure that the blocks below collide first
+            blocks.Sort((b1,b2) => b2.Position.Y.CompareTo(b1.Position.Y));
+
             foreach (Block block in blocks)
                 if (block != null)
                     if (block.IsMoving)

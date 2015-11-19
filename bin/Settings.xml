@@ -5,7 +5,7 @@
   <GameType>Normal</GameType>
   <ShowDebugInfo>false</ShowDebugInfo>
   <BlockDropSpeed>100</BlockDropSpeed>
-  <PlayTime>1</PlayTime>
+  <PlayTime>3</PlayTime>
   <PlayfieldSize>9</PlayfieldSize>
   <IP>192.168.0.105</IP>
   <PORT>12345</PORT>
