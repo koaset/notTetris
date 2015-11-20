@@ -39,6 +39,8 @@ namespace NotTetris
 
         public int[] score = { 0, 0, 0, 0, 0 };
 
+        private const string SETTINGSPATH = "Settings.xml";
+
         /// <summary>
         /// Returns a new object identical to this one.
         /// </summary>
@@ -77,9 +79,9 @@ namespace NotTetris
         /// Saves the current settings
         /// </summary>
         /// <param name="filename">The filename to save to</param>
-        public void Save(string filename)
+        public void Save()
         {
-            Stream stream = File.Create(filename);
+            Stream stream = File.Create(SETTINGSPATH);
 
             XmlSerializer serializer = new XmlSerializer(typeof(Settings));
             serializer.Serialize(stream, this);
@@ -90,9 +92,9 @@ namespace NotTetris
         /// Loads settings from a file
         /// </summary>
         /// <param name="filename">The filename to load</param>
-        public static Settings Load(string filename)
+        public static Settings Load()
         {
-            Stream stream = File.OpenRead(filename);
+            Stream stream = File.OpenRead(SETTINGSPATH);
             XmlSerializer serializer = new XmlSerializer(typeof(Settings));
             Settings loadedSettings = (Settings)serializer.Deserialize(stream);
             stream.Close();

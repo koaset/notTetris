@@ -151,7 +151,7 @@ namespace NotTetris.GameScreens
 
         public void OnGameOver(object o, EventArgs e)
         {
-            settings.Save(PuzzleGame.SETTINGSPATH);
+            settings.Save();
             NewScreen(new ResultsScreen(GetResults(), false));
         }
 

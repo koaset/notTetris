@@ -210,7 +210,7 @@ namespace NotTetris.GameScreens
 
             settings.PlayTime = timeLimit;
             settings.PlayfieldSize = size;
-            settings.Save(PuzzleGame.SETTINGSPATH);
+            settings.Save();
             NewScreen(new MainMenu());
         }
 

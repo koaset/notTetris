@@ -260,6 +260,8 @@ namespace NotTetris.GameScreens
                     ip = e.ToString();
                     ipText.TextValue = "IP: " + ip;
                     infoText.TextValue = "";
+                    settings.IP = ip;
+                    settings.Save();
                 }
                 else
                     infoText.TextValue = "Entered IP not valid";

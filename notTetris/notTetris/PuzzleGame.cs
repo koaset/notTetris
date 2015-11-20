@@ -26,8 +26,6 @@ namespace NotTetris
         Settings settings;
 
         public static Random r = new Random();
-
-        public const string SETTINGSPATH = "Settings.xml";
         private const int WINDOWWIDTH = 1000;
         private const int WINDOWHEIGHT = 720;
 
@@ -53,7 +51,7 @@ namespace NotTetris
         {
             try
             {
-                settings = Settings.Load(SETTINGSPATH);
+                settings = Settings.Load();
             }
             catch
             {
@@ -129,7 +127,7 @@ namespace NotTetris
 
             if (newScreen == null)
             {
-                settings.Save(SETTINGSPATH);
+                settings.Save();
                 UnloadContent();
                 Exit();
             }
