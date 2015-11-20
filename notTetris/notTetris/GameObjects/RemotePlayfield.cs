@@ -14,10 +14,10 @@ namespace NotTetris.GameObjects
         public bool WaitingForCluster { get; set; }
         public bool WaitingForBlackBlocks { get; set; }
 
+        private Block[] movingBlackBlocks;
+
         public RemotePlayfield(GameType gameType, Vector2 position, int sizeX) 
             : base(gameType, position, sizeX) { }
-
-        private Block[] movingBlackBlocks;
 
         public override void Initialize(SpriteBatch spriteBatch, string difficulty)
         {

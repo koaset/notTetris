@@ -124,7 +124,6 @@ namespace NotTetris.GameScreens
 
         public override void Update(GameTime gameTime)
         {
-            
             KeyboardState newState = Keyboard.GetState();
             cursor.Update();
 

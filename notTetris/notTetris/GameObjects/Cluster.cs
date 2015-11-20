@@ -70,6 +70,12 @@ namespace NotTetris.GameObjects
             }
         }
 
+        public void SetPosition(Vector2 firstBlockPosition, Vector2 secondBlockPosition)
+        {
+            FirstBlock.Position = firstBlockPosition;
+            SecondBlock.Position = secondBlockPosition;
+        }
+
         public void Rotate(bool rotateClockwise)
         {
             if (rotateClockwise)

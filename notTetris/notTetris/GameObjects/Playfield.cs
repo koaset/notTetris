@@ -51,9 +51,9 @@ namespace NotTetris.GameObjects
         Text stateText;
 
         public GameState State { get; set; }
-        public Vector2 Position { get { return position; } }
-        public Cluster NextCluster { get { return nextCluster; } set { nextCluster = value; } }
-        public Cluster CurrentCluster { get { return currentCluster; } set { currentCluster = value; } }
+        public Vector2 Position { get; set; }
+        public Cluster NextCluster { get; set; }
+        public Cluster CurrentCluster { get; set; }
         public float SpeedMultiplier { get; set; }
         public float BaseDropSpeed { get; set; }
         public static float Width { get { return 350f; } }
@@ -61,7 +61,7 @@ namespace NotTetris.GameObjects
         public bool MovementLocked { get; set; }
         public bool IsPaused { get; set; }
         public bool IsShowing { get; set; }
-        public float GetScore { get { return scoreCounter.Score; } set { scoreCounter.Score = value; } }
+        public float GetScore { get; set; }
         public int BlackBlocksQueued { get; set; }
 
         public Playfield(GameType gameType, Vector2 position, int sizeX)
@@ -777,35 +777,40 @@ namespace NotTetris.GameObjects
         }
         #endregion
 
+        /// <summary>
+        /// Drops a cluster instantly.
+        /// </summary>
+        /// <param name="gameTime"></param>
         private void DropClusterFast(GameTime gameTime)
         {
             waitForDropTimer = false;
             currentCluster.IsMoving = true;
+            Vector2 firstPos;
+            Vector2 secondPos;
+
             if (currentCluster.Orientation == Orientation.Up)
             {
                 int firstX = GridPositionX(currentCluster.FirstBlock.Position);
-                Vector2 firstPos = GetAvaliablePositionInColumn(firstX);
-                Vector2 secondPos = firstPos - new Vector2(0, blockSize);
-                currentCluster.FirstBlock.Position = firstPos;
-                currentCluster.SecondBlock.Position = secondPos;
+                firstPos = GetAvaliablePositionInColumn(firstX);
+                secondPos = firstPos - new Vector2(0, blockSize);
+                currentCluster.SetPosition(firstPos, secondPos);
             }
             else if (currentCluster.Orientation == Orientation.Down)
             {
                 int secondX = GridPositionX(currentCluster.SecondBlock.Position);
-                Vector2 secondPos = GetAvaliablePositionInColumn(secondX);
-                Vector2 firstPos = secondPos - new Vector2(0, blockSize);
-                currentCluster.FirstBlock.Position = firstPos;
-                currentCluster.SecondBlock.Position = secondPos;
+                secondPos = GetAvaliablePositionInColumn(secondX);
+                firstPos = secondPos - new Vector2(0, blockSize);
+                currentCluster.SetPosition(firstPos, secondPos);
             }
             else
             {
                 int firstX = GridPositionX(currentCluster.FirstBlock.Position);
                 int secondX = GridPositionX(currentCluster.SecondBlock.Position);
-                Vector2 firstPos = GetAvaliablePositionInColumn(firstX);
-                Vector2 secondPos = GetAvaliablePositionInColumn(secondX);
-                currentCluster.FirstBlock.Position = firstPos;
-                currentCluster.SecondBlock.Position = secondPos;
+                firstPos = GetAvaliablePositionInColumn(firstX);
+                secondPos = GetAvaliablePositionInColumn(secondX);
             }
+
+            currentCluster.SetPosition(firstPos, secondPos);
             currentCluster.Update(gameTime);
             CheckForClusterCollision(gameTime);
         }
