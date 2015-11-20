@@ -77,11 +77,11 @@ namespace NotTetris.GameScreens
 
         public override void LoadContent()
         {
-            playerOneField.LoadContent();
-            backgroundImage.LoadContent(spriteBatch);
-            pauseImage.LoadContent(spriteBatch);
-            startText.LoadContent(spriteBatch);
-            timer.LoadContent(spriteBatch);
+            LoadAndAddToDrawables(playerOneField);
+            LoadAndAddToDrawables(backgroundImage);
+            LoadAndAddToDrawables(pauseImage);
+            LoadAndAddToDrawables(startText);
+            LoadAndAddToDrawables(timer);
         }
 
         public override void Update(GameTime gameTime)
@@ -147,15 +147,6 @@ namespace NotTetris.GameScreens
         {
             pauseImage.IsShowing = false;
             playerOneField.UnPause();
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            backgroundImage.Draw(gameTime);
-            pauseImage.Draw(gameTime);
-            playerOneField.Draw(gameTime);
-            startText.Draw(gameTime);
-            timer.Draw(gameTime);
         }
 
         public void OnGameOver(object o, EventArgs e)

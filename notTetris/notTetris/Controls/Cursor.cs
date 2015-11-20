@@ -8,7 +8,7 @@ namespace NotTetris.Controls
     /// <summary>
     /// Mouse cursor
     /// </summary>
-    class Cursor
+    class Cursor : NotTetris.Graphics.IDrawable
     {
         Image image;
 

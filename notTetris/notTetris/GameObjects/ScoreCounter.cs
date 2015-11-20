@@ -10,7 +10,7 @@ namespace NotTetris.GameObjects
     /// <summary>
     /// Displays score during play
     /// </summary>
-    class ScoreCounter
+    class ScoreCounter : NotTetris.Graphics.IDrawable
     {
         #region Props
         public float Score

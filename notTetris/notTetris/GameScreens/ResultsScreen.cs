@@ -137,17 +137,17 @@ namespace NotTetris.GameScreens
 
         public override void LoadContent()
         {
-            backGroundImage.LoadContent(spriteBatch);
-            gameoverText.LoadContent(spriteBatch);
-            infoText.LoadContent(spriteBatch);
-            time.LoadContent(spriteBatch);
-            p1Score.LoadContent(spriteBatch);
-            cursor.LoadContent(spriteBatch);
-
+            LoadAndAddToDrawables(backGroundImage);
+            LoadAndAddToDrawables(gameoverText);
+            LoadAndAddToDrawables(infoText);
+            LoadAndAddToDrawables(time);
+            LoadAndAddToDrawables(p1Score);
+            LoadAndAddToDrawables(cursor);
             if (!results.IsSingleplayer)
-            {
-                p2Score.LoadContent(spriteBatch);
-            }
+                LoadAndAddToDrawables(p2Score);
+
+            if (!isNetwork)
+                time.IsShowing = false;
         }
 
         public override void Update(GameTime gameTime)
@@ -162,22 +162,6 @@ namespace NotTetris.GameScreens
             }
 
             cursor.Update();
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            backGroundImage.Draw(gameTime);
-            gameoverText.Draw(gameTime);
-            infoText.Draw(gameTime);
-            if (!isNetwork)
-                time.Draw(gameTime);
-            p1Score.Draw(gameTime);
-            cursor.Draw(gameTime);
-
-            if (!results.IsSingleplayer)
-            {
-                p2Score.Draw(gameTime);
-            }
         }
     }
 }

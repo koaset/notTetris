@@ -161,12 +161,12 @@ namespace NotTetris.GameScreens
 
         public override void LoadContent()
         {
-            localPlayerField.LoadContent();
-            remotePlayerField.LoadContent();
-            pauseImage.LoadContent(spriteBatch);
-            backgroundImage.LoadContent(spriteBatch);
-            timeText.LoadContent(spriteBatch);
-            countdownText.LoadContent(spriteBatch);
+            LoadAndAddToDrawables(localPlayerField);
+            LoadAndAddToDrawables(remotePlayerField);
+            LoadAndAddToDrawables(pauseImage);
+            LoadAndAddToDrawables(backgroundImage);
+            LoadAndAddToDrawables(timeText);
+            LoadAndAddToDrawables(countdownText);
         }
 
         public override void Update(GameTime gameTime)
@@ -366,16 +366,6 @@ namespace NotTetris.GameScreens
             localPlayerField.UnPause();
             remotePlayerField.UnPause();
             pauseImage.IsShowing = false;
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            backgroundImage.Draw(gameTime);
-            pauseImage.Draw(gameTime);
-            localPlayerField.Draw(gameTime);
-            remotePlayerField.Draw(gameTime);
-            timeText.Draw(gameTime);
-            countdownText.Draw(gameTime);
         }
 
         private void localPlayerField_NewNextCluster(object o, NewNextClusterEventArgs e)

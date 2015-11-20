@@ -9,7 +9,7 @@ namespace NotTetris.GameObjects
     /// <summary>
     /// Handles game logic for a single local player
     /// </summary>
-    class Playfield
+    class Playfield : NotTetris.Graphics.IDrawable
     {
         public event GameOverEventHandler GameOver;
         public event NewNextClusterEventHandler NewNextCluster;
@@ -21,7 +21,6 @@ namespace NotTetris.GameObjects
 
         private GameType gameType;
         protected Vector2 position;
-        SpriteBatch spriteBatch;
         Image backgroundImage;
         Image cutoffLine;
         Image[] blockImages;
@@ -112,7 +111,6 @@ namespace NotTetris.GameObjects
             stateText.TextValue = "Init";
             stateText.IsShowing = false;
 
-            this.spriteBatch = spriteBatch;
             MovementLocked = true;
             IsPaused = true;
 
@@ -183,19 +181,18 @@ namespace NotTetris.GameObjects
             this.difficulty = difficulty;
         }
 
-        public void LoadContent()
+        public void LoadContent(SpriteBatch spriteBatch)
         {
             backgroundImage.LoadContent(spriteBatch);
             cutoffLine.LoadContent(spriteBatch);
             scoreCounter.LoadContent(spriteBatch);
             scoreFloater.LoadContent(spriteBatch);
             largestComboText.LoadContent(spriteBatch);
+            stateText.LoadContent(spriteBatch);
 
             for (int i = 0; i < blockImages.Length; i++)
                 blockImages[i].LoadContent(spriteBatch);
             explosionAnimation.LoadContent(spriteBatch);
-
-            stateText.LoadContent(spriteBatch);
         }
 
         public virtual void Update(GameTime gameTime)

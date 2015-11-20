@@ -12,7 +12,7 @@ namespace NotTetris.Controls
     /// <summary>
     /// A button control using an animation to display button states.
     /// </summary>
-    class AnimationButton
+    class AnimationButton : NotTetris.Graphics.IDrawable
     {
         public event ButtonEventHandler Click;
 

@@ -110,16 +110,16 @@ namespace NotTetris.GameScreens
 
         public override void LoadContent()
         {
-            cursor.LoadContent(spriteBatch);
-            backgroundImage.LoadContent(spriteBatch);
-            ipText.LoadContent(spriteBatch);
-            infoText.LoadContent(spriteBatch);
-            ipPopup.LoadContent(spriteBatch);
-            ipButton.LoadContent(spriteBatch);
-            hostButton.LoadContent(spriteBatch);
-            connectButton.LoadContent(spriteBatch);
-            backButton.LoadContent(spriteBatch);
-            startButton.LoadContent(spriteBatch);
+            LoadAndAddToDrawables(cursor);
+            LoadAndAddToDrawables(backgroundImage);
+            LoadAndAddToDrawables(ipText);
+            LoadAndAddToDrawables(infoText);
+            LoadAndAddToDrawables(ipPopup);
+            LoadAndAddToDrawables(ipButton);
+            LoadAndAddToDrawables(hostButton);
+            LoadAndAddToDrawables(connectButton);
+            LoadAndAddToDrawables(backButton);
+            LoadAndAddToDrawables(startButton);
         }
 
         public override void Update(GameTime gameTime)
@@ -221,20 +221,6 @@ namespace NotTetris.GameScreens
             }
         }
 
-        public override void Draw(GameTime gameTime)
-        {
-            cursor.Draw(gameTime);
-            backgroundImage.Draw(gameTime);
-            ipText.Draw(gameTime);
-            infoText.Draw(gameTime);
-            ipPopup.Draw(gameTime);
-            ipButton.Draw(gameTime);
-            hostButton.Draw(gameTime);
-            connectButton.Draw(gameTime);
-            backButton.Draw(gameTime);
-            startButton.Draw(gameTime);
-        }
-
         private bool IsValidIP(string ip)
         {
             int numDots = 0;
@@ -268,6 +254,7 @@ namespace NotTetris.GameScreens
         private void OnClosePopup(object o, EventArgs e)
         {
             if (ipPopup.ShouldSave)
+            {
                 if (IsValidIP(e.ToString()))
                 {
                     ip = e.ToString();
@@ -275,9 +262,8 @@ namespace NotTetris.GameScreens
                     infoText.TextValue = "";
                 }
                 else
-                {
                     infoText.TextValue = "Entered IP not valid";
-                }
+            }
         }
 
         private void OnIPButtonClick(object o, EventArgs e)

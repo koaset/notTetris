@@ -6,7 +6,7 @@ namespace NotTetris.Graphics
     /// <summary>
     /// Defines a drawable image object
     /// </summary>
-    class Image
+    class Image : IDrawable
     {
         #region Props
         public Vector2 Position

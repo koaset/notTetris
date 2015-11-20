@@ -114,15 +114,15 @@ namespace NotTetris.GameScreens
 
         public override void LoadContent()
         {
-            cursor.LoadContent(spriteBatch);
-            backgroundImage.LoadContent(spriteBatch);
-            singleplayerButton.LoadContent(spriteBatch);
-            splitscreenButton.LoadContent(spriteBatch);
-            networkButton.LoadContent(spriteBatch);
-            settingsButton.LoadContent(spriteBatch);
-            highscoreButton.LoadContent(spriteBatch);
-            exitButton.LoadContent(spriteBatch);
-            titleImage.LoadContent(spriteBatch);
+            LoadAndAddToDrawables(cursor);
+            LoadAndAddToDrawables(backgroundImage);
+            LoadAndAddToDrawables(singleplayerButton);
+            LoadAndAddToDrawables(splitscreenButton);
+            LoadAndAddToDrawables(networkButton);
+            LoadAndAddToDrawables(settingsButton);
+            LoadAndAddToDrawables(highscoreButton);
+            LoadAndAddToDrawables(exitButton);
+            LoadAndAddToDrawables(titleImage);
         }
 
         public override void Update(GameTime gameTime)
@@ -137,19 +137,6 @@ namespace NotTetris.GameScreens
                 highscoreButton.Update(gameTime);
                 exitButton.Update(gameTime);
             }
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            cursor.Draw(gameTime);
-            backgroundImage.Draw(gameTime);
-            singleplayerButton.Draw(gameTime);
-            splitscreenButton.Draw(gameTime);
-            networkButton.Draw(gameTime);
-            settingsButton.Draw(gameTime);
-            highscoreButton.Draw(gameTime);
-            exitButton.Draw(gameTime);
-            titleImage.Draw(gameTime);
         }
     }
 }

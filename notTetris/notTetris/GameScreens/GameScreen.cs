@@ -20,19 +20,31 @@ namespace NotTetris.GameScreens
         protected bool isFocused;
         protected bool mouseVisible;
         protected static Vector2 WINDOWSIZE = new Vector2(1000, 720);
+        protected List<NotTetris.Graphics.IDrawable> drawables;
 
         public virtual void Initialize(SpriteBatch spriteBatch, Settings settings)
         {
             this.spriteBatch = spriteBatch;
             this.settings = settings;
             mouseVisible = false;
+            drawables = new List<NotTetris.Graphics.IDrawable>();
         }
 
         public abstract void LoadContent();
 
         public abstract void Update(GameTime gameTime);
 
-        public abstract void Draw(GameTime gameTime);
+        public virtual void Draw(GameTime gameTime)
+        {
+            foreach (NotTetris.Graphics.IDrawable drawable in drawables)
+                drawable.Draw(gameTime);
+        }
+
+        protected void LoadAndAddToDrawables(NotTetris.Graphics.IDrawable drawable)
+        {
+            drawable.LoadContent(spriteBatch);
+            drawables.Add(drawable);
+        }
 
         protected virtual void NewScreen(GameScreen newScreen)
         {

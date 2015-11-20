@@ -68,13 +68,12 @@ namespace NotTetris.GameScreens
 
         public override void LoadContent()
         {
-            backgroundImage.LoadContent(spriteBatch);
-            backButton.LoadContent(spriteBatch);
-            cursor.LoadContent(spriteBatch);
-            header.LoadContent(spriteBatch);
-
+            LoadAndAddToDrawables(backgroundImage);
+            LoadAndAddToDrawables(backButton);
+            LoadAndAddToDrawables(cursor);
+            LoadAndAddToDrawables(header);
             foreach (Text score in highscores)
-                score.LoadContent(spriteBatch);
+                LoadAndAddToDrawables(score);
         }
 
         public override void Update(GameTime gameTime)
@@ -82,16 +81,6 @@ namespace NotTetris.GameScreens
             if (isFocused)
                 backButton.Update(gameTime);
             cursor.Update();
-        } 
-
-        public override void Draw(GameTime gameTime)
-        {
-            backgroundImage.Draw(gameTime);
-            backButton.Draw(gameTime);
-            cursor.Draw(gameTime);
-            header.Draw(gameTime);
-            foreach (Text score in highscores)
-                score.Draw(gameTime);
         }
 
         private void OnBack(object o, EventArgs e)

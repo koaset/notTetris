@@ -10,7 +10,7 @@ namespace NotTetris.Graphics
     /// <summary>
     /// A drawable text string
     /// </summary>
-    class Text
+    class Text : IDrawable
     {
         #region Props
         public string TextValue

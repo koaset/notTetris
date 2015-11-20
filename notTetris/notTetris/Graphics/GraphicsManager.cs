@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 
 namespace NotTetris.Graphics
@@ -105,5 +106,11 @@ namespace NotTetris.Graphics
         Segoe_UI_Mono,
         Segoe_UI_Mono_Large,
         Segoe_UI_Mono_Huge,
+    }
+
+    public interface IDrawable
+    {
+        void LoadContent(SpriteBatch spriteBatch);
+        void Draw(GameTime gameTime);
     }
 }

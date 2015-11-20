@@ -265,29 +265,30 @@ namespace NotTetris.GameScreens
 
         public override void LoadContent()
         {
-            backgroundImage.LoadContent(spriteBatch);
-            cursor.LoadContent(spriteBatch);
+            LoadAndAddToDrawables(backgroundImage);
+            LoadAndAddToDrawables(cursor);
+
 
             foreach (Text text in difficulties)
-                text.LoadContent(spriteBatch);
+                LoadAndAddToDrawables(text);
 
             foreach (Text text in gameModes)
-                text.LoadContent(spriteBatch);
+                LoadAndAddToDrawables(text);
 
-            okButton.LoadContent(spriteBatch);
-            cancelButton.LoadContent(spriteBatch);
+            LoadAndAddToDrawables(okButton);
+            LoadAndAddToDrawables(cancelButton);
 
-            difficultyButton.LoadContent(spriteBatch);
-            gameModeButton.LoadContent(spriteBatch);
-            increaseTimeButton.LoadContent(spriteBatch);
-            decreaseTimeButton.LoadContent(spriteBatch);
-            increaseSizeButton.LoadContent(spriteBatch);
-            decreaseSizeButton.LoadContent(spriteBatch);
-            titleText.LoadContent(spriteBatch);
-            timeText.LoadContent(spriteBatch);
-            timeLimitText.LoadContent(spriteBatch);
-            sizeText.LoadContent(spriteBatch);
-            playfieldSizeText.LoadContent(spriteBatch);
+            LoadAndAddToDrawables(difficultyButton);
+            LoadAndAddToDrawables(gameModeButton);
+            LoadAndAddToDrawables(increaseTimeButton);
+            LoadAndAddToDrawables(decreaseTimeButton);
+            LoadAndAddToDrawables(increaseSizeButton);
+            LoadAndAddToDrawables(decreaseSizeButton);
+            LoadAndAddToDrawables(titleText);
+            LoadAndAddToDrawables(timeText);
+            LoadAndAddToDrawables(timeLimitText);
+            LoadAndAddToDrawables(sizeText);
+            LoadAndAddToDrawables(playfieldSizeText);
         }
 
         public override void Update(GameTime gameTime)
@@ -307,36 +308,6 @@ namespace NotTetris.GameScreens
                 decreaseSizeButton.Update(gameTime);
                 sizeText.TextValue = size.ToString();
             }
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            backgroundImage.Draw(gameTime);
-            cursor.Draw(gameTime);
-
-            foreach (Text text in difficulties)
-                text.Draw(gameTime);
-
-            foreach (Text text in gameModes)
-                text.Draw(gameTime);
-
-            okButton.Draw(gameTime);
-            cancelButton.Draw(gameTime);
-
-            difficultyButton.Draw(gameTime);
-            gameModeButton.Draw(gameTime);
-
-            increaseTimeButton.Draw(gameTime);
-            decreaseTimeButton.Draw(gameTime);
-            increaseSizeButton.Draw(gameTime);
-            decreaseSizeButton.Draw(gameTime);
-
-            timeLimitText.Draw(gameTime);
-            timeText.Draw(gameTime);
-            sizeText.Draw(gameTime);
-            playfieldSizeText.Draw(gameTime);
-
-            titleText.Draw(gameTime);
         }
     }
 }

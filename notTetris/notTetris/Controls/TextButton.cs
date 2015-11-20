@@ -12,7 +12,7 @@ namespace NotTetris.Controls
     /// <summary>
     /// A clickable outlined text string.
     /// </summary>
-    class TextButton
+    class TextButton : NotTetris.Graphics.IDrawable
     {
         public bool IsShowing { get { return buttonText.IsShowing; } set { buttonText.IsShowing = value; } }
         public bool Enabled { get { return enabled; } set { enabled = value; } }
