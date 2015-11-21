@@ -41,8 +41,8 @@ namespace NotTetris.GameObjects
                     dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     if (dropTimer > dropDelay)
                     {
-                        currentCluster.IsMoving = true;
-                        currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+                        CurrentCluster.IsMoving = true;
+                        CurrentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
                         waitForDropTimer = false;
                     }
                 }
@@ -57,7 +57,7 @@ namespace NotTetris.GameObjects
 
                     CheckForExplosions();
 
-                    if (!BlocksAreMoving() && !currentCluster.IsMoving && explodingBlocks.Count == 0)
+                    if (!BlocksAreMoving() && !CurrentCluster.IsMoving && explodingBlocks.Count == 0)
                     {
                         if (IsGameOver())
                             EndGame();
@@ -121,12 +121,12 @@ namespace NotTetris.GameObjects
         public void MoveAndSeparate(Vector2 firstBlock, Vector2 secondBlock)
         {
             State = GameState.BlocksFalling;
-            currentCluster.FirstBlock.Position = firstBlock;
-            currentCluster.SecondBlock.Position = secondBlock;
-            currentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
-            CheckForBlockCollision(currentCluster.FirstBlock);
-            CheckForBlockCollision(currentCluster.SecondBlock);
-            blocks.AddRange(currentCluster.Separate());
+            CurrentCluster.FirstBlock.Position = firstBlock;
+            CurrentCluster.SecondBlock.Position = secondBlock;
+            CurrentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
+            CheckForBlockCollision(CurrentCluster.FirstBlock);
+            CheckForBlockCollision(CurrentCluster.SecondBlock);
+            blocks.AddRange(CurrentCluster.Separate());
             MovementLocked = true;   
         }
 
@@ -141,11 +141,11 @@ namespace NotTetris.GameObjects
         public override void DropNextCluster()
         {
             State = GameState.ClusterFalling;
-            currentCluster = nextCluster;
-            currentCluster.Move(position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
-            currentCluster.IsMoving = false;
-            currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-            nextCluster = null;
+            CurrentCluster = NextCluster;
+            CurrentCluster.Move(Position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
+            CurrentCluster.IsMoving = false;
+            CurrentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+            NextCluster = null;
             scoreMultiplier = 1;
             WaitingForCluster = true;
             dropTimer = 0;
@@ -162,11 +162,11 @@ namespace NotTetris.GameObjects
         /// <param name="secondBlock"></param>
         public void CreateNextCluster(BlockType firstBlock, BlockType secondBlock)
         {
-            nextCluster = new Cluster(position - new Vector2(250f, 175f), blockSize);
-            nextCluster.Initialize();
-            nextCluster.IsMoving = false;
-            nextCluster.FirstBlock.BlockType = firstBlock;
-            nextCluster.SecondBlock.BlockType = secondBlock;
+            NextCluster = new Cluster(Position - new Vector2(250f, 175f), blockSize);
+            NextCluster.Initialize();
+            NextCluster.IsMoving = false;
+            NextCluster.FirstBlock.BlockType = firstBlock;
+            NextCluster.SecondBlock.BlockType = secondBlock;
             WaitingForCluster = false;
         }
     }

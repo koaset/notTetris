@@ -19,8 +19,7 @@ namespace NotTetris.GameObjects
         public event ShouldDropBlackBlocksEventHandler ShouldDropBlackBlocks;
         public event BlackBlockCollisionEventHandler BlackBlockCollision;
 
-        private GameType gameType;
-        protected Vector2 position;
+        GameType gameType;
         Image backgroundImage;
         Image cutoffLine;
         Image[] blockImages;
@@ -30,8 +29,6 @@ namespace NotTetris.GameObjects
         Vector2 scale;
         protected List<Block> blocks;
         protected List<Block> explodingBlocks;
-        protected Cluster currentCluster;
-        protected Cluster nextCluster;
         protected Block[,] staticBlocks;
         int startingColumn;
         protected int scoreMultiplier;
@@ -66,7 +63,7 @@ namespace NotTetris.GameObjects
         public Playfield(GameType gameType, Vector2 position, int sizeX)
         {
             this.gameType = gameType;
-            this.position = position;
+            this.Position = position;
             if (sizeX % 2 == 0)
                 sizeX--;
             blockSize = Width / sizeX;
@@ -106,7 +103,7 @@ namespace NotTetris.GameObjects
         protected void InitializeContent(SpriteBatch spriteBatch, string difficulty)
         {
             stateText.Initialize();
-            stateText.Position = new Vector2(this.position.X - 175, 0f);
+            stateText.Position = new Vector2(this.Position.X - 175, 0f);
             stateText.Font = FontNames.Segoe_UI_Mono;
             stateText.TextValue = "Init";
             stateText.IsShowing = false;
@@ -124,16 +121,16 @@ namespace NotTetris.GameObjects
             #region Initialize images, blocks and text
             backgroundImage.Initialize();
             backgroundImage.TextureName = TextureNames.playfieldbackground_yellow;
-            backgroundImage.Position = position;
+            backgroundImage.Position = Position;
             backgroundImage.Size = new Vector2(Width + 20, Height + 20);
 
             cutoffLine.Initialize();
             cutoffLine.TextureName = TextureNames.red_line;
-            cutoffLine.Position = new Vector2(position.X, position.Y + Height * 0.5f - blockSize * (staticBlocks.GetLength(1) - 3));
+            cutoffLine.Position = new Vector2(Position.X, Position.Y + Height * 0.5f - blockSize * (staticBlocks.GetLength(1) - 3));
             cutoffLine.Size = new Vector2(Width, 2f);
             cutoffLine.Layer = 1.0f;
             scoreCounter.Initialize();
-            scoreCounter.Position = new Vector2(position.X - 150, (position.Y - 25f) * 2.0f);
+            scoreCounter.Position = new Vector2(Position.X - 150, (Position.Y - 25f) * 2.0f);
 
 
             for (int i = 0; i < blockImages.Length; i++)
@@ -204,8 +201,8 @@ namespace NotTetris.GameObjects
                     dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                     if (dropTimer > dropDelay)
                     {
-                        currentCluster.IsMoving = true;
-                        currentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+                        CurrentCluster.IsMoving = true;
+                        CurrentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
                         waitForDropTimer = false;
                     }
                 }
@@ -221,7 +218,7 @@ namespace NotTetris.GameObjects
 
                     CheckForExplosions();
 
-                    if (!BlocksAreMoving() && !currentCluster.IsMoving && explodingBlocks.Count == 0)
+                    if (!BlocksAreMoving() && !CurrentCluster.IsMoving && explodingBlocks.Count == 0)
                     {
                         if (IsGameOver())
                             EndGame();
@@ -297,8 +294,8 @@ namespace NotTetris.GameObjects
 
         protected void UpdateClusters(GameTime gameTime)
         {
-            currentCluster.Update(gameTime);
-            nextCluster.Update(gameTime);
+            CurrentCluster.Update(gameTime);
+            NextCluster.Update(gameTime);
         }
 
         /// <summary>
@@ -318,7 +315,7 @@ namespace NotTetris.GameObjects
         /// </summary>
         protected void CheckForExplosions()
         {
-            if (!currentCluster.IsMoving && !BlocksAreMoving())
+            if (!CurrentCluster.IsMoving && !BlocksAreMoving())
             {
                 foreach (Block block in blocks)
                     if (block.ShouldBeChecked)
@@ -383,19 +380,19 @@ namespace NotTetris.GameObjects
         /// </summary>
         private void CheckForClusterCollision(GameTime gameTime)
         {
-            if (currentCluster.IsMoving)
-                if (BlockHasCollided(currentCluster.FirstBlock) || BlockHasCollided(currentCluster.SecondBlock))
+            if (CurrentCluster.IsMoving)
+                if (BlockHasCollided(CurrentCluster.FirstBlock) || BlockHasCollided(CurrentCluster.SecondBlock))
                 {
                     MovementLocked = true;
-                    currentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
-                    Block[] separatedCluster = currentCluster.Separate();
+                    CurrentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
+                    Block[] separatedCluster = CurrentCluster.Separate();
 
                     State = GameState.BlocksFalling;
                     if (ClusterSeparate != null)
                         ClusterSeparate(this, new ClusterSeparateEventArgs(separatedCluster[0].Position, separatedCluster[1].Position));
 
                     // Avoids jittering if orientation is down
-                    if (currentCluster.Orientation != Orientation.Down)
+                    if (CurrentCluster.Orientation != Orientation.Down)
                     {
                         CheckForBlockCollision(separatedCluster[0]);
                         CheckForBlockCollision(separatedCluster[1]);
@@ -419,7 +416,7 @@ namespace NotTetris.GameObjects
             int posX = GridPositionX(block.Position);
             int posY = GridPositionY(block.Position);
 
-            Vector2 pos = new Vector2(block.Position.X, position.Y + 0.5f * Height - (posY + 0.5f) * blockSize + 0.005f);
+            Vector2 pos = new Vector2(block.Position.X, Position.Y + 0.5f * Height - (posY + 0.5f) * blockSize + 0.005f);
 
             if (BlockHasCollided(block))
             {
@@ -442,7 +439,7 @@ namespace NotTetris.GameObjects
             int posX = GridPositionX(block.Position);
             int posY = GridPositionY(block.Position);
             //bottom collision (left) & block collision (right)
-            return block.Position.Y >= position.Y + 0.5 * (Height - blockSize) || staticBlocks[posX, posY - 1] != null;
+            return block.Position.Y >= Position.Y + 0.5 * (Height - blockSize) || staticBlocks[posX, posY - 1] != null;
         }
 
         /// <summary>
@@ -452,7 +449,7 @@ namespace NotTetris.GameObjects
         /// <returns></returns>
         protected int GridPositionX(Vector2 blockPosition)
         {
-            float ret = (staticBlocks.GetLength(0) + (blockPosition.X - this.position.X - 0.5f * Width) / blockSize);
+            float ret = (staticBlocks.GetLength(0) + (blockPosition.X - this.Position.X - 0.5f * Width) / blockSize);
             if (ret < 0)
                 return -1;
             return (int)ret;
@@ -465,7 +462,7 @@ namespace NotTetris.GameObjects
         /// <returns></returns>
         protected int GridPositionY(Vector2 blockPosition)
         {
-            return (int)(0.5f + (this.position.Y + 0.5f * Height - blockPosition.Y) / blockSize);
+            return (int)(0.5f + (this.Position.Y + 0.5f * Height - blockPosition.Y) / blockSize);
         }
 
         /// <summary>
@@ -620,7 +617,7 @@ namespace NotTetris.GameObjects
         private Vector2 GridOrigin()
         {
             int stepsToOrigin = (staticBlocks.GetLength(0) - 1) / 2;
-            return this.position - new Vector2(stepsToOrigin * blockSize, (Height - blockSize) * 0.5f);
+            return this.Position - new Vector2(stepsToOrigin * blockSize, (Height - blockSize) * 0.5f);
         }
 
         public void StartGame()
@@ -660,10 +657,10 @@ namespace NotTetris.GameObjects
         {
             if (!MovementLocked)
             {
-                int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
-                int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
-                int secondBlockX = GridPositionX(currentCluster.SecondBlock.Position);
-                int secondBlockY = GridPositionY(currentCluster.SecondBlock.Position);
+                int firstBlockX = GridPositionX(CurrentCluster.FirstBlock.Position);
+                int firstBlockY = GridPositionY(CurrentCluster.FirstBlock.Position);
+                int secondBlockX = GridPositionX(CurrentCluster.SecondBlock.Position);
+                int secondBlockY = GridPositionY(CurrentCluster.SecondBlock.Position);
 
                 bool collision = false;
                 if (firstBlockX == 0 || secondBlockX == 0)
@@ -675,7 +672,7 @@ namespace NotTetris.GameObjects
                 {
                     if (first || moveLeftTimer > moveCooldown)
                     {
-                        currentCluster.Move(currentCluster.FirstBlock.Position - new Vector2(blockSize, 0));
+                        CurrentCluster.Move(CurrentCluster.FirstBlock.Position - new Vector2(blockSize, 0));
                         moveLeftTimer = 0;
                     }
                     else
@@ -691,10 +688,10 @@ namespace NotTetris.GameObjects
         {
             if (!MovementLocked)
             {
-                int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
-                int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
-                int secondBlockX = GridPositionX(currentCluster.SecondBlock.Position);
-                int secondBlockY = GridPositionY(currentCluster.SecondBlock.Position);
+                int firstBlockX = GridPositionX(CurrentCluster.FirstBlock.Position);
+                int firstBlockY = GridPositionY(CurrentCluster.FirstBlock.Position);
+                int secondBlockX = GridPositionX(CurrentCluster.SecondBlock.Position);
+                int secondBlockY = GridPositionY(CurrentCluster.SecondBlock.Position);
 
                 bool collision = false;
                 if (firstBlockX == staticBlocks.GetLength(0) - 1 || secondBlockX == staticBlocks.GetLength(0) - 1)
@@ -706,7 +703,7 @@ namespace NotTetris.GameObjects
                 {
                     if (first || moveRightTimer > moveCooldown)
                     {
-                        currentCluster.Move(currentCluster.FirstBlock.Position + new Vector2(blockSize, 0));
+                        CurrentCluster.Move(CurrentCluster.FirstBlock.Position + new Vector2(blockSize, 0));
                         moveRightTimer = 0;
                     }
                     else
@@ -722,44 +719,44 @@ namespace NotTetris.GameObjects
         {
             if (!MovementLocked)
             {
-                int firstBlockX = GridPositionX(currentCluster.FirstBlock.Position);
-                int firstBlockY = GridPositionY(currentCluster.FirstBlock.Position);
+                int firstBlockX = GridPositionX(CurrentCluster.FirstBlock.Position);
+                int firstBlockY = GridPositionY(CurrentCluster.FirstBlock.Position);
 
-                if (currentCluster.Orientation == Orientation.Down)
+                if (CurrentCluster.Orientation == Orientation.Down)
                 {
                     if (firstBlockX - 1 >= 0 && staticBlocks[firstBlockX - 1, firstBlockY - 1] == null)
-                        currentCluster.Rotate(true);
-                    else if (currentCluster.FirstBlock.BlockType == currentCluster.SecondBlock.BlockType)
+                        CurrentCluster.Rotate(true);
+                    else if (CurrentCluster.FirstBlock.BlockType == CurrentCluster.SecondBlock.BlockType)
                     {
-                        currentCluster.Invert();
+                        CurrentCluster.Invert();
                         RotateCluster();
                     }
                     else
-                        currentCluster.Invert();
+                        CurrentCluster.Invert();
                 }
-                else if (currentCluster.Orientation == Orientation.Left)
+                else if (CurrentCluster.Orientation == Orientation.Left)
                 {
                     if (firstBlockY + 1 <= staticBlocks.GetLength(1))
-                        currentCluster.Rotate(true);
+                        CurrentCluster.Rotate(true);
                 }
-                else if (currentCluster.Orientation == Orientation.Up)
+                else if (CurrentCluster.Orientation == Orientation.Up)
                 {
                     if (firstBlockX + 1 < staticBlocks.GetLength(0) && staticBlocks[firstBlockX + 1, firstBlockY - 1] == null)
-                        currentCluster.Rotate(true);
-                    else if (currentCluster.FirstBlock.BlockType == currentCluster.SecondBlock.BlockType)
+                        CurrentCluster.Rotate(true);
+                    else if (CurrentCluster.FirstBlock.BlockType == CurrentCluster.SecondBlock.BlockType)
                     {
-                        currentCluster.Invert();
+                        CurrentCluster.Invert();
                         RotateCluster();
                     }
                     else
-                        currentCluster.Invert();
+                        CurrentCluster.Invert();
                 }
-                else if (currentCluster.Orientation == Orientation.Right)
+                else if (CurrentCluster.Orientation == Orientation.Right)
                 {
                     if (firstBlockY - 1 > 0 && staticBlocks[firstBlockX, firstBlockY - 2] == null)
-                        currentCluster.Rotate(true);
+                        CurrentCluster.Rotate(true);
                     else
-                        currentCluster.Rotate(false);
+                        CurrentCluster.Rotate(false);
                 }
             }
         }
@@ -781,34 +778,34 @@ namespace NotTetris.GameObjects
         private void DropClusterFast(GameTime gameTime)
         {
             waitForDropTimer = false;
-            currentCluster.IsMoving = true;
+            CurrentCluster.IsMoving = true;
             Vector2 firstPos;
             Vector2 secondPos;
 
-            if (currentCluster.Orientation == Orientation.Up)
+            if (CurrentCluster.Orientation == Orientation.Up)
             {
-                int firstX = GridPositionX(currentCluster.FirstBlock.Position);
+                int firstX = GridPositionX(CurrentCluster.FirstBlock.Position);
                 firstPos = GetAvaliablePositionInColumn(firstX);
                 secondPos = firstPos - new Vector2(0, blockSize);
-                currentCluster.SetPosition(firstPos, secondPos);
+                CurrentCluster.SetPosition(firstPos, secondPos);
             }
-            else if (currentCluster.Orientation == Orientation.Down)
+            else if (CurrentCluster.Orientation == Orientation.Down)
             {
-                int secondX = GridPositionX(currentCluster.SecondBlock.Position);
+                int secondX = GridPositionX(CurrentCluster.SecondBlock.Position);
                 secondPos = GetAvaliablePositionInColumn(secondX);
                 firstPos = secondPos - new Vector2(0, blockSize);
-                currentCluster.SetPosition(firstPos, secondPos);
+                CurrentCluster.SetPosition(firstPos, secondPos);
             }
             else
             {
-                int firstX = GridPositionX(currentCluster.FirstBlock.Position);
-                int secondX = GridPositionX(currentCluster.SecondBlock.Position);
+                int firstX = GridPositionX(CurrentCluster.FirstBlock.Position);
+                int secondX = GridPositionX(CurrentCluster.SecondBlock.Position);
                 firstPos = GetAvaliablePositionInColumn(firstX);
                 secondPos = GetAvaliablePositionInColumn(secondX);
             }
 
-            currentCluster.SetPosition(firstPos, secondPos);
-            currentCluster.Update(gameTime);
+            CurrentCluster.SetPosition(firstPos, secondPos);
+            CurrentCluster.Update(gameTime);
             CheckForClusterCollision(gameTime);
         }
 
@@ -830,15 +827,15 @@ namespace NotTetris.GameObjects
 
         protected Vector2 GetPositionFromIndex(int x, int y)
         {
-            return position + 0.5f * new Vector2(-Width, Height) + blockSize * new Vector2(x + 0.5f, -y - 0.5f);
+            return Position + 0.5f * new Vector2(-Width, Height) + blockSize * new Vector2(x + 0.5f, -y - 0.5f);
         }
 
         public virtual void DropNextCluster()
         {
-            currentCluster = nextCluster;
-            currentCluster.Move(position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
-            currentCluster.IsMoving = false;
-            nextCluster = null;
+            CurrentCluster = NextCluster;
+            CurrentCluster.Move(Position - new Vector2(0f, (Height - 3f * blockSize) * 0.5f));
+            CurrentCluster.IsMoving = false;
+            NextCluster = null;
             CreateNextCluster();
             MovementLocked = false;
             scoreMultiplier = 1;
@@ -852,11 +849,11 @@ namespace NotTetris.GameObjects
 
         private void CreateNextCluster()
         {
-            nextCluster = new Cluster(position - new Vector2(250f, 175f), blockSize);
-            nextCluster.Initialize();
-            nextCluster.IsMoving = false;
+            NextCluster = new Cluster(Position - new Vector2(250f, 175f), blockSize);
+            NextCluster.Initialize();
+            NextCluster.IsMoving = false;
             if (NewNextCluster != null && !IsPaused)
-                NewNextCluster(this, new NewNextClusterEventArgs((int)nextCluster.FirstBlock.BlockType, (int)nextCluster.SecondBlock.BlockType));
+                NewNextCluster(this, new NewNextClusterEventArgs((int)NextCluster.FirstBlock.BlockType, (int)NextCluster.SecondBlock.BlockType));
         }
 
         public void Draw(GameTime gameTime)
@@ -870,17 +867,17 @@ namespace NotTetris.GameObjects
                 scoreCounter.Draw(gameTime);
                 scoreFloater.Draw(gameTime);
                 largestComboText.Draw(gameTime);
-                if (currentCluster != null)
+                if (CurrentCluster != null)
                 {
-                    if (!currentCluster.FirstBlock.IsExploding)
-                        DrawBlock(currentCluster.FirstBlock, gameTime);
-                    if (!currentCluster.SecondBlock.IsExploding)
-                        DrawBlock(currentCluster.SecondBlock, gameTime);
+                    if (!CurrentCluster.FirstBlock.IsExploding)
+                        DrawBlock(CurrentCluster.FirstBlock, gameTime);
+                    if (!CurrentCluster.SecondBlock.IsExploding)
+                        DrawBlock(CurrentCluster.SecondBlock, gameTime);
                 }
-                if (nextCluster != null)
+                if (NextCluster != null)
                 {
-                    DrawBlock(nextCluster.FirstBlock, gameTime);
-                    DrawBlock(nextCluster.SecondBlock, gameTime);
+                    DrawBlock(NextCluster.FirstBlock, gameTime);
+                    DrawBlock(NextCluster.SecondBlock, gameTime);
                 }
 
                 foreach (Block block in blocks)

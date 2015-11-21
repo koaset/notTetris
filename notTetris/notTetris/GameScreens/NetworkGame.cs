@@ -59,6 +59,7 @@ namespace NotTetris.GameScreens
         {
             this.spriteBatch = spriteBatch;
             mouseVisible = false;
+            drawables = new List<NotTetris.Graphics.IDrawable>();
 
             updateTime = 0;
             updateInterval = 30;
@@ -265,72 +266,89 @@ namespace NotTetris.GameScreens
                 {
                     if (msg.MessageType == NetIncomingMessageType.Data)
                     {
-                        string temp = msg.ReadString();
-                        if (remotePlayerField.State == GameState.ClusterFalling)
+                        string msgCode = msg.ReadString();
+                        switch (msgCode)
                         {
-                            if (temp == "pos")
-                            {
-                                float firstX = msg.ReadFloat() - xDiff;
-                                float firstY = msg.ReadFloat();
-                                float secondX = msg.ReadFloat() - xDiff;
-                                float secondY = msg.ReadFloat();
-                                remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
-                                remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
-                                remotePlayerField.CurrentCluster.IsMoving = true;
-                                if (msg.ReadString() == "Down")
-                                    remotePlayerDown = true;
-                                else
-                                    remotePlayerDown = false;
-                            }
-                            else if (temp == "cs")
-                            {
-                                float firstX = msg.ReadFloat() - xDiff;
-                                float firstY = msg.ReadFloat();
-                                float secondX = msg.ReadFloat() - xDiff;
-                                float secondY = msg.ReadFloat();
-                                remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
-                            }
-                        }
-
-                        if (temp == "nc")
-                        {
-                            nextFirstBlock = (BlockType)msg.ReadInt32();
-                            nextSecondBlock = (BlockType)msg.ReadInt32();
-                        }
-                        else if (temp == "cd")
-                        {
-                            remotePlayerField.DropNextCluster();
-                        }
-                        else if (temp == "bb")
-                        {
-                            int numBlocks = msg.ReadInt32();
-                            localPlayerField.QueueBlackBlocks(numBlocks);
-                        }
-                        else if (temp == "bbc")
-                        {
-                            float posX = msg.ReadFloat() - xDiff;
-                            float posY = msg.ReadFloat();
-                            remotePlayerField.SetBlackBlock(posX, posY);
-                        }
-                        else if (temp == "bbcr")
-                        {
-                            int num = msg.ReadInt32();
-                            var indexes = new List<int>();
-                            for (int i = 0; i < num; i++)
-                                indexes.Add(msg.ReadInt32());
-                            remotePlayerField.AddBlackBlocks(indexes);
-                        }
-                        else if (temp == "Game Over")
-                        {
-                            NetOutgoingMessage outMsg = peer.CreateMessage();
-                            outMsg.Write("Ok");
-                            peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
-                            WinGame();
+                            case "pos":
+                                ReadPositionMsg(msg);
+                                break;
+                            case "cs":
+                                ReadClusterSeparateMsg(msg);
+                                break;
+                            case "nc":
+                                nextFirstBlock = (BlockType)msg.ReadInt32();
+                                nextSecondBlock = (BlockType)msg.ReadInt32();
+                                break;
+                            case "cd":
+                                remotePlayerField.DropNextCluster();
+                                break;
+                            case "bb":
+                                localPlayerField.QueueBlackBlocks(msg.ReadInt32());
+                                break;
+                            case "bbc":
+                                ReadBlackBlockCollisionMsg(msg);
+                                break;
+                            case "bbcr":
+                                ReadBlackBlocksCreatedMsg(msg);
+                                break;
+                            case "Game Over":
+                                ReadGameOverMsg(msg);
+                                break;
                         }
                     }
                     peer.Recycle(msg);
                 }
             }
+        }
+
+        private void ReadPositionMsg(NetIncomingMessage msg)
+        {
+            float firstX = msg.ReadFloat() - xDiff;
+            float firstY = msg.ReadFloat();
+            float secondX = msg.ReadFloat() - xDiff;
+            float secondY = msg.ReadFloat();
+
+            if (remotePlayerField.State == GameState.ClusterFalling)
+            {
+                remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
+                remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
+                remotePlayerField.CurrentCluster.IsMoving = true;
+                remotePlayerDown = msg.ReadString() == "Down";
+            }
+        }
+
+        private void ReadClusterSeparateMsg(NetIncomingMessage msg)
+        {
+            float firstX = msg.ReadFloat() - xDiff;
+            float firstY = msg.ReadFloat();
+            float secondX = msg.ReadFloat() - xDiff;
+            float secondY = msg.ReadFloat();
+            if (remotePlayerField.State == GameState.ClusterFalling)
+                remotePlayerField.MoveAndSeparate(new Vector2(firstX, firstY), new Vector2(secondX, secondY));
+        }
+
+        private void ReadBlackBlockCollisionMsg(NetIncomingMessage msg)
+        {
+            float posX = msg.ReadFloat() - xDiff;
+            float posY = msg.ReadFloat();
+            remotePlayerField.SetBlackBlock(posX, posY);
+        }
+
+        private void ReadBlackBlocksCreatedMsg(NetIncomingMessage msg)
+        {
+            int num = msg.ReadInt32();
+            var indexes = new List<int>();
+            for (int i = 0; i < num; i++)
+                indexes.Add(msg.ReadInt32());
+            remotePlayerField.AddBlackBlocks(indexes);
+        }
+
+        private void ReadGameOverMsg(NetIncomingMessage msg)
+        {
+            NetOutgoingMessage outMsg = peer.CreateMessage();
+            outMsg.Write("Ok");
+            peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
+            WinGame();
         }
 
         private void HandleTimer(GameTime gameTime)
