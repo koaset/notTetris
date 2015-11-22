@@ -721,7 +721,7 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Move left command
         /// </summary>
-        public virtual void MoveClusterLeft(GameTime gameTime, bool first)
+        public void MoveClusterLeft(GameTime gameTime, bool first)
         {
             if (!MovementLocked)
             {
@@ -730,13 +730,7 @@ namespace NotTetris.GameObjects
                 int secondBlockX = GridPositionX(CurrentCluster.SecondBlock.Position);
                 int secondBlockY = GridPositionY(CurrentCluster.SecondBlock.Position);
 
-                bool collision = false;
-                if (firstBlockX == 0 || secondBlockX == 0)
-                    collision = true;
-                else if (staticBlocks[firstBlockX - 1, firstBlockY - 1] != null || staticBlocks[secondBlockX - 1, secondBlockY - 1] != null)
-                    collision = true;
-
-                if (!collision)
+                if (!MoveCollision(firstBlockX - 1, secondBlockX - 1, firstBlockY, secondBlockY))
                 {
                     if (first || moveLeftTimer > moveCooldown)
                     {
@@ -754,7 +748,7 @@ namespace NotTetris.GameObjects
         /// <summary>
         /// Move right command
         /// </summary>
-        public virtual void MoveClusterRight(GameTime gameTime, bool first)
+        public void MoveClusterRight(GameTime gameTime, bool first)
         {
             if (!MovementLocked)
             {
@@ -763,13 +757,7 @@ namespace NotTetris.GameObjects
                 int secondBlockX = GridPositionX(CurrentCluster.SecondBlock.Position);
                 int secondBlockY = GridPositionY(CurrentCluster.SecondBlock.Position);
 
-                bool collision = false;
-                if (firstBlockX == staticBlocks.GetLength(0) - 1 || secondBlockX == staticBlocks.GetLength(0) - 1)
-                    collision = true;
-                else if (staticBlocks[firstBlockX + 1, firstBlockY - 1] != null || staticBlocks[secondBlockX + 1, secondBlockY - 1] != null)
-                    collision = true;
-
-                if (!collision)
+                if (!MoveCollision(firstBlockX + 1, secondBlockX + 1, firstBlockY, secondBlockY))
                 {
                     if (first || moveRightTimer > moveCooldown)
                     {
@@ -782,6 +770,50 @@ namespace NotTetris.GameObjects
 
                 CurrentCluster.IsMoving = true;
             }
+        }
+
+        private bool MoveCollision(int firstX, int secondX, int firstY, int secondY)
+        {
+            if (firstX < 0 || secondX < 0)
+                return true;
+            if (firstX >= staticBlocks.GetLength(0) || secondX >= staticBlocks.GetLength(0))
+                return true;
+
+            if (firstY == 0)
+            {
+                if (staticBlocks[firstX, firstY] != null)
+                    return true;
+            }
+            else
+            {
+                if (State == GameState.ClusterGraceTime)
+                {
+                    if (staticBlocks[firstX, firstY] != null)
+                        return true;
+                }
+                else
+                if (staticBlocks[firstX, firstY - 1] != null)
+                    return true;
+            }
+
+            if (secondY == 0)
+            {
+                if (staticBlocks[secondX, secondY] != null)
+                    return true;
+            }
+            else
+            {
+                if (State == GameState.ClusterGraceTime)
+                {
+                    if (staticBlocks[secondX, secondY] != null)
+                        return true;
+                }
+                else
+                    if (staticBlocks[secondX, secondY - 1] != null)
+                        return true;
+            }
+
+            return false;
         }
 
         /// <summary>

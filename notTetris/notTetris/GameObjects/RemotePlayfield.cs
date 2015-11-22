@@ -11,9 +11,6 @@ namespace NotTetris.GameObjects
     /// </summary>
     class RemotePlayfield : Playfield
     {
-        // EHBFSUHEFHJOAFOWQAWHIOFHDWOIA
-        private bool waitForDropTimer = false;
-
         public bool WaitingForCluster { get; set; }
         public bool WaitingForBlackBlocks { get; set; }
 
@@ -39,17 +36,14 @@ namespace NotTetris.GameObjects
         {
             if (!IsPaused)
             {
-                if (waitForDropTimer)
+                if (State == GameState.WaitingForDropTimer)
+                    UpdateDropTimer(gameTime);
+                else if (State == GameState.BlocksExploding)
                 {
-                    dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                    if (dropTimer > dropDelay)
-                    {
-                        CurrentCluster.IsMoving = true;
-                        CurrentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-                        waitForDropTimer = false;
-                    }
+                    UpdateExplosion(gameTime);
+                    scoreFloater.Update(gameTime);
                 }
-                if (!explosionAnimation.IsStarted && !waitForDropTimer)
+                else
                 {
                     if (ClearUpBlocks())
                         ReleaseBlocks();
@@ -65,11 +59,6 @@ namespace NotTetris.GameObjects
                         if (IsGameOver())
                             EndGame();
                     }
-                }
-                else
-                {
-                    UpdateExplosion(gameTime);
-                    scoreFloater.Update(gameTime);
                 }
             }
 
@@ -152,7 +141,6 @@ namespace NotTetris.GameObjects
             scoreMultiplier = 1;
             WaitingForCluster = true;
             dropTimer = 0;
-            waitForDropTimer = true;
             WaitingForBlackBlocks = false;
             MovementLocked = false;
             movingBlackBlocks = new Block[movingBlackBlocks.Length];

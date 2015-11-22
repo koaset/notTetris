@@ -62,7 +62,7 @@ namespace NotTetris.GameScreens
             drawables = new List<NotTetris.Graphics.IDrawable>();
 
             updateTime = 0;
-            updateInterval = 30;
+            updateInterval = 50;
             isStarted = false;
             remotePlayerDown = false;
 
@@ -188,13 +188,17 @@ namespace NotTetris.GameScreens
 
                 HandleInput(gameTime);
 
-                if (updateTime > updateInterval && localPlayerField.CurrentCluster.IsMoving)
+                if (localPlayerField.State == GameState.ClusterFalling ||
+                    localPlayerField.State == GameState.ClusterGraceTime)
                 {
-                    SendPositionMessage();
-                    updateTime = 0;
+                    if (updateTime > updateInterval)
+                    {
+                        SendPositionMessage();
+                        updateTime = 0;
+                    }
+                    else
+                        updateTime += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }
-                else
-                    updateTime += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
                 ReadMessages();
 
@@ -250,6 +254,7 @@ namespace NotTetris.GameScreens
             outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.Y);
             outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.X);
             outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.Y);
+            outMsg.Write(localPlayerField.CurrentCluster.IsMoving);
             peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
@@ -303,12 +308,13 @@ namespace NotTetris.GameScreens
             float firstY = msg.ReadFloat();
             float secondX = msg.ReadFloat() - xDiff;
             float secondY = msg.ReadFloat();
+            bool isMoving = msg.ReadBoolean();
 
             if (remotePlayerField.State == GameState.ClusterFalling)
             {
                 remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
                 remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
-                remotePlayerField.CurrentCluster.IsMoving = true;
+                remotePlayerField.CurrentCluster.IsMoving = isMoving;
             }
         }
 
