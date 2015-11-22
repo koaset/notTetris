@@ -11,6 +11,9 @@ namespace NotTetris.GameObjects
     /// </summary>
     class RemotePlayfield : Playfield
     {
+        // EHBFSUHEFHJOAFOWQAWHIOFHDWOIA
+        private bool waitForDropTimer = false;
+
         public bool WaitingForCluster { get; set; }
         public bool WaitingForBlackBlocks { get; set; }
 

@@ -250,10 +250,6 @@ namespace NotTetris.GameScreens
             outMsg.Write(localPlayerField.CurrentCluster.FirstBlock.Position.Y);
             outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.X);
             outMsg.Write(localPlayerField.CurrentCluster.SecondBlock.Position.Y);
-            if (newState.IsKeyDown(settings.Player1Down))
-                outMsg.Write("Down");
-            else
-                outMsg.Write("Up");
             peer.SendMessage(outMsg, connection, NetDeliveryMethod.ReliableOrdered);
         }
 
@@ -292,7 +288,7 @@ namespace NotTetris.GameScreens
                                 ReadBlackBlocksCreatedMsg(msg);
                                 break;
                             case "Game Over":
-                                ReadGameOverMsg(msg);
+                                SendGameOverAck(msg);
                                 break;
                         }
                     }
@@ -313,7 +309,6 @@ namespace NotTetris.GameScreens
                 remotePlayerField.CurrentCluster.FirstBlock.Position = new Vector2(firstX, firstY);
                 remotePlayerField.CurrentCluster.SecondBlock.Position = new Vector2(secondX, secondY);
                 remotePlayerField.CurrentCluster.IsMoving = true;
-                remotePlayerDown = msg.ReadString() == "Down";
             }
         }
 
@@ -343,7 +338,7 @@ namespace NotTetris.GameScreens
             remotePlayerField.AddBlackBlocks(indexes);
         }
 
-        private void ReadGameOverMsg(NetIncomingMessage msg)
+        private void SendGameOverAck(NetIncomingMessage msg)
         {
             NetOutgoingMessage outMsg = peer.CreateMessage();
             outMsg.Write("Ok");

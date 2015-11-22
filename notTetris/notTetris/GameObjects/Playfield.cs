@@ -43,7 +43,9 @@ namespace NotTetris.GameObjects
         float moveCooldown;
         protected float dropTimer;
         protected float dropDelay;
-        protected bool waitForDropTimer;
+        protected float graceTimeTimer;
+        protected float graceTime;
+        protected bool firstClusterCollision;
         Text stateText;
 
         public GameState State { get; set; }
@@ -113,6 +115,10 @@ namespace NotTetris.GameObjects
 
             dropTimer = 0;
             dropDelay = 500;
+
+            graceTimeTimer = 0;
+            graceTime = 500;
+
             moveRightTimer = 0;
             moveLeftTimer = 0;
             moveCooldown = 80;
@@ -196,55 +202,77 @@ namespace NotTetris.GameObjects
         {
             if (!IsPaused)
             {
-                if (waitForDropTimer)
+                if (State == GameState.WaitingForDropTimer)
+                    UpdateDropTimer(gameTime);
+                else if (State == GameState.BlocksExploding)
                 {
-                    dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-                    if (dropTimer > dropDelay)
-                    {
-                        CurrentCluster.IsMoving = true;
-                        CurrentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
-                        waitForDropTimer = false;
-                    }
+                    UpdateExplosion(gameTime);
+                    scoreFloater.Update(gameTime);
                 }
-                else if (!explosionAnimation.IsStarted && !waitForDropTimer)
+                else if (State == GameState.ClusterGraceTime)
+                    UpdateGraceTimer(gameTime);
+                else
                 {
                     if (ClearUpBlocks())
                         ReleaseBlocks();
 
                     UpdateBlocks(gameTime);
-                    UpdateClusters(gameTime);
 
+                    UpdateClusters(gameTime);
                     CheckForClusterCollision(gameTime);
 
                     CheckForExplosions();
 
-                    if (!BlocksAreMoving() && !CurrentCluster.IsMoving && explodingBlocks.Count == 0)
-                    {
-                        if (IsGameOver())
-                            EndGame();
-                        else
+                    if (State != GameState.ClusterGraceTime)
+                        if (!BlocksAreMoving() && !CurrentCluster.IsMoving && explodingBlocks.Count == 0)
                         {
-                            if (BlackBlocksQueued > 0)
-                                CreateBlackBlocks();
+                            if (IsGameOver())
+                                EndGame();
                             else
-                                DropNextCluster();
+                            {
+                                if (BlackBlocksQueued > 0)
+                                    CreateBlackBlocks();
+                                else
+                                    DropNextCluster();
+                            }
                         }
-                    }
                 }
-                else
-                {
-                    UpdateExplosion(gameTime);
-                    scoreFloater.Update(gameTime);
-                }
-            }
 
-            UpdateStateText();
+                if (stateText.IsShowing)
+                    UpdateStateText();
+            }
+        }
+
+        protected void UpdateDropTimer(GameTime gameTime)
+        {
+            dropTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (dropTimer > dropDelay)
+            {
+                CurrentCluster.IsMoving = true;
+                CurrentCluster.SetDropSpeed(BaseDropSpeed * SpeedMultiplier);
+                State = GameState.ClusterFalling;
+            }
+        }
+
+        protected void UpdateGraceTimer(GameTime gameTime)
+        {
+            graceTimeTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (graceTimeTimer > graceTime)
+            {
+                if (!CurrentCluster.IsMoving)
+                    SeparateCluster();
+                else
+                    State = GameState.ClusterFalling;
+            }
         }
 
         protected void UpdateStateText()
         {
             switch (State)
             {
+                case GameState.WaitingForDropTimer:
+                    stateText.TextValue = "Waiting for drop timer";
+                    break;
                 case GameState.BlocksExploding:
                     stateText.TextValue = "Exploding";
                     break;
@@ -253,6 +281,9 @@ namespace NotTetris.GameObjects
                     break;
                 case GameState.ClusterFalling:
                     stateText.TextValue = "Cluster falling";
+                    break;
+                case GameState.ClusterGraceTime:
+                    stateText.TextValue = "Cluster collision delay";
                     break;
             }
         }
@@ -283,12 +314,14 @@ namespace NotTetris.GameObjects
         protected void UpdateExplosion(GameTime gameTime)
         {
             explosionAnimation.Update(gameTime);
+
             if (explosionAnimation.CurrentFrame >= explosionAnimation.NumFrames - 1)
             {
                 foreach (Block block in explodingBlocks)
                     block.Dispose();
                 explosionAnimation.Stop();
                 scoreFloater.Stop();
+                State = GameState.BlocksFalling;
             }
         }
 
@@ -381,30 +414,60 @@ namespace NotTetris.GameObjects
         private void CheckForClusterCollision(GameTime gameTime)
         {
             if (CurrentCluster.IsMoving)
-                if (BlockHasCollided(CurrentCluster.FirstBlock) || BlockHasCollided(CurrentCluster.SecondBlock))
+                if (ClusterHasCollided())
                 {
-                    MovementLocked = true;
-                    CurrentCluster.SetDropSpeed(BaseDropSpeed * dropSpeedBonus);
-                    Block[] separatedCluster = CurrentCluster.Separate();
-
-                    State = GameState.BlocksFalling;
-                    if (ClusterSeparate != null)
-                        ClusterSeparate(this, new ClusterSeparateEventArgs(separatedCluster[0].Position, separatedCluster[1].Position));
-
-                    // Avoids jittering if orientation is down
-                    if (CurrentCluster.Orientation != Orientation.Down)
+                    // Start collision delay
+                    if (firstClusterCollision)
                     {
-                        CheckForBlockCollision(separatedCluster[0]);
-                        CheckForBlockCollision(separatedCluster[1]);
+                        State = GameState.ClusterGraceTime;
+                        graceTimeTimer = 0;
+                        CurrentCluster.IsMoving = false;
+                        firstClusterCollision = false;
+
+                        // Adjust positions to avoid wobble
+
+                        int firstY = GridPositionY(CurrentCluster.FirstBlock.Position);
+                        Vector2 first = GetStaticPosition(CurrentCluster.FirstBlock, firstY);
+
+                        int secondY = GridPositionY(CurrentCluster.SecondBlock.Position);
+                        Vector2 second = GetStaticPosition(CurrentCluster.SecondBlock, secondY);
+
+                        CurrentCluster.SetPosition(first, second);
+                        
                     }
                     else
-                    {
-                        CheckForBlockCollision(separatedCluster[1]);
-                        CheckForBlockCollision(separatedCluster[0]);
-                    }
-
-                    blocks.AddRange(separatedCluster);
+                        SeparateCluster();
                 }
+        }
+
+        private bool ClusterHasCollided()
+        {
+            return BlockHasCollided(CurrentCluster.FirstBlock) || BlockHasCollided(CurrentCluster.SecondBlock);
+        }
+
+        private void SeparateCluster()
+        {
+            State = GameState.BlocksFalling;
+            MovementLocked = true;
+            Block[] separatedCluster = CurrentCluster.Separate();
+            
+            if (ClusterSeparate != null)
+                ClusterSeparate(this, new ClusterSeparateEventArgs(
+                    separatedCluster[0].Position, separatedCluster[1].Position));
+
+            // Avoids jittering if orientation is down
+            if (CurrentCluster.Orientation != Orientation.Down)
+            {
+                CheckForBlockCollision(separatedCluster[0]);
+                CheckForBlockCollision(separatedCluster[1]);
+            }
+            else
+            {
+                CheckForBlockCollision(separatedCluster[1]);
+                CheckForBlockCollision(separatedCluster[0]);
+            }
+
+            blocks.AddRange(separatedCluster);
         }
 
         /// <summary>
@@ -416,7 +479,7 @@ namespace NotTetris.GameObjects
             int posX = GridPositionX(block.Position);
             int posY = GridPositionY(block.Position);
 
-            Vector2 pos = new Vector2(block.Position.X, Position.Y + 0.5f * Height - (posY + 0.5f) * blockSize + 0.005f);
+            Vector2 pos = GetStaticPosition(block, posY);
 
             if (BlockHasCollided(block))
             {
@@ -427,6 +490,11 @@ namespace NotTetris.GameObjects
                     if (block.BlockType == BlockType.Black)
                         BlackBlockCollision(this, new BlackBlockCollisionEventArgs(pos));
             }
+        }
+
+        private Vector2 GetStaticPosition(Block block, int gridPosY)
+        {
+            return new Vector2(block.Position.X, Position.Y + 0.5f * Height - (gridPosY + 0.5f) * blockSize + 0.005f);
         }
 
         /// <summary>
@@ -678,6 +746,8 @@ namespace NotTetris.GameObjects
                     else
                         moveLeftTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }
+
+                CurrentCluster.IsMoving = true;
             }
         }
 
@@ -709,6 +779,8 @@ namespace NotTetris.GameObjects
                     else
                         moveRightTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }
+
+                CurrentCluster.IsMoving = true;
             }
         }
 
@@ -741,7 +813,7 @@ namespace NotTetris.GameObjects
                 }
                 else if (CurrentCluster.Orientation == Orientation.Up)
                 {
-                    if (firstBlockX + 1 < staticBlocks.GetLength(0) && staticBlocks[firstBlockX + 1, firstBlockY - 1] == null)
+                    if (firstBlockX + 1 < staticBlocks.GetLength(0) && staticBlocks[firstBlockX + 1, firstBlockY] == null)
                         CurrentCluster.Rotate(true);
                     else if (CurrentCluster.FirstBlock.BlockType == CurrentCluster.SecondBlock.BlockType)
                     {
@@ -758,6 +830,8 @@ namespace NotTetris.GameObjects
                     else
                         CurrentCluster.Rotate(false);
                 }
+
+                CurrentCluster.IsMoving = true;
             }
         }
 
@@ -777,8 +851,6 @@ namespace NotTetris.GameObjects
         /// <param name="gameTime"></param>
         private void DropClusterFast(GameTime gameTime)
         {
-            waitForDropTimer = false;
-            CurrentCluster.IsMoving = true;
             Vector2 firstPos;
             Vector2 secondPos;
 
@@ -805,8 +877,7 @@ namespace NotTetris.GameObjects
             }
 
             CurrentCluster.SetPosition(firstPos, secondPos);
-            CurrentCluster.Update(gameTime);
-            CheckForClusterCollision(gameTime);
+            SeparateCluster();
         }
 
         private Vector2 GetAvaliablePositionInColumn(int column)
@@ -840,8 +911,8 @@ namespace NotTetris.GameObjects
             MovementLocked = false;
             scoreMultiplier = 1;
             dropTimer = 0;
-            waitForDropTimer = true;
-            State = GameState.ClusterFalling;
+            State = GameState.WaitingForDropTimer;
+            firstClusterCollision = true;
             
             if (ClusterDrop != null)
                 ClusterDrop(this, new EventArgs());
@@ -867,6 +938,7 @@ namespace NotTetris.GameObjects
                 scoreCounter.Draw(gameTime);
                 scoreFloater.Draw(gameTime);
                 largestComboText.Draw(gameTime);
+
                 if (CurrentCluster != null)
                 {
                     if (!CurrentCluster.FirstBlock.IsExploding)
@@ -874,6 +946,7 @@ namespace NotTetris.GameObjects
                     if (!CurrentCluster.SecondBlock.IsExploding)
                         DrawBlock(CurrentCluster.SecondBlock, gameTime);
                 }
+
                 if (NextCluster != null)
                 {
                     DrawBlock(NextCluster.FirstBlock, gameTime);
@@ -883,6 +956,7 @@ namespace NotTetris.GameObjects
                 foreach (Block block in blocks)
                     if (block.IsMoving || block.IsExploding)
                         DrawBlock(block, gameTime);
+
                 foreach (Block block in staticBlocks)
                     if (block != null)
                         DrawBlock(block, gameTime);
@@ -911,9 +985,11 @@ namespace NotTetris.GameObjects
 
     public enum GameState
     {
+        WaitingForDropTimer,
         ClusterFalling,
         BlocksFalling,
         BlocksExploding,
+        ClusterGraceTime,
     }
 
     public delegate void GameOverEventHandler(object o, EventArgs e);

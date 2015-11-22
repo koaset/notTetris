@@ -55,6 +55,8 @@ namespace NotTetris.GameObjects
                 position.Y += DropSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
+        
+
         public void Attach(Vector2 position)
         {
             this.position = position;

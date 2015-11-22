@@ -19,12 +19,16 @@ namespace NotTetris.GameObjects
         public bool IsMoving { get; set; }
 
         private float blockSize;
+        private Vector2 firstOldPosition;
+        private Vector2 secondOldPosition;
 
         public Cluster(Vector2 position, float blockSize)
         {
             FirstBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y + blockSize / 2), blockSize);
             SecondBlock = new Block((BlockType)PuzzleGame.r.Next(0, 6), new Vector2(position.X, position.Y - blockSize / 2), blockSize);
             this.blockSize = blockSize;
+            firstOldPosition = FirstBlock.Position;
+            secondOldPosition = SecondBlock.Position;
         }
 
         public void Initialize()
@@ -39,9 +43,18 @@ namespace NotTetris.GameObjects
         {
             if (IsMoving)
             {
+                firstOldPosition = FirstBlock.Position;
+                secondOldPosition = SecondBlock.Position;
+
                 FirstBlock.Update(gameTime);
                 SecondBlock.Update(gameTime);
             }
+        }
+
+        public void RollBack()
+        {
+            FirstBlock.Position = firstOldPosition;
+            SecondBlock.Position = secondOldPosition;
         }
 
         public Block[] Separate()
