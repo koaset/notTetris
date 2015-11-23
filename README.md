@@ -15,3 +15,9 @@ Player 1 (on right in 2p game): Arrows keys to move and right ctrl to rotate.
 Player 2 (on left in 2p game): wasd keys to move and g to rotate.
 
 Port used for netplay: 12345 (can be changed in settings.xml)
+
+Screenshots:
+
+![alt tag](https://github.com/koaset/notTetris/blob/master/screenshot1.png)
+
+![alt tag](https://github.com/koaset/notTetris/blob/master/screenshot2.png)
